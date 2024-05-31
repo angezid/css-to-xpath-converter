@@ -43,7 +43,11 @@
 	const rightChars = ",>+=~|^$!]()";
 	const pseudo = "Pseudo selector ':";
 
+	let combined;
+
 	function convertToXPath(selector, axis) {
+		combined = '';
+
 		fastHtml = document.getElementById('fastHtmlLibrary').checked;
 
 		resultBox = document.getElementById('result-box');
@@ -86,7 +90,7 @@
 		if ( !selector) {
 			argumentException("selector is empty or white space");
 		}
-console.log(  selector );
+
 		const sb = [];
 
 		let attrName = null,
@@ -103,7 +107,7 @@ console.log(  selector );
 		code = selector;
 		length = code.length;
 
-		if (selector && axis) sb.push(axis);
+		if (axis) sb.push(axis);
 
 		if (/^[,|]/.test(code)) {
 			characterException(code[0], 0, "State.Text");
@@ -148,7 +152,9 @@ console.log(  selector );
 						break;
 
 					case '>' :
+						console.log(axis, slash  );
 						sb.push(slash);
+						//sb.push('/');
 						check = true;
 						break;
 
@@ -237,7 +243,7 @@ console.log(  selector );
 
 					default :
 						if (isLetter(ch)) {
-							i = getTagName(i, sb);
+							i = getTagName(i, owner, sb);
 
 						} else {
 							characterException(ch, i, "State." + getState(state));
@@ -362,17 +368,21 @@ console.log(  selector );
 	function addOwner(owner, sb) {
 		const str = sb.join(''),
 			len = str.length;
+		let result = '';
 
-		if (owner != null) {
-			if (len === 0 || str[len - 1] === '|') sb.push(owner);
-
-		} else if (len === 0) {
-			sb.push('*');
+		if (len == 0) {
+			result = owner != null ? owner : "*";
 
 		} else {
-			const c = str[len - 1];
-			if (c === ':' || c === '/' || c === '|') sb.push('*');
+			const c = str[len-1];
+
+			if (owner != null) {
+				if (c == '|') result = owner;
+				else if (c == ':') result = "*";
+
+			} else if (c == ':' || c == '/' || c == '|') result = "*";
 		}
+		sb.push(result);
 	}
 
 	function parseAttribute(i, axis, nested, sb) {
@@ -579,12 +589,13 @@ console.log(  selector );
 
 			case "only-of-type" :
 				owner = getOwner(sb, name);
-				//sb.push("[count(preceding-sibling::", owner, ") = 0 and count(following-sibling::", owner, ") = 0]");
-				sb.push("[name(preceding-sibling::", owner, ") != name() and name(following-sibling::", owner, ") != name()]");
+				sb.push("[count(preceding-sibling::", owner, ") = 0 and count(following-sibling::", owner, ") = 0]");
+				//sb.push("[name(preceding-sibling::", owner, ") != name() and name(following-sibling::", owner, ") != name()]");
 				break;
 
 			case "nth-child" :
 			case "nth-of-type" :
+			case "nth-last-of-type" :
 				processNth(name, arg, sb);
 				break;
 
@@ -611,10 +622,12 @@ console.log(  selector );
 				break;
 
 			case "not" :
+				combined += sb.join('');
 				sb.push("[not(", parseNested(normalizeArg(name, arg, false), '', "self::node()"), ")]");
 				break;
 
 			case "has" :
+				combined += sb.join('');
 				xpath = parseNested(normalizeArg(name, arg, false), ".//");
 
 				sb.push("[count(", xpath, ") > 0]");
@@ -626,10 +639,12 @@ console.log(  selector );
 				break;
 
 			case "has-parent" :
+				combined += sb.join('');
 				sb.push("[count(parent::", parseNested(normalizeArg(name, arg, false)), ") > 0]");
 				break;
 
 			case "has-ancestor" :
+				combined += sb.join('');
 				sb.push("[count(ancestor::", parseNested(normalizeArg(name, arg, false)), ") > 0]");
 				break;
 
@@ -676,15 +691,15 @@ console.log(  selector );
 			case "target" :
 				sb.push("[starts-with(@href, '#')]");
 				break;
-			
+
 			case "disabled" :
 				sb.push("[@disabled]");
 				break;
-			
+
 			case "enabled" :
 				sb.push("[not(@disabled)]");
 				break;
-			
+
 			case "checked" :
 				sb.push("[@checked]");
 				break;
@@ -710,10 +725,9 @@ console.log(  selector );
 						sb.push("[(count(preceding-sibling::*) + 1) mod 2 = 0]");
 						break;
 					default :
-						const a = [];
-						if ( !tryParseFunctionalNotation(arg, a)) break;
+						const obj = parseFunctionalNotation(arg);
 
-						sb.push("[(count(preceding-sibling::*) + 1)", a[2], a[1], " and ((count(preceding-sibling::*) + 1) - ", a[1], ") mod ", a[0], " = 0]");
+						sb.push("[(count(preceding-sibling::*) + 1)", obj.comparison, obj.value, " and ((count(preceding-sibling::*) + 1) - ", obj.value, ") mod ", obj.modulo, " = 0]");
 						break;
 				}
 				break;
@@ -724,8 +738,7 @@ console.log(  selector );
 					break;
 				}
 
-				// checks owner validity
-				getOwner(sb, name);
+				getOwner(sb, name);    // checks owner validity
 
 				switch (arg) {
 					case "odd" :
@@ -735,10 +748,32 @@ console.log(  selector );
 						sb.push("[position() mod 2 = 0 and position() >= 0]");
 						break;
 					default :
-						const a = [];
-						if ( !tryParseFunctionalNotation(arg, a)) break;
+						const obj = parseFunctionalNotation(arg);
 
-						sb.push("[position()", a[2], a[1], " and (position() - ", a[1], ") mod ", a[0], " = 0]");
+						sb.push("[position()", obj.comparison, obj.value, " and (position() - ", obj.value, ") mod ", obj.modulo, " = 0]");
+						break;
+				}
+				break;
+
+			case "nth-last-of-type" :
+				if (isNumber(arg)) {
+					sb.push("[name(following-sibling::*[", arg, "]) != name() and name(following-sibling::*[", arg, "+1]) = name()]");
+					break;
+				}
+
+				getOwner(sb, name);    // checks owner validity
+
+				switch (arg) {
+					case "odd" :
+						sb.push("[position() mod 2 = 1]");
+						break;
+					case "even" :
+						sb.push("[position() mod 2 = 0 and position() <= last()]");
+						break;
+					default :
+						const obj = parseFunctionalNotation2(arg);
+
+						sb.push("[position()", obj.comparison, obj.value, " and (position() + ", obj.value, ") mod ", obj.modulo, " = 0]");
 						break;
 				}
 				break;
@@ -752,23 +787,34 @@ console.log(  selector );
 		return /^\d+$/.test(arg);
 	}
 
-	function tryParseFunctionalNotation(argument, array) {
-		if ( !argument) {
-			argumentException("argument is empty or white space");
-		}
+	function parseFunctionalNotation(argument) {
+		if ( !argument) argumentException("argument is empty or white space");
 
 		const rm = nthEquationReg.exec(argument);    //@"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
-			const first = typeof rm[2] !== 'undefined' ? rm[2] : '1';
-			const sign = typeof rm[3] !== 'undefined' && rm[3] === '-' ? '-' : '';
-			const second = typeof rm[4] !== 'undefined' ? sign + rm[4] : '0';
-			const comparison = typeof rm[1] !== 'undefined' ? " <= " : " >= ";
+			const comparison = typeof rm[1] !== 'undefined' ? " <= " : " >= ",
+				modulo = typeof rm[2] !== 'undefined' ? rm[2] : '1',
+				sign = typeof rm[3] !== 'undefined' && rm[3] === '-' ? '-' : '',
+				value = typeof rm[4] !== 'undefined' ? sign + rm[4] : '0';
 
-			array.push(first, second, comparison);
-			return true;
+			return { value, comparison, modulo, sign };
 		}
 		regexException(0, "tryParseFunctionalNotation", nthEquationReg, argument);
-		return false;
+	}
+
+	function parseFunctionalNotation2(argument) {
+		if ( !argument) argumentException("argument is empty or white space");
+
+		const rm = nthEquationReg.exec(argument);    //@"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
+		if (rm !== null) {
+			const comparison = typeof rm[1] !== 'undefined' ? " >= " : " <= ",
+				modulo = typeof rm[2] !== 'undefined' ? rm[2] : '1',
+				sign = typeof rm[3] !== 'undefined' && rm[3] === '-' ? '-' : '',
+				value = typeof rm[4] !== 'undefined' ? sign + rm[4] : '0';
+
+			return { value, comparison, modulo, sign };
+		}
+		regexException(0, "tryParseFunctionalNotation", nthEquationReg, argument);
 	}
 
 	function normalizeArg(name, argument, isString = true) {
@@ -818,11 +864,13 @@ console.log(  selector );
 		return "translate(" + str + ", 'ABCDEFGHJIKLMNOPQRSTUVWXYZ" + uppercase + "', 'abcdefghjiklmnopqrstuvwxyz" + lowercase + "')";
 	}
 
-	function getTagName(i, sb) {
+	function getTagName(i, owner, sb) {
 		tagNameReg.lastIndex = i;
 		const rm = tagNameReg.exec(code);
 
 		if (rm !== null) {
+			if (owner === 'self::node()') sb.push('self::');
+
 			sb.push(rm[0].toLowerCase());
 			return i + rm[0].length - 1;
 		}
@@ -860,7 +908,11 @@ console.log(  selector );
 	}
 
 	function getOwner(sb, name) {
-		let str = sb.join(''), owner = [], index = 0, num = 10;
+		let str = sb.join(''),
+			owner = [],
+			index = 0,
+			num = 10;
+		str = str === 'self::node()' ? combined : sb.join('');
 
 		while (--num > 0) {
 			const rm = selectorOwnerReg.exec(str);
@@ -876,6 +928,7 @@ console.log(  selector );
 
 				} else {
 					if (owner.length || rm[0] !== "*") owner.push(rm[0]);
+					else owner.push('self::' + rm[0]);
 					break;
 				}
 			}
@@ -885,7 +938,7 @@ console.log(  selector );
 			owner.reverse();
 			return owner.join('');
 		}
-		parseException(name + " requires tag name or universal selector with attribute.");
+		return '';
 	}
 
 	function getAttributeName(i) {

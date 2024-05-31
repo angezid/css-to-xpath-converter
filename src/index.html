@@ -18,7 +18,7 @@
 		<a href="https://github.com/angezid/FastHtml">GitHub</a>
 	</div>
 	<h1>CSS <span>to</span> XPath</h1>
-	
+
 	<div id="demo">
 		<button id="convert">convert</button>
 		<button id="clear">X</button>
@@ -37,13 +37,12 @@
 			<option value="following::">following::</option>
 			<option value="following-sibling::">following-sibling::</option>
 		</select>
-		
+
 		<input type="checkbox" id="fastHtmlLibrary" name="library" checked title="FastHtml library has internal `className` spaces normalization">
 		<label id="library" for="library" title="FastHtml library has internal `className` spaces normalization">FastHtml library</label>
-		
-		<!-- <button id="clear">X</button> -->
+
 		<textarea id="input-box" type="text" placeholder="CSS Selector" autofocus="true" spellcheck="false" ></textarea>
-		
+
 		<div class="letters">
 			<details><summary>Letters editor</summary>
 				<div>
@@ -56,11 +55,11 @@
 				</div>
 			</details>
 		</div>
-		
+
 		<pre id="result-box"></pre>
 		<!-- <pre id="errors"></pre> -->
 	</div>
-	
+
 	<div id="example-section">
 		<h2>Examples</h2>
 		<div id="example">
@@ -91,18 +90,18 @@
 		library = document.getElementById('library'),
 		fastHtmlLibrary = document.getElementById('fastHtmlLibrary'),
 		clearButton = document.getElementById('clear');
-	
+
 	input.addEventListener('paste', function(e) {
 		setTimeout(function() {
 			convert();
 		}, 100);
 	});
-	
+
 	fastHtmlLibrary.addEventListener('click', function() {
 		setExamples();
 		convert();
 	});
-	
+
 	library.addEventListener('click', function() {
 		fastHtmlLibrary.checked = !fastHtmlLibrary.checked;
 		setExamples();
@@ -127,47 +126,47 @@
 			uppercase.value = value.toUpperCase();
 		}
 	});
-	
+
 	window.addEventListener('scroll', function() {
 		if ( !lock) {
 			prevPos = getPositionY();
 		}
 	});
-	
+
 	up.addEventListener('click', function() {
 		const currentPos = getPositionY();
 		if (prevPos != -1 && currentPos >= prevPos) {
 			scrollToPos(prevPos);
 			prevPos += 60;
-			
+
 		} else {
 			prevPos = currentPos;
 			scrollToPos(0);
 		}
 		console.log('up', currentPos,  prevPos);
 	});
-	
+
 	down.addEventListener('click', function() {
 		const currentPos = getPositionY();
 		if (currentPos >= prevPos) {
 			scrollToPos(5000);
-			
+
 		} else {
 			scrollToPos(prevPos);
 		}
 		console.log('down',currentPos,  prevPos);
 	});
-	
+
 	function scrollToPos(pos) {
 		lock = true;
 		window.scrollTo(0, pos);
 		setTimeout(function() { lock = false;	}, 100);
 	}
-	
+
 	function getPositionY() {
 		const top = window.pageYOffset;
 		const elems = document.getElementsByTagName('tr');
-		
+
 		for(let i = 0; i < elems.length; i++) {
 			if(elems[i].offsetTop >= top) {
 				return elems[i].offsetTop;
@@ -175,12 +174,12 @@
 		}
 		return elems[elems.length-1].offsetTop;
 	}
-	
+
 	/*function getPositionY() {
 		const half = window.innerHeight / 2;
 		const top = window.pageYOffset + half;
 		const elems = document.getElementsByTagName('tr');
-		
+
 		for(let i = 0; i < elems.length; i++) {
 			if(elems[i].offsetTop + half >= top) {
 				return elems[i].offsetTop + half;
@@ -188,12 +187,12 @@
 		}
 		return -1;
 	}*/
-	
+
 	function getPositionY2() {
 		//const top = window.pageYOffset;
 		const top = window.pageYOffset + window.innerHeight / 2;
 		const elems = document.getElementsByTagName('tr');
-		
+
 		for(let i = 0; i < elems.length; i++) {
 			if(elems[i].offsetTop >= top) {
 				return elems[i].offsetTop;
@@ -201,23 +200,23 @@
 		}
 		return -1;
 	}
-	
+
 	convertButton.addEventListener('click', function() {
 		convert();
 	});
-	
+
 	clearButton.addEventListener('click', function() {
 		input.value = '';
 		results.innerHTML = '';
 		input.focus();
 	});
-	
+
 	function convert() {
 		const selector = input.value.trim();
 		if ( !selector) return;
-		
+
 		results.innerHTML = '';
-		
+
 		let axes = axesSelector.value;
 		results.innerHTML = convertToXPath(selector, axes);
 	}
@@ -235,7 +234,7 @@
 		["div ~ p", "following sibling"],
 		["div !~ p", "preceding sibling"],
 		["div ! p", "ancestors"],
-		
+
 		["$$Class attribute", ""],
 		["div.content", "contains class"],
 		["div[class='content']", "contains exactly"],
@@ -245,14 +244,14 @@
 		["div[class~='content']", "contains exactly"],
 		["div[class*='ten']", "contains within"],
 		["div[class|='content']", "exactly or followed by a hyphen"],
-		
+
 		["$$Attributes", ""],
 		["ul>li[title^='Item']", ""],
 		["ul>li[title$='One']", ""],
 		["ul>li[title*='Item']", ""],
 		["body[lang|=EN]", ""],
-		["a[name()='xlink:href']", "select attribute with namespace"],
-		
+		["a[xlink|href]", "select attribute with namespace"],
+
 		["$$Attributes ignore case", "https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors"],
 		["ul>li[title='one' i]", ""],
 		["ul>li[title^='item' i]", ""],
@@ -260,7 +259,7 @@
 		["ul>li[title~='two' i]", ""],
 		["ul>li[title*='twenty' i]", ""],
 		["body[lang|=En i]", ""],
-		
+
 		["$$Pseudo-classes", ""],
 		["li:not(.c1, .c2)", ""],
 		["div:has(h1, h2)", ""],
@@ -289,14 +288,14 @@
 		["ul>li:limit(5)", ""],
 		["ul>li:take(4)", ""],
 		[":root", ""],
-		
+
 		["$$Pseudo-classes 'nth'", ""],
 		["li:nth(5)", ""],
 		["ul li:nth-child(3)", ""],
 		["ul li:nth-child(even)", ""],
 		["ul li:nth-child(odd)", ""],
 		["ul li:nth-child(3n+2)", ""],
-		
+
 		["$$Pseudo-classes 'of-type'", ""],
 		["div p:first-of-type", ""],
 		["div>em:last-of-type", ""],
@@ -305,7 +304,9 @@
 		["ul li:nth-of-type(even)", ""],
 		["ul li:nth-of-type(odd)", ""],
 		["ul li:nth-of-type(3n+2)", ""],
-		
+		["ul li:nth-of-type(-3n+2)", ""],
+		["ul li:nth-of-type(2n-1)", ""],
+
 		["$$Spaces, comments", ""],
 		["ul   >   li:  not (  .c1  )", ""],
 		["li:  nth-child  (  -3n  +  4  )   ", ""],
@@ -321,18 +322,18 @@
 		const section = document.getElementById('example');
 		const sb = [];
 		sb.push('<table><thead><tr><td>name</td><td>CSS</td><td>XPath</td></tr></thead><tbody>');
-		
+
 		selectors.forEach(item => {
 			if (/^\$\$/.test(item[0])) {
 				const title = item[0].substring(2);
 				sb.push('<tr><td id="' + (title.replace(/\W+/g, '_').toLowerCase()) + '" class="group-name">' + title + '</td><td></td><td></td></tr>');
-				
+
 			} else {
 				try {
 					const xpath = convertToXPath(item[0], '//').replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
 					sb.push('<tr><td class="name">' + (item[1] || ' - ') + '</td>');
 					sb.push('<td class="css"><code class="css">' + item[0].replace(/ /g, '&nbsp;') + '</code></td><td><code class="xpath">' + xpath + '</code></td></tr>');
-					
+
 				} catch (e) {
 					console.log(item[0], e);
 				}
@@ -340,9 +341,9 @@
 		});
 		sb.push('</tbody></table>');
 		section.innerHTML = sb.join('');
-		
+
 		/*const codes = document.getElementsByClassName('xpath');
-		
+
 		for(let i = 0; i < codes.length; i++) {
 			hljs.highlightElement(codes[i]);
 		}*/
