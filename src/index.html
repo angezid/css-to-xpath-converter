@@ -12,7 +12,7 @@
 <main>
 <div class="buttons"><div id="up-btn" class="up-btn"></div><div id="down-btn" class="down-btn"></div></div>
 <article id="article">
-	<div class="links right">
+	<div class="links right" style="display:none">
 		<a href="../index.html">Docs</a>
 		<a href="https://github.com/angezid/FastHtml">GitHub</a>
 	</div>
@@ -36,18 +36,25 @@
 			<option value="following::">following::</option>
 			<option value="following-sibling::">following-sibling::</option>
 		</select>
+		<label class="label-axes" for="axes">axes</label>
 
-		<input type="checkbox" id="fastHtmlLibrary" name="library" checked title="FastHtml library has internal `className` spaces normalization">
-		<label id="library" for="library" title="FastHtml library has internal `className` spaces normalization">FastHtml library</label>
-		
+		<div class="fastHtml" style="display:none">
+			<input type="checkbox" id="fastHtmlLibrary" name="library" checked title="FastHtml library has internal `className` spaces normalization">
+			<label id="library" for="library" title="FastHtml library has internal `className` spaces normalization">FastHtml library</label>
+		</div>
+
 		<div id="selectors">
 			<select id="saved-selectors">
 				<option value="?" title="saved selectors">?</option>
 			</select>
+			<label class="label-saved" for="saved-selectors">history</label>
 		</div>
 
-		<!-- <textarea id="input-box" type="text" placeholder="CSS Selector" autofocus="true" spellcheck="false" ></textarea> -->
-		
+		<div class="browser">
+			<input type="checkbox" id="browser">
+			<label class="label-browser" for="browser" title="For using in browsers">browser</label>
+		</div>
+
 		<div id="input-box" class="input-box">
 		</div>
 
@@ -63,9 +70,10 @@
 				</div>
 			</details>
 		</div>
-
-		<pre id="result-box"></pre>
-		<!-- <pre id="errors"></pre> -->
+		<div class="results">
+			<span id="copy-code"></span>
+			<pre id="result-box"></pre>
+		</div>
 	</div>
 
 	<div id="example-section">
@@ -76,7 +84,7 @@
 </article>
 
 <footer><div class="info">
-<span>FastHtml CSStoXPathConverter</span>
+<span>CSS to XPath Converter</span>
 </div></footer>
 
 <!-- <script></script> -->

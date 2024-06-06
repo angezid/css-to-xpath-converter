@@ -55,10 +55,17 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 #clear:hover { background: #c0c0c0; }
 #axes { float: left; padding: 1px 5px; margin: 20px 0 0 50px; cursor: pointer; }
 
-#fastHtmlLibrary { float: left; margin: 25px 0 0 50px; cursor: pointer; }
+#fastHtmlLibrary { float: left; margin: 25px 0 0 30px; cursor: pointer; }
+#browser { float: left; margin: 25px 0 0 30px; cursor: pointer; }
 #library { float: left; padding: 10px; margin: 11px 0 0 0; cursor: pointer; }
 
-#saved-selectors { float: left; padding: 1px 5px; width: 250px; font-size: 0.875em; margin: 20px 0 0 30px; padding: 1px 5px; cursor: pointer; }
+.label-saved, .label-axes, .label-browser { float: left; padding: 10px; margin: 11px 0 0 0; }
+.label-browser { cursor: pointer; }
+
+#saved-selectors { float: left; padding: 1px 5px; font-size: 0.875em; margin: 20px 0 0 30px; padding: 1px 5px; cursor: pointer; }
+
+#copy-code { position: relative; float: right; padding: 8px; margin: 12px; background: url(img/copy.png) no-repeat; opacity: 0.5; cursor: pointer; }
+#copy-code:hover { opacity: 1; }
 
 .errors { color: #f44; }
 .errors b { color: #444; }
