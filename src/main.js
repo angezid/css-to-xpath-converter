@@ -106,6 +106,8 @@
 	const settings = {
 		fastHtmlLibrary : true,
 		selectors : [],
+		lowercase : '',
+		uppercase : '',
 
 		save : function() {
 			this.saveValue('selectors', JSON.stringify(settings));
@@ -150,8 +152,8 @@
 		uppercase = document.getElementById('uppercase'),
 		toUppercase = document.getElementById('to-uppercase'),
 
-		axesSelector = document.getElementById('axes'),
-		browser = document.getElementById('browser'),
+		axesSelector = document.getElementById('axis'),
+		browserUse = document.getElementById('browser-use'),
 		results = document.getElementById('result-box'),
 		copy = document.getElementById('copy-code'),
 		convertButton = document.getElementById('convert'),
@@ -159,22 +161,34 @@
 		fastHtmlLibrary = document.getElementById('fastHtmlLibrary'),
 		clearButton = document.getElementById('clear'),
 		savedSelectors = document.getElementById('saved-selectors'),
-		editor = CodeJar(input, null, { tab : '  ' });
-
+		editor = CodeJar(input, null, { tab : '  '	});
+	
 	setExamples();
 	settings.load();
 
 	if (settings.selectors && settings.selectors.length) {
 		updateSelectors();
-		editor.updateCode(savedSelectors.value);
+		updateSelector(savedSelectors.value);
 	}
 
 	registerEvents();
 	convert(true);
 
+	function updateSelector() {
+		try {
+			const obj = JSON.parse(savedSelectors.value);
+			if (obj) {
+				editor.updateCode(obj.selector);
+				axesSelector.value = obj.axis || '//';
+				uppercase.value = obj.uppercase || '';
+				lowercase.value = obj.lowercase || '';
+			}
+		} catch (e) { }
+	}
+
 	function registerEvents() {
 		savedSelectors.addEventListener('change', function(e) {
-			editor.updateCode(savedSelectors.value);
+			updateSelector(this.value);
 
 			setTimeout(function() {
 				convert(true);
@@ -186,8 +200,14 @@
 				convert();
 			}, 100);
 		});
+		
+		/*examples.addEventListener('click', function(e) {
+			clearButton.click();
+			const selector = this.getAttribute('data-selector');
+			editor.updateCode(selector);
+		});*/
 
-		browser.addEventListener('click', function() {
+		browserUse.addEventListener('click', function() {
 			convert();
 		});
 
@@ -215,7 +235,6 @@
 		toLowercase.addEventListener('click', function() {
 			const value = uppercase.value.trim();
 			if (value) {
-				console.log(value);
 				lowercase.value = value.toLowerCase();
 			}
 		});
@@ -286,51 +305,30 @@
 		return elems[elems.length - 1].offsetTop;
 	}
 
-	/*function getPositionY() {
-		const half = window.innerHeight / 2;
-		const top = window.pageYOffset + half;
-		const elems = document.getElementsByTagName('tr');
-
-		for (let i = 0; i < elems.length; i++) {
-			if (elems[i].offsetTop + half >= top) {
-				return elems[i].offsetTop + half;
-			}
-		}
-		return -1;
-	}*/
-
-	function getPositionY2() {
-		//const top = window.pageYOffset;
-		const top = window.pageYOffset + window.innerHeight / 2;
-		const elems = document.getElementsByTagName('tr');
-
-		for (let i = 0; i < elems.length; i++) {
-			if (elems[i].offsetTop >= top) {
-				return elems[i].offsetTop;
-			}
-		}
-		return -1;
-	}
-
 	function convert(notSave) {
 		const selector = input.innerText.trim();
 		if ( !selector) return;
 
 		results.innerHTML = '';
 
-		const axes = axesSelector.value;
-		const xpath = convertToXPath(selector, axes);
-		results.innerHTML = browser.checked ? '$x("' + xpath + '")' : xpath;
+		const axis = axesSelector.value;
+
+		const { xpath, normalized } = convertToXPath(selector, axis);
+		results.innerHTML = browserUse.checked ? '$x("' + xpath + '")' : xpath;
 
 		if (notSave) return;
 
-		addSelector(selector);
+		addSelector(normalized, axis);
 		updateSelectors();
 	}
 
-	function addSelector(selector) {
-		settings.selectors = settings.selectors.filter(sel => sel !== selector);
-		settings.selectors.unshift(selector);
+	function addSelector(selector, axis) {
+		settings.selectors = settings.selectors.filter(obj => obj.selector && obj.selector !== selector);
+
+		const upper = uppercase.value.trim(),
+			lower = lowercase.value.trim();
+
+		settings.selectors.unshift({ selector, axis, lowercase : lower, uppercase : upper });
 
 		if (settings.selectors.length > maxSaveNumber) {
 			settings.selectors.pop();
@@ -341,8 +339,10 @@
 		let saved = false;
 		if (isChanged()) {
 			let str = '';
-			settings.selectors.forEach((sel) => {
-				str += '<option value="' + sel + '">' + sel + '</option>';
+			settings.selectors.forEach(obj => {
+				if ( !obj.selector) return true;
+				obj.selector = obj.selector.replace(/'/g, '&#39;');
+				str += "<option value='" + JSON.stringify(obj) + "'>" + obj.selector + '</option>';
 			});
 			savedSelectors.innerHTML = str;
 			settings.save();
@@ -352,18 +352,11 @@
 	}
 
 	function isChanged() {
-		const list = [],
-			nodes = savedSelectors.childNodes;
-		for (let i = 0; i < nodes.length; i++) {
-			if (nodes[i].nodeType === 1) list.push(nodes[i]);
-		}
+		const list = Array.from(savedSelectors.childNodes).filter(node => node.nodeType === 1);
 
 		if (settings.selectors.length !== list.length) return true;
 
-		for (let i = 0; i < settings.selectors.length; i++) {
-			if (list[i].hasAttribute("value") && settings.selectors[i] !== list[i].getAttribute("value")) return true;
-		}
-		return false;
+		return settings.selectors.some((str, i) => list[i].hasAttribute("value") && list[i].getAttribute("value") !== str);
 	}
 
 	function setExamples() {
@@ -374,13 +367,16 @@
 		selectors.forEach(item => {
 			if (/^\$\$/.test(item[0])) {
 				const title = item[0].substring(2);
-				sb.push('<tr><td id="' + (title.replace(/\W+/g, '_').toLowerCase()) + '" class="group-name">' + title + '</td><td></td><td></td></tr>');
+				sb.push('<tr><td id="', (title.replace(/\W+/g, '_').toLowerCase()), '" class="group-name">', title, '</td><td></td><td></td></tr>');
 
 			} else {
 				try {
-					const xpath = convertToXPath(item[0], '//').replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
-					sb.push('<tr><td class="name">' + (item[1] || ' - ') + '</td>');
-					sb.push('<td class="css"><code class="css">' + item[0].replace(/ /g, '&nbsp;') + '</code></td><td><code class="xpath">' + xpath + '</code></td></tr>');
+					let { xpath } = convertToXPath(item[0], '//');
+					xpath = xpath.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
+					sb.push('<tr><td class="name">', (item[1] || ' - '), '</td>');
+					//sb.push('<td class="css"><a href="#" data-selector="', item[0], '">', item[0].replace(/ +/g, '&nbsp;'), '</a></td>');
+					sb.push('<td class="css"><code class="css" data-selector="', item[0], '">', item[0].replace(/ +/g, '&nbsp;'), '</code></td>');
+					sb.push('<td><code class="xpath">', xpath, '</code></td></tr>');
 
 				} catch (e) {
 					console.log(item[0], e);
@@ -389,8 +385,18 @@
 		});
 		sb.push('</tbody></table>');
 		section.innerHTML = sb.join('');
-
-		/*const codes = document.getElementsByClassName('xpath');
+		
+		//const examples = section.querySelectorAll('a[href="#"]');
+		const examples = section.querySelectorAll('code.css');
+		examples.forEach((elem) => {
+			elem.addEventListener('click', function(e) {
+				clearButton.click();
+				const selector = this.getAttribute('data-selector');
+				editor.updateCode(selector);
+			});
+		}); 
+		
+		/*const codes = document.querySelectorAll('xpath');
 
 		for (let i = 0; i < codes.length; i++) {
 			hljs.highlightElement(codes[i]);

@@ -21,7 +21,7 @@
 	<div id="demo">
 		<button id="convert">convert</button>
 		<button id="clear">X</button>
-		<select id="axes">
+		<select id="axis">
 			<option value=".//" title="Select descendants of context node (the same as descendant::)">.//</option>
 			<option value="//" title="Select descendants of the document" selected>//</option>
 			<option value="descendant::">descendant::</option>
@@ -30,17 +30,22 @@
 			<option value="ancestor-or-self::">ancestor-or-self::</option>
 			<option value="self::">self::</option>
 			<option value="parent::">parent::</option>
-			<option value="child::" title="Select childs of context node (can be removed from beginning of XPath)">child::</option>
+			<option value="child::" title="Select childs of context node (can be removed from the beginning of XPath)">child::</option>
 			<option value="preceding::">preceding::</option>
 			<option value="preceding-sibling::">preceding-sibling::</option>
 			<option value="following::">following::</option>
 			<option value="following-sibling::">following-sibling::</option>
 		</select>
-		<label class="label-axes" for="axes">axes</label>
+		<label class="label-axis" for="axis">axis</label>
 
 		<div class="fastHtml" style="display:none">
-			<input type="checkbox" id="fastHtmlLibrary" name="library" checked title="FastHtml library has internal `className` spaces normalization">
+			<input type="checkbox" id="fastHtmlLibrary" name="library" title="FastHtml library has internal `className` spaces normalization">
 			<label id="library" for="library" title="FastHtml library has internal `className` spaces normalization">FastHtml library</label>
+		</div>
+
+		<div class="browser">
+			<input type="checkbox" id="browser-use">
+			<label class="label-browser" for="browser-use" title="For using XPath in browsers">browser</label>
 		</div>
 
 		<div id="selectors">
@@ -50,16 +55,11 @@
 			<label class="label-saved" for="saved-selectors">history</label>
 		</div>
 
-		<div class="browser">
-			<input type="checkbox" id="browser">
-			<label class="label-browser" for="browser" title="For using in browsers">browser</label>
-		</div>
-
 		<div id="input-box" class="input-box">
 		</div>
 
 		<div class="letters">
-			<details><summary>Letters editor</summary>
+			<details><summary title="For case sensitive operations">Letters editor</summary>
 				<div>
 					<textarea id="uppercase" type="text" placeholder="Uppercase" autofocus="" spellcheck="false" ></textarea>
 					<button id="to-lowercase">To lowercase</button>
@@ -86,8 +86,6 @@
 <footer><div class="info">
 <span>CSS to XPath Converter</span>
 </div></footer>
-
-<!-- <script></script> -->
 
 <script src="codejar.js"></script>
 <script src="converter.js"></script>

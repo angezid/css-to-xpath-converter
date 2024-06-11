@@ -20,7 +20,8 @@
 
 	const tagNameReg = /(?:[a-zA-Z]+\|)?([a-zA-Z][a-zA-Z0-9_-]*)(?=[ .#:,>+\[@]|[~^|](?!=)|![+>~^]?|$)/y;
 
-	const idReg = /[\w_-]+/y;
+	//const idReg = /[\w_-]+/y;
+	const idReg = /[^ ='""@#.()[\]|:+>]+/y;
 
 	const classReg = /[a-zA-Z][\w_-]*/y;
 
@@ -40,19 +41,17 @@
 
 	const State = Object.freeze({ "Text" : 0, "PseudoSelector" : 1, "AttributeName" : 2, "AttributeValue" : 3 });
 
-	let fastHtml = true, uppercase = '', lowercase = '', resultBox, stack, code, length;
-
-	const leftChars = ",>+=~^:([";
-	const rightChars = ",>+=~|^$!]()";
+	const leftChars = ",>+=~^!:([";
+	const rightChars = ",>+=~^!$|]()";
 	const pseudo = "Pseudo selector ':";
-
-	let xpath = '', combined;
+	
+	let fastHtml = false, browserUse = false, combined, uppercase, lowercase, resultBox, stack, code, length;
 
 	function convertToXPath(selector, axis) {
 		combined = '';
-		xpath = '';
-
+		
 		fastHtml = document.getElementById('fastHtmlLibrary').checked;
+		browserUse = document.getElementById('browser-use').checked;
 
 		resultBox = document.getElementById('result-box');
 		resultBox.innerHTML = '';
@@ -75,7 +74,7 @@
 
 		const normalized = normalizeWhiteSpaces(selector);
 
-		return parse(normalized, axis, null);
+		return { xpath : parse(normalized, axis, null), normalized };
 	}
 
 	function parseNested(selector, axis = "", owner = null) {
@@ -117,7 +116,7 @@
 			ch = code[i];
 
 			if (state === State.Text) {
-				if (check && !".#*:[@".includes(ch) && !isLetter(ch)) {
+				if (check && !/[.#*:[@]/.test(ch) && !isLetter(ch)) {
 					characterException(ch, i, "State." + getState(state) + ", check=" + check);
 				}
 
@@ -177,25 +176,28 @@
 						if (nextChar(i, '^')) {    // last child
 							xpath = addSlash(xpath);
 							xpath += "child::*[last()]/self::";
+							i++;
 
 						} else if (nextChar(i, '+')) {    // adjacent preceding sibling
 							xpath = addSlash(xpath);
 							xpath += "preceding-sibling::*[1]/self::";
+							i++;
 
 						} else if (nextChar(i, '>')) {    // direct parent
 							xpath = addSlash(xpath);
 							xpath += "parent::";
+							i++;
 
 						} else if (nextChar(i, '~')) {    // preceding sibling
 							xpath = addSlash(xpath);
 							xpath += "preceding-sibling::";
+							i++;
 
 						} else {
 							xpath = addSlash(xpath);
 							xpath += "ancestor-or-self::";    // ancestors
 						}
 						check = true;
-						i++;
 						break;
 
 					case '[' :
@@ -238,8 +240,8 @@
 						break;
 
 					case '|' :
-						if (/\*$/.test(sb[sb.length - 1])) {
-							parseException("XPath doesn't support '*' as a namespace.");
+						if ( !browserUse && /\*$/.test(xpath[xpath.length - 1])) {
+							parseException("System.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.");
 						}
 						xpath += ":";
 						check = false;
@@ -251,8 +253,8 @@
 
 					default :
 						if (isLetter(ch)) {
-							if (first) xpath = addAxes(axis, xpath);
-							[i, xpath] = getTagName(i, owner, xpath);
+							if (first) xpath = addAxes(axis, xpath, nested);
+							[i, xpath] = getTagName(i, xpath);
 
 						} else {
 							characterException(ch, i, "State." + getState(state));
@@ -282,8 +284,8 @@
 							attrValue = null;
 							state = State.AttributeValue;
 
-						} else if (ch === '*' && nextChar(i, '|')) {
-							parseException("XPath doesn't support '*' as a namespace.");
+						} else if ( !browserUse && ch === '*' && nextChar(i, '|')) {
+							parseException("System.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.");
 
 						} else {
 							characterException(ch, i, "State." + getState(state));
@@ -340,7 +342,7 @@
 				let pseudoName = '',
 					argument = '';
 
-				let obj = getSeudoSelector(i);
+				let obj = getPseudoSelector(i);
 				i = obj.index;
 				pseudoName = obj.pseudoName;
 				argument = obj.argument;
@@ -380,14 +382,12 @@
 		return xpath;
 	}
 
-	function addAxes(axis, xpath) {
-		if ( !axis) return xpath;
+	function addAxes(axis, xpath, nested) {
+		if ( !axis || axis === "self::" && !nested) return xpath;
+		
 		const len = xpath.length;
 
-		console.log('addAxes', axis, xpath, combined);
-
-		if (len == 0 && notAllow(combined) || len > 0 && notAllow(xpath)) return xpath;
-		//if (len > 0 && notAllow(xpath) || len == 0 && notAllow(combined)) return xpath;
+		if (len > 0 && notAllow(xpath.trim()) || len == 0 && notAllow(combined)) return xpath;
 
 		function notAllow(str) {
 			if ( !str.length) return false;
@@ -398,14 +398,14 @@
 
 		return xpath += axis;
 	}
-
+	
 	function addOwner(owner, xpath) {
-		const str = xpath,
+		const str = xpath.trim(), 
 			len = str.length;
 		let result = '';
 
 		if (len == 0) {
-			result = owner != null ? owner : "*";
+			result = owner || "*";
 
 		} else {
 			const ch = str[len - 1];
@@ -416,9 +416,6 @@
 
 			} else if (ch == ':' || ch == '/' || ch == '|') result = "*";
 		}
-
-		console.log('addOwner', result, xpath);
-
 		return xpath += result;
 	}
 
@@ -446,8 +443,8 @@
 			lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
 
 		if (attrName === "class") {
-			processClass(attrName, attrValue, operation, ignoreCase);
-			return;
+			xpath = processClass(attrName, attrValue, operation, ignoreCase, xpath);
+			return xpath;
 		}
 
 		switch (operation) {
@@ -520,7 +517,7 @@
 		return xpath;
 	}
 
-	function processClass(attrName, attrValue, operation, ignoreCase) {
+	function processClass(attrName, attrValue, operation, ignoreCase, xpath) {
 		attrName = ignoreCase ? toLowerCase("@class", false) : "@class";
 		let attributeValue = attrValue.trim();
 
@@ -561,6 +558,7 @@
 		} else {
 			xpath += addRange("[", getClass(attrName, attributeValue), "]");
 		}
+		return xpath; 
 	}
 
 	function addRange() {
@@ -667,9 +665,9 @@
 				break;
 
 			case "not" :
+				const axis = isOwnerUniversalSelector(xpath) ? "self::" : "";
 				combined += xpath;
-				//xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), '', "self::node()"), ")]");
-				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), "", "self::node()"), ")]");
+				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()"), ")]");
 				break;
 
 			case "has" :
@@ -959,13 +957,11 @@
 		return "translate(" + str + ", 'ABCDEFGHJIKLMNOPQRSTUVWXYZ" + uppercase + "', 'abcdefghjiklmnopqrstuvwxyz" + lowercase + "')";
 	}
 
-	function getTagName(i, owner, xpath) {
+	function getTagName(i, xpath) {
 		tagNameReg.lastIndex = i;
 		const rm = tagNameReg.exec(code);
 
 		if (rm !== null) {
-			if (owner === 'self::node()') xpath += 'self::';
-
 			xpath += rm[0].toLowerCase();
 			return [i + rm[0].length - 1, xpath];
 		}
@@ -983,7 +979,7 @@
 		regexException(i, 'getName', reg, code);
 	}
 
-	function getSeudoSelector(i) {
+	function getPseudoSelector(i) {
 		pseudoSelectorReg.lastIndex = i;
 		const rm = pseudoSelectorReg.exec(code);
 
@@ -999,16 +995,32 @@
 			}
 			return { index : i + rm[0].length - 1, pseudoName : name, argument };
 		}
-		regexException(i, 'getSeudoSelector', pseudoSelectorReg, code);
+		regexException(i, 'getPseudoSelector', pseudoSelectorReg, code);
 	}
 
+	function isOwnerUniversalSelector(xpath) {
+		let index = 0,
+			num = 10;
+		while (--num > 0) {
+			const rm = selectorOwnerReg.exec(xpath);
+			if (rm !== null) {
+				if (rm[0] === "*") return true;
+				else if (typeof rm[1] !== 'undefined') {
+					index = findBracketStart(xpath, '[', ']');
+					if (index === -1) break;
+					
+					xpath = xpath.substring(0, index);
+				}
+			}
+		}
+		return false;
+	}
+	
 	function getOwner(xpath) {
 		let str = xpath === 'self::node()' ? combined : xpath,
 			owner = [],
 			index = 0,
 			num = 10;
-
-		console.log('getOwner', xpath, combined);
 
 		while (--num > 0) {
 			const rm = selectorOwnerReg.exec(str);
@@ -1032,7 +1044,6 @@
 
 		if (owner.length) {
 			owner.reverse();
-			console.log('owner', owner.join(''));
 			return owner.join('');
 		}
 		return '';
