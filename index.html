@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0" />
+<title>CSS to XPath converter</title>
+<link href="static/main.css" rel="stylesheet">
+</head>
+
+<body>
+<main>
+<div class="buttons"><div id="up-btn" class="up-btn"></div><div id="down-btn" class="down-btn"></div></div>
+<article id="article">
+	<div class="links right" style="display:none">
+		<a href="../index.html">Docs</a>
+		<a href="https://github.com/angezid/FastHtml">GitHub</a>
+	</div>
+	<h1>CSS <span>to</span> XPath</h1>
+
+	<div id="demo">
+		<button id="convert">convert</button>
+		<button id="clear">X</button>
+		<select id="axis">
+			<option value=".//" title="Select descendants of context node (the same as descendant::)">.//</option>
+			<option value="//" title="Select descendants of the document" selected>//</option>
+			<option value="descendant::">descendant::</option>
+			<option value="descendant-or-self::">descendant-or-self::</option>
+			<option value="ancestor::">ancestor::</option>
+			<option value="ancestor-or-self::">ancestor-or-self::</option>
+			<option value="self::">self::</option>
+			<option value="parent::">parent::</option>
+			<option value="child::" title="Select childs of context node (can be removed from the beginning of XPath)">child::</option>
+			<option value="preceding::">preceding::</option>
+			<option value="preceding-sibling::">preceding-sibling::</option>
+			<option value="following::">following::</option>
+			<option value="following-sibling::">following-sibling::</option>
+		</select>
+		<label class="label-axis" for="axis">axis</label>
+
+		<div class="fastHtml" style="display:none">
+			<input type="checkbox" id="fastHtmlLibrary" name="library" title="FastHtml library has internal `className` spaces normalization">
+			<label id="library" for="library" title="FastHtml library has internal `className` spaces normalization">FastHtml library</label>
+		</div>
+
+		<div class="browser">
+			<input type="checkbox" id="browser-use">
+			<label class="label-browser" for="browser-use" title="For using XPath in browsers">browser</label>
+		</div>
+
+		<div id="selectors">
+			<select id="saved-selectors">
+				<option value="?" title="saved selectors">?</option>
+			</select>
+			<label class="label-saved" for="saved-selectors">history</label>
+		</div>
+
+		<div id="input-box" class="input-box">
+		</div>
+
+		<div class="letters">
+			<details><summary title="For case sensitive operations">Letters editor</summary>
+				<div>
+					<textarea id="uppercase" type="text" placeholder="Uppercase" autofocus="" spellcheck="false" ></textarea>
+					<button id="to-lowercase">To lowercase</button>
+				</div>
+				<div>
+					<textarea id="lowercase" type="text" placeholder="Lowercase" autofocus="" spellcheck="false" ></textarea>
+					<button id="to-uppercase">To uppercase</button>
+				</div>
+			</details>
+		</div>
+		<div class="results">
+			<span id="copy-code"></span>
+			<pre id="result-box"></pre>
+		</div>
+	</div>
+
+	<div id="example-section">
+		<h2>Examples</h2>
+		<div id="example">
+		</div>
+	</div>
+</article>
+
+<footer><div class="info">
+<span>CSS to XPath Converter</span>
+</div></footer>
+
+<script src="static/codejar.js"></script>
+<script src="static/converter.js"></script>
+<script src="static/main.js"></script>
+
+</body>
+</html>
