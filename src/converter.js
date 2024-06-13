@@ -1,8 +1,6 @@
 
 /**
-* A javascript version of
-* @see {@link https://github.com/angezid/FastHtml/blob/master/src/FastHtml/CssToXpathConverter.cs} class
-* ported by angezid.
+* A JavaScript version of C# converter. Author is angezid.
 */
 
 (function(root, factory) {
@@ -44,13 +42,15 @@
 	const leftChars = ",>+=~^!:([";
 	const rightChars = ",>+=~^!$|]()";
 	const pseudo = "Pseudo selector ':";
-	
-	let fastHtml = false, browserUse = false, combined, uppercase, lowercase, resultBox, stack, code, length;
+	const navWarning = "\nSystem.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.";
+
+	let fastHtml = false, browserUse = false, warning, combined, uppercase, lowercase, resultBox, stack, code, length;
 
 	function convertToXPath(selector, axis) {
 		combined = '';
-		
-		fastHtml = document.getElementById('fastHtmlLibrary').checked;
+		warning = '';
+
+		fastHtml = document.getElementById('fast-html').checked;
 		browserUse = document.getElementById('browser-use').checked;
 
 		resultBox = document.getElementById('result-box');
@@ -73,14 +73,16 @@
 		stack = [];
 
 		const normalized = normalizeWhiteSpaces(selector);
+		let xpath = parse(normalized, axis, null);
+		xpath = postprocess(xpath);
 
-		return { xpath : parse(normalized, axis, null), normalized };
+		return { xpath, normalized, warning  };
 	}
 
-	function parseNested(selector, axis = "", owner = null) {
+	function parseNested(selector, axis = "", owner = null, predicate = false) {
 		stack.push(code);
 
-		const result = parse(selector, axis, owner, true);
+		const result = parse(selector, axis, owner, true, predicate);
 
 		code = stack.pop();
 		length = code.length;
@@ -88,7 +90,12 @@
 		return result;
 	}
 
-	function parse(selector, axis, owner, nested = false) {
+	function postprocess(xpath) {
+		xpath = xpath.replace(/self::node\(\)\[@([^ \/@#.()[\]|:+>]+)\]/g, '@$1');
+		return xpath;
+	}
+
+	function parse(selector, axis, owner, nested = false, predicate = false) {
 		if ( !selector) {
 			argumentException("selector is empty or white space");
 		}
@@ -108,7 +115,7 @@
 		code = selector;
 		length = code.length;
 
-		if (/^[,|]/.test(code)) {
+		if (/^[,]/.test(code)) {
 			characterException(code[0], 0, "State.Text");
 		}
 
@@ -123,7 +130,7 @@
 				switch (ch) {
 					case '.' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
+						xpath = addOwner(owner, xpath, predicate);
 						xpath += '[';
 						do {
 							xpath += fastHtml ? "contains(@class, ' " : "contains(concat(' ', normalize-space(@class), ' '), ' ";
@@ -142,7 +149,7 @@
 
 					case '#' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
+						xpath = addOwner(owner, xpath, predicate);
 						xpath += "[@id='";
 						[i, xpath] = getName(i + 1, idReg, xpath);
 						xpath += "']";
@@ -202,8 +209,8 @@
 
 					case '[' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
-						attrName = null;
+						xpath = addOwner(owner, xpath, predicate);
+						attrName = '';
 						attrValue = null;
 						modifier = null;
 						operation = null;
@@ -212,14 +219,15 @@
 
 					case ':' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
+						xpath = addOwner(owner, xpath, predicate);
 						if (nextChar(i, ':')) i++;
 						state = State.PseudoSelector;
 						break;
 
 					case ',' :
 						if (i + 1 >= length) parseException('Unexpected comma');
-						xpath += " | " + axis;
+
+						xpath +=predicate ? " or " : " | " + axis;
 						check = true;
 						break;
 
@@ -240,10 +248,21 @@
 						break;
 
 					case '|' :
-						if ( !browserUse && /\*$/.test(xpath[xpath.length - 1])) {
-							parseException("System.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.");
+						if (xpath[xpath.length - 1] === '*') {
+							addWarning(navWarning);
+
+						} else if (nextChar(i, '|')) {
+							parseException("Column combinator is not implemented");
 						}
-						xpath += ":";
+
+						if ( !xpath.length) {
+							if (first) xpath = addAxes(axis, xpath);
+							//xpath += "*[not(contains(name(), ':'))]/self::";
+							xpath += "*[name() = local-name()]/self::";
+
+						} else {
+							xpath += ":";
+						}
 						check = false;
 						break;
 
@@ -253,7 +272,7 @@
 
 					default :
 						if (isLetter(ch)) {
-							if (first) xpath = addAxes(axis, xpath, nested);
+							if (first || predicate) xpath = addAxes(axis, xpath, nested);
 							[i, xpath] = getTagName(i, xpath);
 
 						} else {
@@ -284,8 +303,10 @@
 							attrValue = null;
 							state = State.AttributeValue;
 
-						} else if ( !browserUse && ch === '*' && nextChar(i, '|')) {
-							parseException("System.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.");
+						} else if (ch === '*' && nextChar(i, '|')) {
+							attrName = '*:';
+							i++;
+							addWarning(navWarning);
 
 						} else {
 							characterException(ch, i, "State." + getState(state));
@@ -293,7 +314,7 @@
 						break;
 
 					case ']' :
-						if (attrName === null) nullException("attrName");
+						if ( !attrName) nullException("attrName");
 
 						xpath += "[@" + attrName + "]";
 						state = State.Text;
@@ -305,15 +326,15 @@
 					default :
 						let obj = getAttributeName(i);
 						i = obj.index;
-						attrName = obj.attrName;
+						attrName += obj.attrName;
 						break;
 				}
 
 			} else if (state === State.AttributeValue) {
 				switch (ch) {
 					case ']' :
-						if (attrName === null) nullException("attrName");
-						if (attrValue === null) nullException("attrValue");
+						if ( !attrName) nullException("attrName");
+						if ( !attrValue) nullException("attrValue");
 
 						xpath = processAttribute(attrName, attrValue, operation, modifier, xpath);
 
@@ -328,7 +349,7 @@
 					case ' ' : break;
 
 					default :
-						if (attrValue != null) {
+						if (attrValue) {
 							parseException("attrValue '" + attrValue + "' is already parse: " + code.substring(i));
 						}
 						let obj = getAttributeValue(i);
@@ -351,7 +372,7 @@
 					xpath += "[ancestor-or-self::*[last()]]";
 
 				} else {
-					xpath = addOwner(owner, xpath);
+					xpath = addOwner(owner, xpath, predicate);
 					xpath = processPseudoSelector(pseudoName, argument, xpath);
 				}
 
@@ -384,13 +405,15 @@
 
 	function addAxes(axis, xpath, nested) {
 		if ( !axis || axis === "self::" && !nested) return xpath;
-		
+
 		const len = xpath.length;
 
-		if (len > 0 && notAllow(xpath.trim()) || len == 0 && notAllow(combined)) return xpath;
+		if (len > 0 && notAllow(xpath) || len == 0 && notAllow(combined)) return xpath;
 
 		function notAllow(str) {
-			if ( !str.length) return false;
+			str = str.trim();
+
+			if ( !str.length || nested && / or$/.test(str)) return false;
 
 			const ch = str[str.length - 1];
 			return ch == ':' || ch == '/' || ch == '|';
@@ -398,14 +421,17 @@
 
 		return xpath += axis;
 	}
-	
-	function addOwner(owner, xpath) {
-		const str = xpath.trim(), 
+
+	function addOwner(owner, xpath, predicate) {
+		const str = xpath.trim(),
 			len = str.length;
 		let result = '';
 
 		if (len == 0) {
 			result = owner || "*";
+
+		} else if (predicate) {
+			if (/ or$/.test(str)) result = owner;
 
 		} else {
 			const ch = str[len - 1];
@@ -558,7 +584,7 @@
 		} else {
 			xpath += addRange("[", getClass(attrName, attributeValue), "]");
 		}
-		return xpath; 
+		return xpath;
 	}
 
 	function addRange() {
@@ -669,11 +695,16 @@
 				combined += xpath;
 				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()"), ")]");
 				break;
+			
+			case "is" :
+				combined += xpath;
+				result = parseNested(normalizeArg(name, arg, false), "self::", "self::node()", true);
+				xpath += addRange("[", result, "]");
+				break;
 
 			case "has" :
 				combined += xpath;
 				result = parseNested(normalizeArg(name, arg, false), ".//");
-
 				xpath += addRange("[count(", result, ") > 0]");
 				break;
 
@@ -889,16 +920,18 @@
 
 		const rm = nthEquationReg.exec(argument);    //@"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
+			if (isPresent(rm[3]) && rm[3] === '-') {
+				parseException("Minus sign is not implemented");
+			}
 			const comparison = isPresent(rm[1]) ? " >= " : " <= ",
-				modulo = isPresent(rm[2]) ? rm[2] : '1',
-				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '';
+				modulo = isPresent(rm[2]) ? rm[2] : '1';
 
 			let posValue = 'last()',
 				count = '0',
 				num = +rm[4];
 
 			if (num && num > 0) {
-				count = sign + num;
+				count = num;
 				if (--num > 0) posValue = '(last() - ' + num + ')';
 			}
 			return { posValue, count, comparison, modulo };
@@ -985,15 +1018,14 @@
 
 		if (rm !== null) {
 			const name = rm[1];
-			let argument = '';
 
 			if (typeof rm[2] !== 'undefined') {
 				const obj = findArgument(i + rm[0].length - 1, code, '(', ')');
-				if (obj !== null) {
+				if (obj) {
 					return { index : obj.index, pseudoName : name, argument : obj.argument };
 				}
 			}
-			return { index : i + rm[0].length - 1, pseudoName : name, argument };
+			return { index : i + rm[0].length - 1, pseudoName : name, argument : '' };
 		}
 		regexException(i, 'getPseudoSelector', pseudoSelectorReg, code);
 	}
@@ -1008,14 +1040,14 @@
 				else if (typeof rm[1] !== 'undefined') {
 					index = findBracketStart(xpath, '[', ']');
 					if (index === -1) break;
-					
+
 					xpath = xpath.substring(0, index);
 				}
 			}
 		}
 		return false;
 	}
-	
+
 	function getOwner(xpath) {
 		let str = xpath === 'self::node()' ? combined : xpath,
 			owner = [],
@@ -1035,8 +1067,7 @@
 					} else break;
 
 				} else {
-					if (owner.length || rm[0] !== "*") owner.push(rm[0]);
-					else owner.push('self::' + rm[0]);
+					owner.push(rm[0]);
 					break;
 				}
 			}
@@ -1192,12 +1223,18 @@
 		return typeof arg === 'undefined' || arg === null || arg.trim() === '';
 	}
 
+	function addWarning(text) {
+		if ( !browserUse && !warning.includes(text)) {
+			warning += text;
+		}
+	}
+
 	function printError(message) {
 		resultBox.innerHTML = '<span class="errors">' + message + '</span>';
 	}
 
 	function nullException(message) {
-		const text = 'Null exception of ' + message;
+		const text = message + ' is null or empty.';
 		printError(text);
 		throw new Error(text);
 	}
@@ -1215,13 +1252,15 @@
 	function characterException(ch, i, message) {
 		const text = message + ". Unexpected character '<b>" + ch + "</b>' in the substring - <b>" + code.substring(i) + '</b>';
 		printError(text);
-		throw new Error(text);
+		message += ". Unexpected character '" + ch + "' in the substring - " + code.substring(i);
+		throw new Error(message);
 	}
 
 	function regexException(i, message, reg, code) {
 		const text = message + " function - RegExp failed to match the string:\n<b>" + code.substring(i) + '</b>\n' + reg;
 		printError(text);
-		throw new Error(text);
+		message += " function - RegExp failed to match the string:\n" + code.substring(i) + '\n' + reg;
+		throw new Error(message);
 	}
 
 	return convertToXPath;
