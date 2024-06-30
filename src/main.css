@@ -80,7 +80,8 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 #result-box { color: #000; }
 #warning-box { color: #f00; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; }
 
-#copy-code { position: relative; float: right; padding: 8px; margin: 12px 12px -38px 12px; background: url(img/copy.png) no-repeat; opacity: 0.5; cursor: pointer; }
+/*#copy-code { position: relative; float: right; padding: 8px; margin: 12px 12px -38px 12px; background: url(img/copy.png) no-repeat; opacity: 0.5; cursor: pointer; }*/
+#copy-code { position: relative; float: right; padding: 12px; margin: 12px 12px -38px 12px; background: url(img/copy.png) center center no-repeat; opacity: 0.5; cursor: pointer; }
 #copy-code:hover { opacity: 1; }
 
 .letters { margin: 20px 0; }
@@ -90,7 +91,7 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 
 code.css:hover { text-decoration: underline; cursor: pointer; }
 
-.errors { color: #f44; }
+.errors { color: #d85100; }
 .errors b { color: #444; }
 
 @media only screen and (max-width: 1260px) {

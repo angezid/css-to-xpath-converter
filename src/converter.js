@@ -19,7 +19,7 @@
 	const tagNameReg = /(?:[a-zA-Z]+\|)?([a-zA-Z][a-zA-Z0-9_-]*)(?=[ .#:,>+\[@]|[~^|](?!=)|![+>~^]?|$)/y;
 
 	//const idReg = /[\w_-]+/y;
-	const idReg = /[^ ='""@#.()[\]|:+>]+/y;
+	const idReg = /[^ ='",*@#.()[\]|:+>~!^$]+/y;
 
 	const classReg = /[a-zA-Z][\w_-]*/y;
 
@@ -44,27 +44,27 @@
 	const pseudo = "Pseudo selector ':";
 	const navWarning = "\nSystem.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.";
 
-	let fastHtml = false, browserUse = false, warning, combined, uppercase, lowercase, resultBox, stack, code, length;
+	let opt, warning, combined, uppercase, lowercase, stack, code, length;
 
-	function convertToXPath(selector, axis) {
+	function convertToXPath(selector, options) {
+		opt = Object.assign({}, {
+			axis : '//',
+			browserUse : false, // to suppress XPathNavigator warning message
+			normalizeClassSpaces : true, // do not use this property
+			uppercaseLetters : '',
+			lowercaseLetters : '',
+			printError : printError,
+		}, options);
+
 		combined = '';
 		warning = '';
-
-		fastHtml = document.getElementById('fast-html').checked;
-		browserUse = document.getElementById('browser-use').checked;
-
-		resultBox = document.getElementById('result-box');
-		resultBox.innerHTML = '';
 
 		if (isNullOrWhiteSpace(selector)) {
 			argumentException("selector is null or white space");
 		}
 
-		var upper = document.getElementById('uppercase'),
-			lower = document.getElementById('lowercase');
-
-		uppercase = upper.value.trim();
-		lowercase = lower.value.trim();
+		uppercase = opt.uppercaseLetters ? opt.uppercaseLetters.trim() : '';
+		lowercase = opt.lowercaseLetters ? opt.lowercaseLetters.trim() : '';
 
 		if (uppercase.length != lowercase.length) {
 			argumentException("Custom upper and lower case letters have different length");
@@ -73,10 +73,10 @@
 		stack = [];
 
 		const normalized = normalizeWhiteSpaces(selector);
-		let xpath = parse(normalized, axis, null);
+		let xpath = parse(normalized, opt.axis, null);
 		xpath = postprocess(xpath);
 
-		return { xpath, normalized, warning  };
+		return { xpath, css : normalized, warning };
 	}
 
 	function parseNested(selector, axis = "", owner = null, predicate = false) {
@@ -107,7 +107,6 @@
 			state = State.Text,
 			check = false,
 			first = true,
-			slash = "/",
 			xpath = '',
 			i = -1,
 			ch;
@@ -115,7 +114,7 @@
 		code = selector;
 		length = code.length;
 
-		if (/^[,]/.test(code)) {
+		if (/^[,|(]/.test(code)) {
 			characterException(code[0], 0, "State.Text");
 		}
 
@@ -133,7 +132,7 @@
 						xpath = addOwner(owner, xpath, predicate);
 						xpath += '[';
 						do {
-							xpath += fastHtml ? "contains(@class, ' " : "contains(concat(' ', normalize-space(@class), ' '), ' ";
+							xpath += opt.normalizeClassSpaces ? "contains(concat(' ', normalize-space(@class), ' '), ' " : "contains(@class, ' ";
 							[i, xpath] = getName(i + 1, classReg, xpath);
 
 							tagNameReg.lastIndex = i + 2;
@@ -227,7 +226,7 @@
 					case ',' :
 						if (i + 1 >= length) parseException('Unexpected comma');
 
-						xpath +=predicate ? " or " : " | " + axis;
+						xpath += predicate ? " or " : " | " + axis;
 						check = true;
 						break;
 
@@ -596,11 +595,11 @@
 	}
 
 	function getClass(attrName, attributeValue) {
-		if (fastHtml) {
-			return `contains(${attrName}, ${attributeValue})`;
+		if (opt.normalizeClassSpaces) {
+			return `contains(concat(' ', normalize-space(${attrName}), ' '), ${attributeValue})`;
 
 		} else {
-			return `contains(concat(' ', normalize-space(${attrName}), ' '), ${attributeValue})`;
+			return `contains(${attrName}, ${attributeValue})`;
 		}
 	}
 
@@ -623,7 +622,7 @@
 			case "first-child" :
 				xpath += "[not(preceding-sibling::*)]";
 				break;
-				// sb.push\((.+)\);   xpath += $1;
+
 			case "first" :
 				xpath += "[1]";
 				break;
@@ -695,7 +694,7 @@
 				combined += xpath;
 				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()"), ")]");
 				break;
-			
+
 			case "is" :
 				combined += xpath;
 				result = parseNested(normalizeArg(name, arg, false), "self::", "self::node()", true);
@@ -803,7 +802,11 @@
 					default :
 						const obj = parseFnNotation(arg);
 
-						xpath += addRange("[count(preceding-sibling::*)", obj.comparison, obj.count, " and (count(preceding-sibling::*)", getNumber(obj.value), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
@@ -824,7 +827,11 @@
 					default :
 						const obj = parseFnNotationOfLast(arg);
 
-						xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::*)", getNumber(obj.count), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
@@ -839,16 +846,19 @@
 
 				switch (arg) {
 					case "odd" :
-						xpath += "[position() mod 2 = 1]";
+						xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) mod 2 = 1]");
 						break;
 					case "even" :
-						xpath += "[position() mod 2 = 0 and position() >= 0]";
+						xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) mod 2 = 0]");
 						break;
 					default :
 						const obj = parseFnNotation(arg);
 
-						//xpath += addRange("[position()", obj.comparison, obj.value, " and (position() - ", obj.value, ") mod ", obj.modulo, " = 0]");
-						xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::", owner, ")", getNumber(obj.value), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
@@ -863,15 +873,19 @@
 
 				switch (arg) {
 					case "odd" :
-						xpath += "[position() mod 2 = 1]";
+						xpath += addRange("[(count(following-sibling::", owner, ") + 1) mod 2 = 1]");
 						break;
 					case "even" :
-						xpath += "[position() <= last() and position() mod 2 = 0]";
+						xpath += addRange("[(count(following-sibling::", owner, ") + 1) mod 2 = 0]");
 						break;
 					default :
 						const obj = parseFnNotationOfLast(arg);
 
-						xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::", owner, ")", getNumber(obj.count), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
@@ -885,7 +899,7 @@
 		const num = 1 - str;
 		if (num === 0) return '';
 
-		return (num < 0 ? ' - ' :  ' + ') + Math.abs(num);
+		return (num < 0 ? ' - ' : ' + ') + Math.abs(num);
 	}
 
 	function isNumber(arg) {
@@ -895,22 +909,22 @@
 	function parseFnNotation(argument) {
 		if ( !argument) argumentException("argument is empty or white space");
 
-		const rm = nthEquationReg.exec(argument);    //@"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
+		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
-			const comparison = isPresent(rm[1]) ? " <= " : " >= ",
-				modulo = isPresent(rm[2]) ? rm[2] : '1',
+			const minus = isPresent(rm[1]),
 				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '',
-				value = isPresent(rm[4]) ? sign + rm[4] : '0';
+				valueA = GetValue(rm[2], 1, null),
+				valueB = sign + GetValue(rm[4], 0, "0"),
+				comparison = minus ? " <= " : " >= ";
 
-			let posValue = '1',
-				count = '0',
-				num = +rm[4];
+			let num = +rm[4],
+				posValue = GetValue(num, 0, "1");
 
-			if (num && num > 0) {
+			if (sign === '-' && num && --num > 0) {
 				posValue = num;
-				if (--num > 0) count = num;
 			}
-			return { posValue, count, value, comparison, modulo };
+
+			return { valueA, valueB, posValue, comparison };
 		}
 		regexException(0, "parseFnNotation", nthEquationReg, argument);
 	}
@@ -918,29 +932,32 @@
 	function parseFnNotationOfLast(argument) {
 		if ( !argument) argumentException("argument is empty or white space");
 
-		const rm = nthEquationReg.exec(argument);    //@"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
+		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
-			if (isPresent(rm[3]) && rm[3] === '-') {
-				parseException("Minus sign is not implemented");
-			}
-			const comparison = isPresent(rm[1]) ? " >= " : " <= ",
-				modulo = isPresent(rm[2]) ? rm[2] : '1';
+			const minus = isPresent(rm[1]),
+				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '',
+				valueA = GetValue(rm[2], 1, null),
+				valueB = sign + GetValue(rm[4], 0, "0"),
+				comparison = minus ? " >= " : " <= ";
 
-			let posValue = 'last()',
-				count = '0',
-				num = +rm[4];
+			let num = +rm[4],
+				posValue = "last()";
 
-			if (num && num > 0) {
-				count = num;
-				if (--num > 0) posValue = '(last() - ' + num + ')';
+			if (sign !== '-' && num && --num > 0) {
+				posValue = '(last() - ' + num + ')';
 			}
-			return { posValue, count, comparison, modulo };
+
+			return { valueA, valueB, posValue, comparison };
 		}
 		regexException(0, "parseFnNotationOfLast", nthEquationReg, argument);
 	}
 
 	function isPresent(arg) {
 		return typeof arg !== 'undefined';
+	}
+
+	function GetValue(num, min, defaultVal) {
+		return typeof num !== 'undefined' && num > min ? num : defaultVal;
 	}
 
 	function normalizeArg(name, argument, isString = true) {
@@ -1224,13 +1241,15 @@
 	}
 
 	function addWarning(text) {
-		if ( !browserUse && !warning.includes(text)) {
+		if ( !opt.browserUse && !warning.includes(text)) {
 			warning += text;
 		}
 	}
 
 	function printError(message) {
-		resultBox.innerHTML = '<span class="errors">' + message + '</span>';
+		if (typeof opt.printError === 'function') {
+			opt.printError('<span class="errors">' + message + '</span>');
+		}
 	}
 
 	function nullException(message) {

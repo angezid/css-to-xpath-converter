@@ -1,0 +1,31 @@
+{
+  "name": "css-to-xpath-converter",
+  "version": "1.0.0",
+  "keywords": [
+    "css",
+    "xpath",
+    "selector",
+    "javascript",
+    "converter"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "angezid",
+    "url": "https://github.com/angezid"
+  },
+  "description": "Advanced CSS to XPath converter",
+  "repository": "angezid/css-to-xpath-converter",
+  "bugs": {
+    "url": "https://github.com/angezid/css-to-xpath-converter/issues"
+  },
+  "homepage": "https://github.com/angezid/css-to-xpath-converter",
+  "scripts": {
+    "css2xpath": "node scripts/run-css2xpath-test.js",
+    "build": "npm run css2xpath",
+    "test": "npm run css2xpath"
+  },
+  "devDependencies": {
+    "chalk": "^5.3.0"
+  }
+}
+  

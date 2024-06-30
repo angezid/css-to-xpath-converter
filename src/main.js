@@ -7,7 +7,7 @@
 		module.exports = factory(root);
 
 	} else {
-		root.main = factory(root);
+		root.initConverter = factory(root);
 	}
 })(typeof global !== "undefined" ? global : this.window || this.global, function(root) {
 	'use strict';
@@ -162,17 +162,29 @@
 		savedSelectors = document.getElementById('saved-selectors'),
 		cssEditor = CodeJar(input, null, { tab : '  '	}),
 		xpathEditor = CodeJar(results, null, { tab : '  ' });
-	
-	setExamples();
-	settings.load();
 
-	if (settings.selectors && settings.selectors.length) {
-		updateSelectors();
-		updateSelector(savedSelectors.value);
+	const options = {
+		axis : '//',
+		uppercaseLetters : '',
+		lowercaseLetters : '',
+		printError : (message) => results.innerHTML = message
+	};
+
+	function initConverter() {
+		setExamples();
+		runTests();
+		settings.load();
+
+		if (settings.selectors && settings.selectors.length) {
+			updateSelectors();
+			updateSelector(savedSelectors.value);
+		}
+
+		registerEvents();
+		convert(true);
 	}
 
-	registerEvents();
-	convert(true);
+	initConverter();
 
 	function updateSelector() {
 		try {
@@ -191,7 +203,7 @@
 			updateSelector(this.value);
 
 			setTimeout(function() {
-				convert(true);
+				convert();
 			}, 100);
 		});
 
@@ -200,7 +212,7 @@
 				convert();
 			}, 100);
 		});
-		
+
 		browserUse.addEventListener('click', function() {
 			convert();
 		});
@@ -209,7 +221,7 @@
 			setExamples();
 			convert();
 		});
-		
+
 		copy.addEventListener('click', function() {
 			document.getSelection().selectAllChildren(this.parentNode);
 			document.execCommand('copy');
@@ -263,9 +275,15 @@
 
 		const axis = axesSelector.value;
 
-		const { xpath, normalized, warning } = convertToXPath(selector, axis);
+		options.axis = axis;
+		options.normalizeClassSpaces = !fastHtml.checked;
+		options.browserUse = browserUse.checked;
+		options.uppercaseLetters = uppercase.value.trim();
+		options.lowercaseLetters = lowercase.value.trim();
+
+		const { xpath, css, warning } = convertToXPath(selector, options);
 		xpathEditor.updateCode(browserUse.checked ? '$x("' + xpath + '")' : xpath);
-		
+
 		if (warning) {
 			warningBox.innerHTML = warning.trim();
 			warningBox.className = '';
@@ -273,8 +291,8 @@
 
 		if (notSave) return;
 
-		addSelector(normalized, axis);
-		updateSelectors();
+		addSelector(css, axis);
+		updateSelectors(true);
 	}
 
 	function addSelector(selector, axis) {
@@ -284,15 +302,14 @@
 		const upper = uppercase.value.trim(),
 			lower = lowercase.value.trim();
 
-		settings.selectors.unshift({ selector, axis, lowercase : lower, uppercase : upper });
+		settings.selectors.unshift({ selector, axis : axis, lowercase : lower, uppercase : upper });
 
 		if (settings.selectors.length > maxSaveNumber) {
 			settings.selectors.pop();
 		}
 	}
 
-	function updateSelectors() {
-		let saved = false;
+	function updateSelectors(save) {
 		if (isChanged()) {
 			let str = '';
 			settings.selectors.forEach(obj => {
@@ -301,16 +318,17 @@
 			});
 			savedSelectors.innerHTML = str;
 			settings.save();
-			saved = true;
+
+		} else if (save) {
+			settings.save();
 		}
-		if ( !saved) settings.save();
 	}
 
 	function isChanged() {
 		const list = Array.from(savedSelectors.childNodes).filter(node => node.nodeType === 1);
 
 		if (settings.selectors.length !== list.length) return true;
-		
+
 		return settings.selectors.some((obj, i) => list[i].getAttribute("value") !== JSON.stringify(obj).replace(/&#39;/g, "'"));
 	}
 
@@ -326,7 +344,7 @@
 
 			} else {
 				try {
-					let { xpath } = convertToXPath(item[0], '//');
+					let { xpath } = convertToXPath(item[0], options);
 					xpath = xpath.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
 					sb.push('<tr><td class="name">', (item[1] || ' - '), '</td>');
 					sb.push('<td class="css"><code class="css" data-selector="', item[0], '">', item[0].replace(/ +/g, '&nbsp;'), '</code></td>');
@@ -339,15 +357,15 @@
 		});
 		sb.push('</tbody></table>');
 		section.innerHTML = sb.join('');
-		
+
 		section.querySelectorAll('code.css').forEach((elem) => {
 			elem.addEventListener('click', function(e) {
 				clearButton.click();
 				const selector = this.getAttribute('data-selector');
 				cssEditor.updateCode(selector);
 			});
-		}); 
-		
+		});
+
 		/*const codes = document.querySelectorAll('xpath');
 
 		for (let i = 0; i < codes.length; i++) {
@@ -355,26 +373,3 @@
 		}*/
 	}
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
