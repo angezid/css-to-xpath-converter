@@ -1,18 +1,35 @@
 
 
 body { font: 16px/135% Arial, sans-serif; color: #000; font-style: normal; font-weight: normal; background: #e8e8e8; overflow: auto; overflow-y: scroll; }
-h1 { font-size: 1.8em; line-height: 1.2em; color: #666; }
+h1 { font-size: 1.8em; line-height: 1.2em; color: #666; margin: 20px 0 40px 0; }
 h1 span { color: #018990; font-size: 0.875em; }
 h2 { margin-top: 30px; }
 
+a.github-link svg { width: 24px; }
 .links { position: relative; margin: 5px 0; }
 .links a { color: #0485BC; padding-left: 20px; }
 
 .right { float: right; }
+.hide { display: none; }
 
-#scrollup { float: left; width: 40px; height: 100%; }
 #article { margin: auto; padding: 0 20px 50px 10px; max-width: 1000px; background-color: #e8e8e8; }
-#demo { margin-top: 50px; }
+#demo { margin-top: 100px; }
+
+.row { display: flex; flex-wrap: wrap; justify-content: space-between; }
+.col {  box-sizing: border-box; flex-grow: 0; flex-shrink: 0; }
+
+#convert { font-size: 0.875em; padding: 2px 30px; margin: 0 0 20px 0; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
+#convert:hover { background: #c0c0c0; }
+#clear { padding: 2px 8px; margin: 0 0 20px 20px; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
+#clear:hover { background: #c0c0c0; }
+#axis { padding: 1px 5px; margin: 00 0 20px 0; cursor: pointer; }
+
+#browser-use, #fast-html { margin: 5px 0 20px 0; cursor: pointer; }
+
+.label-saved, .label-axis, .label-browser, .label-library { padding: 10px; margin: 11px 0 0 0; }
+.label-browser, .label-library { cursor: pointer; }
+
+#saved-selectors { padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 20px 0; padding: 1px 5px; max-width: 250px; cursor: pointer; }
 
 footer { width: 100%; height: 40px; margin: 40px 20px 20px 0; font-size: 0.8125em; border-top: #ccc 1px solid; }
 footer div.info { float: right; padding: 20px 40px 0 0; }
@@ -31,6 +48,7 @@ option[title] { background: #f8f8f8; }
 table { border-collapse: collapse; border-spacing: 0; margin: 5px 0 20px 0; background-color: #fafafa; }
 table tbody { border-bottom: #bbb 1px solid; border-top: #bbb 1px solid; }
 table thead th { padding: 5px 5px 5px 16px; color: #000; font-size: 1em; border: 1px solid #bbb; font-weight: normal; background-color: #ddd; vertical-align: middle; text-align: left; min-width: 100px; }
+tr.group { background-color: #ececec; }
 table thead { background: #ddd; }
 table td { border: 1px solid #bbb; color: #000; padding: 5px 10px; overflow: visible; vertical-align: middle; }
 table td.css { max-width: 250px; }
@@ -40,7 +58,7 @@ code { color: #000; background-color: #fafafa; margin: 0; padding: 0; line-heigh
 code.css { width: 100%; font-size: 0.875em; color: #007AAE; display: inline-block; }
 code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block; }
 
-#input-box {
+#input-box, #result-box {
 	font-family: Consolas, monospace;
 	font-size: 1em;
 	color: #007aae;
@@ -51,52 +69,33 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 	font-size: 14px;
 	font-weight: 400;
 	width: 98%;
-	min-height: 20vh;
-	max-height: 30vh;
+	min-height: 100px;
+	max-height: 200px;
 	letter-spacing: normal;
 	line-height: 20px;
 	margin: 0 0 20px 0;
 	padding: 10px;
 }
 
-#result-box { color: #000; background-color: #fdfdfd; font-size: 1em; padding: 10px; width: 98%; min-height: 150px; background: #f0f0f0; border: #ccc 1px solid; border-radius: 5px; white-space: pre-wrap; }
+#result-box { color: #000; }
+#warning-box { color: #f00; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; }
 
-#uppercase, #lowercase { font-size: 1.1em; padding: 5px; width: 80%; height: 20px; }
+/*#copy-code { position: relative; float: right; padding: 8px; margin: 12px 12px -38px 12px; background: url(img/copy.png) no-repeat; opacity: 0.5; cursor: pointer; }*/
+#copy-code { position: relative; float: right; padding: 12px; margin: 12px 12px -38px 12px; background: url(img/copy.png) center center no-repeat; opacity: 0.5; cursor: pointer; }
+#copy-code:hover { opacity: 1; }
+
+.letters { margin: 20px 0; }
+#uppercase, #lowercase { font-size: 1em; padding: 5px; width: 80%; height: 20px; background-color: #f8f8f8; border: #ccc 1px solid; }
 #uppercase { margin-top: 10px; }
 #to-lowercase, #to-uppercase { position: relative; height: 20px; left: 10px; bottom: 10px; cursor: pointer; }
 
-#convert { font-size: 0.875em; float: left; padding: 2px 30px; margin: 20px 0 20px 0; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
-#convert:hover { background: #c0c0c0; }
-#clear { float: left; padding: 2px 8px; margin: 20px 0 0 20px; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
-#clear:hover { background: #c0c0c0; }
-#axis { float: left; padding: 1px 5px; margin: 20px 0 0 50px; cursor: pointer; }
-
-#fastHtmlLibrary { float: left; margin: 25px 0 0 30px; cursor: pointer; }
-#browser-use { float: left; margin: 25px 0 0 30px; cursor: pointer; }
-#library { float: left; padding: 10px; margin: 11px 0 0 0; cursor: pointer; }
-
-.label-saved, .label-axis, .label-browser { float: left; padding: 10px; margin: 11px 0 0 0; }
-.label-browser { cursor: pointer; }
-
-#saved-selectors { float: left; padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 20px 0 0 30px; padding: 1px 5px; max-width: 350px; cursor: pointer; }
-
-#copy-code { position: relative; float: right; padding: 8px; margin: 12px; background: url(img/copy.png) no-repeat; opacity: 0.5; cursor: pointer; }
-#copy-code:hover { opacity: 1; }
-
 code.css:hover { text-decoration: underline; cursor: pointer; }
 
-.errors { color: #f44; }
+.errors { color: #d85100; }
 .errors b { color: #444; }
-
-/*code { font-family: Consolas, monospace; font-size: 1em; padding: 0 3px; color: #b12; background: #fff; border: #d8d8d8 1px solid; }*/
 
 @media only screen and (max-width: 1260px) {
 	main div.buttons { display: none; }
-}
-
-@media only screen and (max-width: 980px) {
-	.left-column, .right-column, .column { width: 100%; }
-	.editor { min-height: 20vh; max-height: 35vh; }
 }
 
 @media screen and (max-width: 800px) {
@@ -106,13 +105,13 @@ code.css:hover { text-decoration: underline; cursor: pointer; }
 @media only screen and (max-width: 600px) {
 	#convert { padding: 2px 10px; }
 	#axis { margin-left: 10px; }
-	#fastHtmlLibrary { margin-left: 10px; }
+	#fast-html { margin-left: 10px; }
 }
 
 @media only screen and (max-width: 500px) {
 	#convert { padding: 2px 10px; }
 	#axis { margin-left: 10px; width: 50px; }
-	#fastHtmlLibrary { margin-left: 10px; }
+	#fast-html { margin-left: 10px; }
 }
 
 

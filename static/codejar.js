@@ -1,4 +1,6 @@
-
+/*!
+* Modified by angezid version of [codejar](https://github.com/antonmedv/codejar)
+*/
 (function(root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		define([], factory(root));

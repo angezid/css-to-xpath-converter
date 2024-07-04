@@ -1,8 +1,6 @@
 
 /**
-* A javascript version of
-* @see {@link https://github.com/angezid/FastHtml/blob/master/src/FastHtml/CssToXpathConverter.cs} class
-* ported by angezid.
+* A JavaScript version of C# converter. Author is angezid.
 */
 
 (function(root, factory) {
@@ -21,7 +19,7 @@
 	const tagNameReg = /(?:[a-zA-Z]+\|)?([a-zA-Z][a-zA-Z0-9_-]*)(?=[ .#:,>+\[@]|[~^|](?!=)|![+>~^]?|$)/y;
 
 	//const idReg = /[\w_-]+/y;
-	const idReg = /[^ ='""@#.()[\]|:+>]+/y;
+	const idReg = /[^ ='",*@#.()[\]|:+>~!^$]+/y;
 
 	const classReg = /[a-zA-Z][\w_-]*/y;
 
@@ -44,27 +42,29 @@
 	const leftChars = ",>+=~^!:([";
 	const rightChars = ",>+=~^!$|]()";
 	const pseudo = "Pseudo selector ':";
-	
-	let fastHtml = false, browserUse = false, combined, uppercase, lowercase, resultBox, stack, code, length;
+	const navWarning = "\nSystem.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.";
 
-	function convertToXPath(selector, axis) {
+	let opt, warning, combined, uppercase, lowercase, stack, code, length;
+
+	function convertToXPath(selector, options) {
+		opt = Object.assign({}, {
+			axis : '//',
+			browserUse : false, // to suppress XPathNavigator warning message
+			normalizeClassSpaces : true, // do not use this property
+			uppercaseLetters : '',
+			lowercaseLetters : '',
+			printError : printError,
+		}, options);
+
 		combined = '';
-		
-		//fastHtml = document.getElementById('fastHtmlLibrary').checked;
-		browserUse = document.getElementById('browser-use').checked;
-
-		resultBox = document.getElementById('result-box');
-		resultBox.innerHTML = '';
+		warning = '';
 
 		if (isNullOrWhiteSpace(selector)) {
 			argumentException("selector is null or white space");
 		}
 
-		var upper = document.getElementById('uppercase'),
-			lower = document.getElementById('lowercase');
-
-		uppercase = upper.value.trim();
-		lowercase = lower.value.trim();
+		uppercase = opt.uppercaseLetters ? opt.uppercaseLetters.trim() : '';
+		lowercase = opt.lowercaseLetters ? opt.lowercaseLetters.trim() : '';
 
 		if (uppercase.length != lowercase.length) {
 			argumentException("Custom upper and lower case letters have different length");
@@ -73,14 +73,16 @@
 		stack = [];
 
 		const normalized = normalizeWhiteSpaces(selector);
+		let xpath = parse(normalized, opt.axis, null);
+		xpath = postprocess(xpath);
 
-		return { xpath : parse(normalized, axis, null), normalized };
+		return { xpath, css : normalized, warning };
 	}
 
-	function parseNested(selector, axis = "", owner = null) {
+	function parseNested(selector, axis = "", owner = null, predicate = false) {
 		stack.push(code);
 
-		const result = parse(selector, axis, owner, true);
+		const result = parse(selector, axis, owner, true, predicate);
 
 		code = stack.pop();
 		length = code.length;
@@ -88,7 +90,12 @@
 		return result;
 	}
 
-	function parse(selector, axis, owner, nested = false) {
+	function postprocess(xpath) {
+		xpath = xpath.replace(/self::node\(\)\[@([^ \/@#.()[\]|:+>]+)\]/g, '@$1');
+		return xpath;
+	}
+
+	function parse(selector, axis, owner, nested = false, predicate = false) {
 		if ( !selector) {
 			argumentException("selector is empty or white space");
 		}
@@ -100,7 +107,6 @@
 			state = State.Text,
 			check = false,
 			first = true,
-			slash = "/",
 			xpath = '',
 			i = -1,
 			ch;
@@ -108,7 +114,7 @@
 		code = selector;
 		length = code.length;
 
-		if (/^[,|]/.test(code)) {
+		if (/^[,|(]/.test(code)) {
 			characterException(code[0], 0, "State.Text");
 		}
 
@@ -123,10 +129,10 @@
 				switch (ch) {
 					case '.' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
+						xpath = addOwner(owner, xpath, predicate);
 						xpath += '[';
 						do {
-							xpath += fastHtml ? "contains(@class, ' " : "contains(concat(' ', normalize-space(@class), ' '), ' ";
+							xpath += opt.normalizeClassSpaces ? "contains(concat(' ', normalize-space(@class), ' '), ' " : "contains(@class, ' ";
 							[i, xpath] = getName(i + 1, classReg, xpath);
 
 							tagNameReg.lastIndex = i + 2;
@@ -142,7 +148,7 @@
 
 					case '#' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
+						xpath = addOwner(owner, xpath, predicate);
 						xpath += "[@id='";
 						[i, xpath] = getName(i + 1, idReg, xpath);
 						xpath += "']";
@@ -202,8 +208,8 @@
 
 					case '[' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
-						attrName = null;
+						xpath = addOwner(owner, xpath, predicate);
+						attrName = '';
 						attrValue = null;
 						modifier = null;
 						operation = null;
@@ -212,14 +218,15 @@
 
 					case ':' :
 						if (first) xpath = addAxes(axis, xpath);
-						xpath = addOwner(owner, xpath);
+						xpath = addOwner(owner, xpath, predicate);
 						if (nextChar(i, ':')) i++;
 						state = State.PseudoSelector;
 						break;
 
 					case ',' :
 						if (i + 1 >= length) parseException('Unexpected comma');
-						xpath += " | " + axis;
+
+						xpath += predicate ? " or " : " | " + axis;
 						check = true;
 						break;
 
@@ -240,10 +247,21 @@
 						break;
 
 					case '|' :
-						if ( !browserUse && /\*$/.test(xpath[xpath.length - 1])) {
-							parseException("System.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.");
+						if (xpath[xpath.length - 1] === '*') {
+							addWarning(navWarning);
+
+						} else if (nextChar(i, '|')) {
+							parseException("Column combinator is not implemented");
 						}
-						xpath += ":";
+
+						if ( !xpath.length) {
+							if (first) xpath = addAxes(axis, xpath);
+							//xpath += "*[not(contains(name(), ':'))]/self::";
+							xpath += "*[name() = local-name()]/self::";
+
+						} else {
+							xpath += ":";
+						}
 						check = false;
 						break;
 
@@ -253,7 +271,7 @@
 
 					default :
 						if (isLetter(ch)) {
-							if (first) xpath = addAxes(axis, xpath, nested);
+							if (first || predicate) xpath = addAxes(axis, xpath, nested);
 							[i, xpath] = getTagName(i, xpath);
 
 						} else {
@@ -284,8 +302,10 @@
 							attrValue = null;
 							state = State.AttributeValue;
 
-						} else if ( !browserUse && ch === '*' && nextChar(i, '|')) {
-							parseException("System.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.");
+						} else if (ch === '*' && nextChar(i, '|')) {
+							attrName = '*:';
+							i++;
+							addWarning(navWarning);
 
 						} else {
 							characterException(ch, i, "State." + getState(state));
@@ -293,7 +313,7 @@
 						break;
 
 					case ']' :
-						if (attrName === null) nullException("attrName");
+						if ( !attrName) nullException("attrName");
 
 						xpath += "[@" + attrName + "]";
 						state = State.Text;
@@ -305,15 +325,15 @@
 					default :
 						let obj = getAttributeName(i);
 						i = obj.index;
-						attrName = obj.attrName;
+						attrName += obj.attrName;
 						break;
 				}
 
 			} else if (state === State.AttributeValue) {
 				switch (ch) {
 					case ']' :
-						if (attrName === null) nullException("attrName");
-						if (attrValue === null) nullException("attrValue");
+						if ( !attrName) nullException("attrName");
+						if ( !attrValue) nullException("attrValue");
 
 						xpath = processAttribute(attrName, attrValue, operation, modifier, xpath);
 
@@ -328,7 +348,7 @@
 					case ' ' : break;
 
 					default :
-						if (attrValue != null) {
+						if (attrValue) {
 							parseException("attrValue '" + attrValue + "' is already parse: " + code.substring(i));
 						}
 						let obj = getAttributeValue(i);
@@ -348,10 +368,10 @@
 				argument = obj.argument;
 
 				if (pseudoName === "root") {
-					xpath += "[ancestor-or-self::*[last()]]";
+					xpath = "/";
 
 				} else {
-					xpath = addOwner(owner, xpath);
+					xpath = addOwner(owner, xpath, predicate);
 					xpath = processPseudoSelector(pseudoName, argument, xpath);
 				}
 
@@ -384,13 +404,15 @@
 
 	function addAxes(axis, xpath, nested) {
 		if ( !axis || axis === "self::" && !nested) return xpath;
-		
+
 		const len = xpath.length;
 
-		if (len > 0 && notAllow(xpath.trim()) || len == 0 && notAllow(combined)) return xpath;
+		if (len > 0 && notAllow(xpath) || len == 0 && notAllow(combined)) return xpath;
 
 		function notAllow(str) {
-			if ( !str.length) return false;
+			str = str.trim();
+
+			if ( !str.length || nested && / or$/.test(str)) return false;
 
 			const ch = str[str.length - 1];
 			return ch == ':' || ch == '/' || ch == '|';
@@ -398,14 +420,17 @@
 
 		return xpath += axis;
 	}
-	
-	function addOwner(owner, xpath) {
-		const str = xpath.trim(), 
+
+	function addOwner(owner, xpath, predicate) {
+		const str = xpath.trim(),
 			len = str.length;
 		let result = '';
 
 		if (len == 0) {
 			result = owner || "*";
+
+		} else if (predicate) {
+			if (/ or$/.test(str)) result = owner;
 
 		} else {
 			const ch = str[len - 1];
@@ -439,7 +464,7 @@
 	}
 
 	function processAttribute(attrName, attrValue, operation, modifier, xpath) {
-		const ignoreCase = modifier === "i",
+		const ignoreCase = modifier === "i" || attrName === 'type' && getOwner(xpath) == "input",
 			lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
 
 		if (attrName === "class") {
@@ -558,7 +583,7 @@
 		} else {
 			xpath += addRange("[", getClass(attrName, attributeValue), "]");
 		}
-		return xpath; 
+		return xpath;
 	}
 
 	function addRange() {
@@ -570,11 +595,11 @@
 	}
 
 	function getClass(attrName, attributeValue) {
-		if (fastHtml) {
-			return `contains(${attrName}, ${attributeValue})`;
+		if (opt.normalizeClassSpaces) {
+			return `contains(concat(' ', normalize-space(${attrName}), ' '), ${attributeValue})`;
 
 		} else {
-			return `contains(concat(' ', normalize-space(${attrName}), ' '), ${attributeValue})`;
+			return `contains(${attrName}, ${attributeValue})`;
 		}
 	}
 
@@ -597,13 +622,13 @@
 			case "first-child" :
 				xpath += "[not(preceding-sibling::*)]";
 				break;
-				// sb.push\((.+)\);   xpath += $1;
+
 			case "first" :
 				xpath += "[1]";
 				break;
 
 			case "first-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 				//xpath += addRange("[name(preceding-sibling::", owner, ") != name()]");
 				xpath += addRange("[not(preceding-sibling::", owner, ")]");
 				break;
@@ -630,7 +655,7 @@
 				break;
 
 			case "only-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 				xpath += addRange("[count(preceding-sibling::", owner, ") = 0 and count(following-sibling::", owner, ") = 0]");
 				//xpath += addRange("[name(preceding-sibling::", owner, ") != name() and name(following-sibling::", owner, ") != name()]");
 				break;
@@ -670,10 +695,15 @@
 				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()"), ")]");
 				break;
 
+			case "is" :
+				combined += xpath;
+				result = parseNested(normalizeArg(name, arg, false), "self::", "self::node()", true);
+				xpath += addRange("[", result, "]");
+				break;
+
 			case "has" :
 				combined += xpath;
 				result = parseNested(normalizeArg(name, arg, false), ".//");
-
 				xpath += addRange("[count(", result, ") > 0]");
 				break;
 
@@ -697,7 +727,7 @@
 				break;
 
 			case "last-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 				//xpath += addRange("[name(following-sibling::", owner, ") != name()]");
 				xpath += addRange("[not(following-sibling::", owner, ")]");
 				break;
@@ -772,7 +802,11 @@
 					default :
 						const obj = parseFnNotation(arg);
 
-						xpath += addRange("[count(preceding-sibling::*)", obj.comparison, obj.count, " and (count(preceding-sibling::*)", getNumber(obj.value), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
@@ -793,13 +827,17 @@
 					default :
 						const obj = parseFnNotationOfLast(arg);
 
-						xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::*)", getNumber(obj.count), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
 
 			case "nth-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 
 				if (isNumber(arg)) {
 					xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) = ", arg, "]");
@@ -808,22 +846,25 @@
 
 				switch (arg) {
 					case "odd" :
-						xpath += "[position() mod 2 = 1]";
+						xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) mod 2 = 1]");
 						break;
 					case "even" :
-						xpath += "[position() mod 2 = 0 and position() >= 0]";
+						xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) mod 2 = 0]");
 						break;
 					default :
 						const obj = parseFnNotation(arg);
 
-						//xpath += addRange("[position()", obj.comparison, obj.value, " and (position() - ", obj.value, ") mod ", obj.modulo, " = 0]");
-						xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::", owner, ")", getNumber(obj.value), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
 
 			case "nth-last-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 
 				if (isNumber(arg)) {
 					xpath += addRange("[position() >= (last() - ", arg, ") and (count(following-sibling::", owner, ") + 1) = ", arg, "]");
@@ -832,15 +873,19 @@
 
 				switch (arg) {
 					case "odd" :
-						xpath += "[position() mod 2 = 1]";
+						xpath += addRange("[(count(following-sibling::", owner, ") + 1) mod 2 = 1]");
 						break;
 					case "even" :
-						xpath += "[position() <= last() and position() mod 2 = 0]";
+						xpath += addRange("[(count(following-sibling::", owner, ") + 1) mod 2 = 0]");
 						break;
 					default :
 						const obj = parseFnNotationOfLast(arg);
 
-						xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::", owner, ")", getNumber(obj.count), ") mod ", obj.modulo, " = 0]");
+						if (obj.valueA) {
+							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						} else {
+							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
+						}
 						break;
 				}
 				break;
@@ -854,7 +899,7 @@
 		const num = 1 - str;
 		if (num === 0) return '';
 
-		return (num < 0 ? ' - ' :  ' + ') + Math.abs(num);
+		return (num < 0 ? ' - ' : ' + ') + Math.abs(num);
 	}
 
 	function isNumber(arg) {
@@ -864,22 +909,22 @@
 	function parseFnNotation(argument) {
 		if ( !argument) argumentException("argument is empty or white space");
 
-		const rm = nthEquationReg.exec(argument);    //@"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
+		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
-			const comparison = isPresent(rm[1]) ? " <= " : " >= ",
-				modulo = isPresent(rm[2]) ? rm[2] : '1',
+			const minus = isPresent(rm[1]),
 				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '',
-				value = isPresent(rm[4]) ? sign + rm[4] : '0';
+				valueA = GetValue(rm[2], 1, null),
+				valueB = sign + GetValue(rm[4], 0, "0"),
+				comparison = minus ? " <= " : " >= ";
 
-			let posValue = '1',
-				count = '0',
-				num = +rm[4];
+			let num = +rm[4],
+				posValue = GetValue(num, 0, "1");
 
-			if (num && num > 0) {
+			if (sign === '-' && num && --num > 0) {
 				posValue = num;
-				if (--num > 0) count = num;
 			}
-			return { posValue, count, value, comparison, modulo };
+
+			return { valueA, valueB, posValue, comparison };
 		}
 		regexException(0, "parseFnNotation", nthEquationReg, argument);
 	}
@@ -887,27 +932,32 @@
 	function parseFnNotationOfLast(argument) {
 		if ( !argument) argumentException("argument is empty or white space");
 
-		const rm = nthEquationReg.exec(argument);    //@"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
+		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
-			const comparison = isPresent(rm[1]) ? " >= " : " <= ",
-				modulo = isPresent(rm[2]) ? rm[2] : '1',
-				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '';
+			const minus = isPresent(rm[1]),
+				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '',
+				valueA = GetValue(rm[2], 1, null),
+				valueB = sign + GetValue(rm[4], 0, "0"),
+				comparison = minus ? " >= " : " <= ";
 
-			let posValue = 'last()',
-				count = '0',
-				num = +rm[4];
+			let num = +rm[4],
+				posValue = "last()";
 
-			if (num && num > 0) {
-				count = sign + num;
-				if (--num > 0) posValue = '(last() - ' + num + ')';
+			if (sign !== '-' && num && --num > 0) {
+				posValue = '(last() - ' + num + ')';
 			}
-			return { posValue, count, comparison, modulo };
+
+			return { valueA, valueB, posValue, comparison };
 		}
 		regexException(0, "parseFnNotationOfLast", nthEquationReg, argument);
 	}
 
 	function isPresent(arg) {
 		return typeof arg !== 'undefined';
+	}
+
+	function GetValue(num, min, defaultVal) {
+		return typeof num !== 'undefined' && num > min ? num : defaultVal;
 	}
 
 	function normalizeArg(name, argument, isString = true) {
@@ -985,15 +1035,14 @@
 
 		if (rm !== null) {
 			const name = rm[1];
-			let argument = '';
 
 			if (typeof rm[2] !== 'undefined') {
 				const obj = findArgument(i + rm[0].length - 1, code, '(', ')');
-				if (obj !== null) {
+				if (obj) {
 					return { index : obj.index, pseudoName : name, argument : obj.argument };
 				}
 			}
-			return { index : i + rm[0].length - 1, pseudoName : name, argument };
+			return { index : i + rm[0].length - 1, pseudoName : name, argument : '' };
 		}
 		regexException(i, 'getPseudoSelector', pseudoSelectorReg, code);
 	}
@@ -1008,17 +1057,17 @@
 				else if (typeof rm[1] !== 'undefined') {
 					index = findBracketStart(xpath, '[', ']');
 					if (index === -1) break;
-					
+
 					xpath = xpath.substring(0, index);
 				}
 			}
 		}
 		return false;
 	}
-	
-	function getOwner(xpath) {
+
+	function getOwner(xpath, name) {
 		let str = xpath === 'self::node()' ? combined : xpath,
-			owner = [],
+			array = [],
 			index = 0,
 			num = 10;
 
@@ -1029,22 +1078,24 @@
 					index = findBracketStart(str, '[', ']');
 
 					if (index > -1) {
-						owner.push(str.substring(index));
+						array.push(str.substring(index));
 						str = str.substring(0, index);
 
 					} else break;
 
 				} else {
-					if (owner.length || rm[0] !== "*") owner.push(rm[0]);
-					else owner.push('self::' + rm[0]);
+					array.push(rm[0]);
 					break;
 				}
 			}
 		}
 
-		if (owner.length) {
-			owner.reverse();
-			return owner.join('');
+		if (array.length) {
+			array.reverse();
+			const owner = array.join('');
+			//if (name && owner == "*") warning += "The universal selector with pseudo-class ':" + name + "' is not work correctly ";
+			if (name && owner == "*") parseException("Pseudo-class ':" + name + "' is required element name to work correctly; '*' is not implemented.");
+			return owner;
 		}
 		return '';
 	}
@@ -1192,12 +1243,20 @@
 		return typeof arg === 'undefined' || arg === null || arg.trim() === '';
 	}
 
+	function addWarning(text) {
+		if ( !opt.browserUse && !warning.includes(text)) {
+			warning += text;
+		}
+	}
+
 	function printError(message) {
-		resultBox.innerHTML = '<span class="errors">' + message + '</span>';
+		if (typeof opt.printError === 'function') {
+			opt.printError('<span class="errors">' + message + '</span>');
+		}
 	}
 
 	function nullException(message) {
-		const text = 'Null exception of ' + message;
+		const text = message + ' is null or empty.';
 		printError(text);
 		throw new Error(text);
 	}
@@ -1215,13 +1274,15 @@
 	function characterException(ch, i, message) {
 		const text = message + ". Unexpected character '<b>" + ch + "</b>' in the substring - <b>" + code.substring(i) + '</b>';
 		printError(text);
-		throw new Error(text);
+		message += ". Unexpected character '" + ch + "' in the substring - " + code.substring(i);
+		throw new Error(message);
 	}
 
 	function regexException(i, message, reg, code) {
 		const text = message + " function - RegExp failed to match the string:\n<b>" + code.substring(i) + '</b>\n' + reg;
 		printError(text);
-		throw new Error(text);
+		message += " function - RegExp failed to match the string:\n" + code.substring(i) + '\n' + reg;
+		throw new Error(message);
 	}
 
 	return convertToXPath;

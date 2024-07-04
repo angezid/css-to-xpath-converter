@@ -12,54 +12,58 @@
 <main>
 <div class="buttons"><div id="up-btn" class="up-btn"></div><div id="down-btn" class="down-btn"></div></div>
 <article id="article">
-	<div class="links right" style="display:none">
-		<a href="../index.html">Docs</a>
-		<a href="https://github.com/angezid/FastHtml">GitHub</a>
+	<div class="links right">
+		<a class="github-link no-icon" href="https://github.com/angezid/css-to-xpath-converter" aria-label="github" target="_blank" rel="noopener" data-v-e71e869c="" data-v-16cf740a=""><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a>
 	</div>
 	<h1>CSS <span>to</span> XPath</h1>
 
 	<div id="demo">
-		<button id="convert">convert</button>
-		<button id="clear">X</button>
-		<select id="axis">
-			<option value=".//" title="Select descendants of context node (the same as descendant::)">.//</option>
-			<option value="//" title="Select descendants of the document" selected>//</option>
-			<option value="descendant::">descendant::</option>
-			<option value="descendant-or-self::">descendant-or-self::</option>
-			<option value="ancestor::">ancestor::</option>
-			<option value="ancestor-or-self::">ancestor-or-self::</option>
-			<option value="self::">self::</option>
-			<option value="parent::">parent::</option>
-			<option value="child::" title="Select childs of context node (can be removed from the beginning of XPath)">child::</option>
-			<option value="preceding::">preceding::</option>
-			<option value="preceding-sibling::">preceding-sibling::</option>
-			<option value="following::">following::</option>
-			<option value="following-sibling::">following-sibling::</option>
-		</select>
-		<label class="label-axis" for="axis">axis</label>
+		<div class="row tool-panel">
+			<div class="col">
+				<button id="convert">convert</button>
+				<button id="clear">X</button>
+			</div>
+			<div class="col">
+				<select id="axis">
+					<option value=".//" title="Search among descendants of the context node (the same as descendant::)">.//</option>
+					<option value="//" title="Search from the beginning of the document" selected>//</option>
+					<option value="descendant::" title="Selects all descendant nodes of the context node">descendant::</option>
+					<option value="descendant-or-self::" title="Selects the current node plus all descendant nodes">descendant-or-self::</option>
+					<option value="ancestor::" title="Selects ancestor nodes starting with the context node and ending with the document node">ancestor::</option>
+					<option value="ancestor-or-self::" title="Selects the current node plus all ancestor nodes">ancestor-or-self::</option>
+					<option value="self::" title="Selects the current node">self::</option>
+					<option value="parent::" title="Selects the parent of the context node">parent::</option>
+					<option value="child::" title="Selects all child nodes of context node (can be removed from the beginning of XPath)">child::</option>
+					<option value="preceding::" title="Selects the nodes that precede the context node, other than its ancestors">preceding::</option>
+					<option value="preceding-sibling::" title="Selects all preceding child nodes of the context node">preceding-sibling::</option>
+					<option value="following::" title="Selects the nodes that follow the context node, other than its descendants">following::</option>
+					<option value="following-sibling::" title="Selects all following child nodes of the context node">following-sibling::</option>
+				</select>
+				<label class="label-axis" for="axis">axis</label>
+			</div>
 
-		<div class="fastHtml" style="display:none">
-			<input type="checkbox" id="fastHtmlLibrary" name="library" title="FastHtml library has internal `className` spaces normalization">
-			<label id="library" for="library" title="FastHtml library has internal `className` spaces normalization">FastHtml library</label>
+			<div class="col library hide">
+				<input type="checkbox" id="fast-html">
+				<label class="label-library" for="fast-html" title="FastHtml library has internal `className` spaces normalization">FastHtml</label>
+			</div>
+
+			<div class="col">
+				<input type="checkbox" id="browser-use">
+				<label class="label-browser" for="browser-use" title="For using an XPath in browsers">browser</label>
+			</div>
+
+			<div id="col">
+				<select id="saved-selectors">
+					<option value="?" title="saved selectors">?</option>
+				</select>
+				<label class="label-saved" for="saved-selectors">history</label>
+			</div>
 		</div>
 
-		<div class="browser">
-			<input type="checkbox" id="browser-use">
-			<label class="label-browser" for="browser-use" title="For using XPath in browsers">browser</label>
-		</div>
-
-		<div id="selectors">
-			<select id="saved-selectors">
-				<option value="?" title="saved selectors">?</option>
-			</select>
-			<label class="label-saved" for="saved-selectors">history</label>
-		</div>
-
-		<div id="input-box" class="input-box">
-		</div>
+		<div id="input-box" class="input-box"></div>
 
 		<div class="letters">
-			<details><summary title="For case sensitive operations">Letters editor</summary>
+			<details><summary title="For case sensitive operations with attribute values. A custom alphabet is added to the default Latin alphabet.">Letters editor</summary>
 				<div>
 					<textarea id="uppercase" type="text" placeholder="Uppercase" autofocus="" spellcheck="false" ></textarea>
 					<button id="to-lowercase">To lowercase</button>
@@ -70,10 +74,10 @@
 				</div>
 			</details>
 		</div>
-		<div class="results">
-			<span id="copy-code"></span>
-			<pre id="result-box"></pre>
-		</div>
+
+		<div class="results"><span id="copy-code"></span><div id="result-box"></div></div>
+
+		<div class="warning"><pre id="warning-box"></pre></div>
 	</div>
 
 	<div id="example-section">
@@ -84,7 +88,7 @@
 </article>
 
 <footer><div class="info">
-<span>CSS to XPath Converter</span>
+<span>CSS to XPath converter</span>
 </div></footer>
 
 <script src="static/codejar.js"></script>

@@ -7,7 +7,7 @@
 		module.exports = factory(root);
 
 	} else {
-		root.main = factory(root);
+		root.initConverter = factory(root);
 	}
 })(typeof global !== "undefined" ? global : this.window || this.global, function(root) {
 	'use strict';
@@ -35,23 +35,25 @@
 		["div[class|='content']", "exactly or followed by a hyphen"],
 
 		["$$Attributes", ""],
-		["ul>li[title^='Item']", ""],
-		["ul>li[title$='One']", ""],
-		["ul>li[title*='Item']", ""],
-		["body[lang|=EN]", ""],
+		["section[title^='Item']", "starts with"],
+		["section[title$='one']", "ends with"],
+		["section[title*='item']", "contains within"],
+		["div[lang|=EN]", "exactly or followed by a hyphen"],
 		["a[xlink|href]", "select attribute with namespace"],
 
 		["$$Attributes ignore case", "https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors"],
-		["ul>li[title='one' i]", ""],
-		["ul>li[title^='item' i]", ""],
-		["ul>li[title$='one' i]", ""],
-		["ul>li[title~='two' i]", ""],
-		["ul>li[title*='twenty' i]", ""],
-		["body[lang|=En i]", ""],
+		["section[title='one' i]", ""],
+		["section[title^='item' i]", ""],
+		["section[title$='one' i]", ""],
+		["section[title~='two' i]", ""],
+		["section[title*='twenty' i]", ""],
+		["div[lang|=En i]", ""],
 
 		["$$Pseudo-classes", ""],
-		["li:not(.c1, .c2)", ""],
+		["div:not(.c1, .c2)", ""],
 		["div:has(h1, h2)", ""],
+		["a:is([name],[href])", ""],
+		[":is(ol, ul) :is(ol, ul) ol", ""],
 		["div:has-sibling(p)", ""],
 		["div:has-parent(main)", ""],
 		["div:has-ancestor(main)", ""],
@@ -68,32 +70,34 @@
 		["div:first-child", ""],
 		["div:last-child", ""],
 		["div>*:only-child", ""],
-		["ul>li:gt(4)", ""],
-		["ul>li:lt(4)", ""],
-		["ul>li:eq(4)", ""],
-		["ul>li:skip(4)", ""],
-		["ul>li:skip-first", ""],
-		["ul>li:skip-last", ""],
-		["ul>li:limit(5)", ""],
+		["li:gt(4)", ""],
+		["li:lt(4)", ""],
+		["li:eq(4)", ""],
+		["li:skip(4)", ""],
+		["li:skip-first", ""],
+		["li:skip-last", ""],
+		["li:limit(5)", ""],
 		[":root", ""],
 
 		["$$Pseudo-classes 'nth'", ""],
 		["li:nth(5)", ""],
-		["ul li:nth-child(3)", ""],
-		["ul li:nth-child(even)", ""],
-		["ul li:nth-child(odd)", ""],
-		["ul li:nth-child(3n+2)", ""],
+		["li:nth-child(3)", ""],
+		["li:nth-child(odd)", ""],
+		["li:nth-child(even)", ""],
+		["li:nth-child(3n+2)", ""],
+		["p:nth-last-child(3n+2)", ""],
+		["p:nth-last-child(-3n+2)", ""],
 
 		["$$Pseudo-classes 'of-type'", ""],
 		["div p:first-of-type", ""],
 		["div>em:last-of-type", ""],
 		["div p:only-of-type", ""],
-		["ul li:nth-of-type(3)", ""],
-		["ul li:nth-of-type(even)", ""],
-		["ul li:nth-of-type(odd)", ""],
-		["ul li:nth-of-type(3n+2)", ""],
-		["ul li:nth-of-type(-3n+2)", ""],
-		["ul li:nth-of-type(2n-1)", ""],
+		["li:nth-of-type(3)", ""],
+		["li:nth-of-type(odd)", ""],
+		["li:nth-of-type(even)", ""],
+		["li:nth-of-type(3n+2)", ""],
+		["li:nth-of-type(-3n+2)", ""],
+		["p:nth-last-of-type(3n+2)", ""],
 
 		["$$Spaces, comments", ""],
 		["ul   >   li:  not (  .c1  )", ""],
@@ -104,7 +108,6 @@
 	];
 
 	const settings = {
-		fastHtmlLibrary : true,
 		selectors : [],
 		lowercase : '',
 		uppercase : '',
@@ -119,7 +122,6 @@
 				const json = JSON.parse(str);
 				if (json) {
 					this.selectors = json.selectors;
-					document.getElementById('fastHtmlLibrary').checked = json.fastHtmlLibrary;
 				}
 			}
 		},
@@ -138,9 +140,6 @@
 		}
 	};
 
-	let prevPos = -1,
-		lock = false;
-
 	const maxSaveNumber = 30,
 		input = document.getElementById('input-box'),
 		body = document.getElementsByTagName('body')[0],
@@ -155,30 +154,42 @@
 		axesSelector = document.getElementById('axis'),
 		browserUse = document.getElementById('browser-use'),
 		results = document.getElementById('result-box'),
+		warningBox = document.getElementById('warning-box'),
 		copy = document.getElementById('copy-code'),
 		convertButton = document.getElementById('convert'),
-		library = document.getElementById('library'),
-		fastHtmlLibrary = document.getElementById('fastHtmlLibrary'),
+		fastHtml = document.getElementById('fast-html'),
 		clearButton = document.getElementById('clear'),
 		savedSelectors = document.getElementById('saved-selectors'),
-		editor = CodeJar(input, null, { tab : '  '	});
-	
-	setExamples();
-	settings.load();
+		cssEditor = CodeJar(input, null, { tab : '  '	}),
+		xpathEditor = CodeJar(results, null, { tab : '  ' });
 
-	if (settings.selectors && settings.selectors.length) {
-		updateSelectors();
-		updateSelector(savedSelectors.value);
+	const options = {
+		axis : '//',
+		uppercaseLetters : '',
+		lowercaseLetters : '',
+		printError : (message) => results.innerHTML = message
+	};
+
+	function initConverter() {
+		setExamples();
+		settings.load();
+
+		if (settings.selectors && settings.selectors.length) {
+			updateSelectors();
+			updateSelector(savedSelectors.value);
+		}
+
+		registerEvents();
+		convert(true);
 	}
 
-	registerEvents();
-	convert(true);
+	initConverter();
 
 	function updateSelector() {
 		try {
 			const obj = JSON.parse(savedSelectors.value);
 			if (obj) {
-				editor.updateCode(obj.selector);
+				cssEditor.updateCode(obj.selector);
 				axesSelector.value = obj.axis || '//';
 				uppercase.value = obj.uppercase || '';
 				lowercase.value = obj.lowercase || '';
@@ -191,7 +202,7 @@
 			updateSelector(this.value);
 
 			setTimeout(function() {
-				convert(true);
+				convert();
 			}, 100);
 		});
 
@@ -200,18 +211,12 @@
 				convert();
 			}, 100);
 		});
-		
-		/*examples.addEventListener('click', function(e) {
-			clearButton.click();
-			const selector = this.getAttribute('data-selector');
-			editor.updateCode(selector);
-		});*/
 
 		browserUse.addEventListener('click', function() {
 			convert();
 		});
 
-		fastHtmlLibrary.addEventListener('click', function() {
+		fastHtml.addEventListener('click', function() {
 			setExamples();
 			convert();
 		});
@@ -220,12 +225,6 @@
 			document.getSelection().selectAllChildren(this.parentNode);
 			document.execCommand('copy');
 			document.getSelection().removeAllRanges();
-		});
-
-		library.addEventListener('click', function() {
-			fastHtmlLibrary.checked = !fastHtmlLibrary.checked;
-			setExamples();
-			convert();
 		});
 
 		axesSelector.addEventListener('change', function(e) {
@@ -246,34 +245,12 @@
 			}
 		});
 
-		window.addEventListener('scroll', function() {
-			if ( !lock) {
-				prevPos = getPositionY();
-			}
-		});
-
 		up.addEventListener('click', function() {
-			const currentPos = getPositionY();
-			if (prevPos != -1 && currentPos >= prevPos) {
-				scrollToPos(prevPos);
-				prevPos += 60;
-
-			} else {
-				prevPos = currentPos;
-				scrollToPos(0);
-			}
-			console.log('up', currentPos, prevPos);
+			window.scrollTo(0, 0);
 		});
 
 		down.addEventListener('click', function() {
-			const currentPos = getPositionY();
-			if (currentPos >= prevPos) {
-				scrollToPos(5000);
-
-			} else {
-				scrollToPos(prevPos);
-			}
-			console.log('down', currentPos, prevPos);
+			window.scrollTo(0, 5000);
 		});
 
 		convertButton.addEventListener('click', function() {
@@ -281,74 +258,69 @@
 		});
 
 		clearButton.addEventListener('click', function() {
-			editor.updateCode('');
-			results.innerHTML = '';
+			cssEditor.updateCode('');
+			xpathEditor.updateCode('');
 			input.focus();
 		});
-	}
-
-	function scrollToPos(pos) {
-		lock = true;
-		window.scrollTo(0, pos);
-		setTimeout(function() { lock = false; }, 100);
-	}
-
-	function getPositionY() {
-		const top = window.pageYOffset;
-		const elems = document.getElementsByTagName('tr');
-
-		for (let i = 0; i < elems.length; i++) {
-			if (elems[i].offsetTop >= top) {
-				return elems[i].offsetTop;
-			}
-		}
-		return elems[elems.length - 1].offsetTop;
 	}
 
 	function convert(notSave) {
 		const selector = input.innerText.trim();
 		if ( !selector) return;
 
-		results.innerHTML = '';
+		xpathEditor.updateCode('');
+		warningBox.innerHTML = '';
+		warningBox.className = 'hide';
 
 		const axis = axesSelector.value;
 
-		const { xpath, normalized } = convertToXPath(selector, axis);
-		results.innerHTML = browserUse.checked ? '$x("' + xpath + '")' : xpath;
+		options.axis = axis;
+		options.normalizeClassSpaces = !fastHtml.checked;
+		options.browserUse = browserUse.checked;
+		options.uppercaseLetters = uppercase.value.trim();
+		options.lowercaseLetters = lowercase.value.trim();
+
+		const { xpath, css, warning } = convertToXPath(selector, options);
+		xpathEditor.updateCode(browserUse.checked ? '$x("' + xpath + '")' : xpath);
+
+		if (warning) {
+			warningBox.innerHTML = warning.trim();
+			warningBox.className = '';
+		}
 
 		if (notSave) return;
 
-		addSelector(normalized, axis);
-		updateSelectors();
+		addSelector(css, axis);
+		updateSelectors(true);
 	}
 
 	function addSelector(selector, axis) {
+		selector = selector.replace(/'/g, '&#39;');
 		settings.selectors = settings.selectors.filter(obj => obj.selector && obj.selector !== selector);
 
 		const upper = uppercase.value.trim(),
 			lower = lowercase.value.trim();
 
-		settings.selectors.unshift({ selector, axis, lowercase : lower, uppercase : upper });
+		settings.selectors.unshift({ selector, axis : axis, lowercase : lower, uppercase : upper });
 
 		if (settings.selectors.length > maxSaveNumber) {
 			settings.selectors.pop();
 		}
 	}
 
-	function updateSelectors() {
-		let saved = false;
+	function updateSelectors(save) {
 		if (isChanged()) {
 			let str = '';
 			settings.selectors.forEach(obj => {
 				if ( !obj.selector) return true;
-				obj.selector = obj.selector.replace(/'/g, '&#39;');
 				str += "<option value='" + JSON.stringify(obj) + "'>" + obj.selector + '</option>';
 			});
 			savedSelectors.innerHTML = str;
 			settings.save();
-			saved = true;
+
+		} else if (save) {
+			settings.save();
 		}
-		if ( !saved) settings.save();
 	}
 
 	function isChanged() {
@@ -356,25 +328,24 @@
 
 		if (settings.selectors.length !== list.length) return true;
 
-		return settings.selectors.some((str, i) => list[i].hasAttribute("value") && list[i].getAttribute("value") !== str);
+		return settings.selectors.some((obj, i) => list[i].getAttribute("value") !== JSON.stringify(obj).replace(/&#39;/g, "'"));
 	}
 
 	function setExamples() {
 		const section = document.getElementById('example');
 		const sb = [];
-		sb.push('<table><thead><tr><td>name</td><td>CSS</td><td>XPath</td></tr></thead><tbody>');
+		sb.push('<table><thead><tr><td>Description</td><td>CSS</td><td>XPath</td></tr></thead><tbody>');
 
 		selectors.forEach(item => {
 			if (/^\$\$/.test(item[0])) {
 				const title = item[0].substring(2);
-				sb.push('<tr><td id="', (title.replace(/\W+/g, '_').toLowerCase()), '" class="group-name">', title, '</td><td></td><td></td></tr>');
+				sb.push('<tr class="group"><td id="', title.replace(/\W+/g, '_').toLowerCase(), '">', title, '</td><td></td><td></td></tr>');
 
 			} else {
 				try {
-					let { xpath } = convertToXPath(item[0], '//');
+					let { xpath } = convertToXPath(item[0], options);
 					xpath = xpath.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
 					sb.push('<tr><td class="name">', (item[1] || ' - '), '</td>');
-					//sb.push('<td class="css"><a href="#" data-selector="', item[0], '">', item[0].replace(/ +/g, '&nbsp;'), '</a></td>');
 					sb.push('<td class="css"><code class="css" data-selector="', item[0], '">', item[0].replace(/ +/g, '&nbsp;'), '</code></td>');
 					sb.push('<td><code class="xpath">', xpath, '</code></td></tr>');
 
@@ -385,17 +356,15 @@
 		});
 		sb.push('</tbody></table>');
 		section.innerHTML = sb.join('');
-		
-		//const examples = section.querySelectorAll('a[href="#"]');
-		const examples = section.querySelectorAll('code.css');
-		examples.forEach((elem) => {
+
+		section.querySelectorAll('code.css').forEach((elem) => {
 			elem.addEventListener('click', function(e) {
 				clearButton.click();
 				const selector = this.getAttribute('data-selector');
-				editor.updateCode(selector);
+				cssEditor.updateCode(selector);
 			});
-		}); 
-		
+		});
+
 		/*const codes = document.querySelectorAll('xpath');
 
 		for (let i = 0; i < codes.length; i++) {
@@ -403,26 +372,3 @@
 		}*/
 	}
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
