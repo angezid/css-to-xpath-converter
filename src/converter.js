@@ -368,7 +368,7 @@
 				argument = obj.argument;
 
 				if (pseudoName === "root") {
-					xpath = "/";
+					xpath = "//ancestor-or-self::*[last()]";
 
 				} else {
 					xpath = addOwner(owner, xpath, predicate);
@@ -616,7 +616,7 @@
 				break;
 
 			case "empty" :
-				xpath += "[not(*) and not(normalize-space())]";
+				xpath += "[not(*) and not(text())]";
 				break;
 
 			case "first-child" :
@@ -1067,7 +1067,7 @@
 
 	function getOwner(xpath, name) {
 		let str = xpath === 'self::node()' ? combined : xpath,
-			array = [],
+			owner = '',
 			index = 0,
 			num = 10;
 
@@ -1078,21 +1078,18 @@
 					index = findBracketStart(str, '[', ']');
 
 					if (index > -1) {
-						array.push(str.substring(index));
 						str = str.substring(0, index);
 
 					} else break;
 
 				} else {
-					array.push(rm[0]);
+					owner = rm[0];
 					break;
 				}
 			}
 		}
 
-		if (array.length) {
-			array.reverse();
-			const owner = array.join('');
+		if (owner) {
 			//if (name && owner == "*") warning += "The universal selector with pseudo-class ':" + name + "' is not work correctly ";
 			if (name && owner == "*") parseException("Pseudo-class ':" + name + "' is required element name to work correctly; '*' is not implemented.");
 			return owner;

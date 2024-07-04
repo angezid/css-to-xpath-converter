@@ -6,11 +6,11 @@ const htmlDir = './test/html';
 const jsonDir = './test/json';
 
 try { performTest(); } catch(e) { }
-//performTest();
+//try { performTestDebug(); } catch(e) { }
 
 async function performTest() {
-	const browser = await getBrowser({ executablePath: 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' });
-	//const browser = await getBrowser({ headless: "new" });
+	//const browser = await getBrowser({ executablePath: 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' });
+	const browser = await getBrowser({ headless: "new" });
 	if ( !browser) return; 
 	
 	const htmls = await readdir(htmlDir);
@@ -30,12 +30,16 @@ async function performTest() {
 				cssElems = getCssElements(css),
 				xpathElems = getXPathElements(xpath);
 
-			if (cssElems && xpathElems) {
-				for (let i = 0; i < cssElems.length; i++) {
-					const equal = await page.evaluate((e1, e2) => e1 === e2, cssElems[i], xpathElems[i]);
-					if ( !equal) {
-						console.log(css, '|   !==   |', xpath);
-						success = false;
+			if ( !cssElems || !xpathElems) continue; 
+			
+			if (cssElems.length === xpathElems.length) {
+				if (cssElems.length > 0) {
+					for (let i = 0; i < cssElems.length; i++) {
+						const equal = await page.evaluate((e1, e2) => e1 === e2, cssElems[i], xpathElems[i]);
+						if ( !equal) {
+							console.log(css, '|   !==   |', xpath);
+							success = false;
+						}
 					}
 				}
 			}
@@ -79,14 +83,15 @@ async function getXPathElements(xpath) {
 }
 
 async function performTestDebug() {
-	const browser = await pt.launch({executablePath: 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' });
+	const browser = await getBrowser({ executablePath: 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' });
+	if ( !browser) return;
+	
 	const htmls = await readdir(htmlDir);
 
-	let success = false;
-
 	for (const file of htmls) {
-		if (file !== 'Slickspeed.html') continue;
+		//if (file !== 'Slickspeed.html') continue;
 		//if (file !== 'CssSelector.html') continue;
+		console.log('\ntesting ' + file);
 
 		const json = await readFile(jsonDir + '/'+ file.replace(/\.html$/, '.json'), 'utf8');
 		const css2xpath = JSON.parse(json);
@@ -105,8 +110,8 @@ async function performTestDebug() {
 			if (cssElems.length !== xpathElems.length) {
 				console.log(css, cssElems.length, ' length  !== length ', xpathElems.length, xpath );
 
-			} else {
-				//console.log(css, cssElems.length, ' length === length ', xpathElems.length);
+			} else if (cssElems.length !== 0) {
+				console.log(css, cssElems.length, ' length === length ', xpathElems.length);
 
 				for (let i = 0; i < cssElems.length; i++) {
 					const equals = await page.evaluate((e1, e2) => e1 === e2, cssElems[i], xpathElems[i]);
@@ -114,7 +119,10 @@ async function performTestDebug() {
 						console.log(css, '|  !==  |', xpath);
 					}
 				}
-			}
+				
+			} else {
+				console.log(css, ' length ===  ', cssElems.length);
+			} 
 		}
 	}
 	await browser.close();
