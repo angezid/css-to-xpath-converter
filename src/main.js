@@ -172,7 +172,6 @@
 
 	function initConverter() {
 		setExamples();
-		runTests();
 		settings.load();
 
 		if (settings.selectors && settings.selectors.length) {

@@ -1,0 +1,1328 @@
+
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8'>
+    <title>Test</title>
+    <link rel='stylesheet' href='style.css'>
+    <script src='demo.js'></script>
+</head>
+<body lang='EN-US En-gb en-au en-nz'>
+<ul>
+  <li>The background of this list item should be green</li>
+  <li>The background of this second list item should be also green</li>
+</ul>
+<p>The background of this paragraph should be green.</p>
+
+<address>This address element should have a green background.</address>
+
+<p>
+<span class="t1">This paragraph, and all textual contents in the document,
+      should be green.</span>
+</p>
+<ul>
+  <li class="t1">This item should be green.</li>
+</ul>
+<foo>And this element, part of a non-HTML namespace,
+      should be green too</foo>
+
+<p>
+<span class="t1">This paragraph, and all textual contents in the document,
+      should be green.</span>
+</p>
+<ul>
+  <li class="t1">This item should be green.</li>
+</ul>
+
+<p id="foo">This paragraph should have a green background</p>
+
+<p title="title">This paragraph should have a green background because its TITLE
+      attribute is set.</p>
+
+<address title="foo">
+<span title="b">This line should </span>
+  <span title="aa">have a green background.
+</span>
+</address>
+
+<p class="a b c">This paragraph should have green background because CLASS
+  contains b</p>
+<address title="tot foo bar">
+<span class="a c">This address should also</span>
+  <span class="a bb c">have green background because the selector in the last
+    rule does not apply to the inner SPANs.</span>
+</address>
+
+<p lang="en-gb">This paragraph should have green background because its language is en-gb</p>
+<address lang="fi">
+<span lang="en-us">This address should also</span>
+  <span lang="en-fr">have green background because the language of the inner SPANs
+     is not French.</span>
+</address>
+
+<p title="foobar">This paragraph should have a green background<br></br>
+because its title attribute begins with foo</p>
+
+<p title="foobar">This paragraph should have a green background because
+its title attribute ends with bar</p>
+
+<p title="foobarufoo">This paragraph should have a green background because
+its title attribute contains bar</p>
+
+<ul>
+  <li class="t1">This list item should have green background because its class is t1</li>
+  <li class="t2">This list item should have green background because its class is t2</li>
+  <li class="t2">
+<span class="t33">This list item should have green background because
+        the inner SPAN does not match SPAN.t3</span>
+</li>
+</ul>
+
+<p class="t1 t2">This paragraph
+should have a green background and a green thick solid border because
+it carries both classes t1 and t2.</p>
+
+<div class="test">This line
+should be green.</div>
+
+<p class="t1">This line should be green.</p>
+  <p class="t1 t2">This line should be green.</p>
+
+<p class="t1 t2">This line should be green.</p>
+  <div class="t3">This line should be green.</div>
+  <address class="t4 t5 t6">This line should be green.</address>
+
+<p class="t1 t2">This line should be green.</p>
+
+<ul>
+  <li id="t1">This list item should have a green background. because its ID is t1</li>
+  <li id="t2">This list item should have a green background. because its ID is t2</li>
+  <li id="t3"><span id="t44">This list item should have a green background. because the inner SPAN does not match #t4</span></li>
+</ul>
+
+<p id="test">This line should be green.</p>
+  <div id="pass">This line should be green.</div>
+
+<p class="warning">This test requires support for two or more of XHTML, xml:id, and DOM3 Core.</p>
+<div id="Aone" xml:id="Atwo" title="Athree">This line should be green.</div>
+  <p id="Bone">This line should be green.</p>
+  <p xml:id="Ctwo">This line should be green.</p>
+  <p title="Dthree">This line should be green.</p>
+ <script type="text/javascript">
+  document.getElementsByTagNameNS('http://www.w3.org/1999/xhtml', 'div')[0].setIdAttribute('title', true);
+  document.getElementsByTagNameNS('http://www.w3.org/1999/xhtml', 'p')[3].setIdAttribute('title', true);
+ </script>
+ <!-- This test could also be done using a custom DOCTYPE with an internal subset, which would
+      then work in any XHTML UA. However, that requires massive changes to the generator scripts.
+      Better, if we need such a test, would be to special-case it and have 15d be a separate file. -->
+
+<p class="test">This text should be green.</p>
+<p class=".test">This text should be green.</p>
+<p class="foo">This text should be green.</p>
+<p class="foo quux">This text should be green.</p>
+<p class="foo  quux">This text should be green.</p>
+<p class=" bar ">This text should be green.</p>
+
+<p class="">This text should be green.</p>
+		<p>This text should be green.</p>
+
+<div>
+
+  <script type="text/javascript">
+
+  </script>
+
+  <p> The following bar should be green. </p>
+
+  <div id="test"></div>
+
+ </div>
+
+<div>
+
+  <script type="text/javascript">
+
+  </script>
+
+  <p> The following two bars should be green. </p>
+
+  <div id="test1"></div>
+  <div id="test2"></div>
+
+ </div>
+
+<div>
+
+  <script type="text/javascript">
+
+  </script>
+
+  <p> The following bar should be green. </p>
+
+  <div id="stub"></div>
+  <div></div>
+  <div><div><!-- <div/> --><div><div id="test"></div></div></div></div>
+
+ </div>
+
+<div>
+
+  <script type="text/javascript">
+
+  </script>
+
+  <div><p id="two">This line should be unstyled. (2)</p><p id="three">This line should have a green background. (3)</p><p>This line should be unstyled. (4 moving to 1)</p></div>
+
+ </div>
+
+<p>This paragraph should be green.</p>
+
+<p>The background of the document should be green</p>
+
+<ul>
+  <li class="red">This first list item should have a green background</li>
+  <li>Second list item</li>
+  <li class="red">This third list item should have a green background</li>
+  <li>Fourth list item</li>
+  <li class="red">This fifth list item should have a green background</li>
+  <li>Sixth list item</li>
+</ul>
+<ol>
+  <li>First list item</li>
+  <li class="red">This second list item should have a green background</li>
+  <li>Third list item</li>
+  <li class="red">This fourth list item should have a green background</li>
+  <li>Fifth list item</li>
+  <li class="red">This sixth list item should have a green background</li>
+</ol>
+<div>
+<table border="1" class="t1">
+  <tr class="red">
+<td>Green row : 1.1</td>
+<td>1.2</td>
+     <td>1.3</td>
+</tr>
+  <tr class="red">
+<td>Green row : 2.1</td>
+<td>2.2</td>
+     <td>2.3</td>
+</tr>
+  <tr class="red">
+<td>Green row : 3.1</td>
+<td>3.2</td>
+     <td>3.3</td>
+</tr>
+  <tr class="red">
+<td>Green row : 4.1</td>
+<td>4.2</td>
+      <td>4.3</td>
+</tr>
+  <tr>
+<td>5.1</td>
+<td>5.2</td>
+<td>5.3</td>
+</tr>
+  <tr>
+<td>6.1</td>
+<td>6.2</td>
+<td>6.3</td>
+</tr>
+</table>
+
+<table class="t2" border="1">
+  <tr>
+<td class="red">green cell</td>
+<td>1.2</td>
+<td>1.3</td>
+      <td class="red">green cell</td>
+<td>1.5</td>
+<td>1.6</td>
+      <td class="red">green cell</td>
+<td>1.8</td>
+</tr>
+  <tr>
+<td class="red">green cell</td>
+<td>2.2</td>
+<td>2.3</td>
+      <td class="red">green cell</td>
+<td>2.5</td>
+<td>2.6</td>
+      <td class="red">green cell</td>
+<td>2.8</td>
+</tr>
+  <tr>
+<td class="red">green cell</td>
+<td>3.2</td>
+<td>3.3</td>
+      <td class="red">green cell</td>
+<td>3.5</td>
+<td>3.6</td>
+      <td class="red">green cell</td>
+<td>3.8</td>
+</tr>
+</table>
+</div>
+
+<ul>
+  <li class="green">This first list item should have a green background</li>
+  <li>Second list item</li>
+  <li class="green">This third list item should have a green background</li>
+  <li>Fourth list item</li>
+  <li class="green">This fifth list item should have a green background</li>
+  <li>Sixth list item</li>
+</ul>
+<ol>
+  <li>First list item</li>
+  <li class="green">This second list item should have a green background</li>
+  <li>Third list item</li>
+  <li class="green">This fourth list item should have a green background</li>
+  <li>Fifth list item</li>
+  <li class="green">This sixth list item should have a green background</li>
+</ol>
+<div>
+<table border="1" class="t1">
+  <tr class="green">
+<td>Green row : 1.1</td>
+<td>1.2</td>
+     <td>1.3</td>
+</tr>
+  <tr class="green">
+<td>Green row : 2.1</td>
+<td>2.2</td>
+     <td>2.3</td>
+</tr>
+  <tr class="green">
+<td>Green row : 3.1</td>
+<td>3.2</td>
+     <td>3.3</td>
+</tr>
+  <tr class="green">
+<td>Green row : 4.1</td>
+<td>4.2</td>
+      <td>4.3</td>
+</tr>
+  <tr>
+<td>5.1</td>
+<td>5.2</td>
+<td>5.3</td>
+</tr>
+  <tr>
+<td>6.1</td>
+<td>6.2</td>
+<td>6.3</td>
+</tr>
+</table>
+<p></p>
+<table class="t2" border="1">
+  <tr>
+<td class="green">green cell</td>
+<td>1.2</td>
+<td>1.3</td>
+      <td class="green">green cell</td>
+<td>1.5</td>
+<td>1.6</td>
+      <td class="green">green cell</td>
+<td>1.8</td>
+</tr>
+  <tr>
+<td class="green">green cell</td>
+<td>2.2</td>
+<td>2.3</td>
+      <td class="green">green cell</td>
+<td>2.5</td>
+<td>2.6</td>
+      <td class="green">green cell</td>
+<td>2.8</td>
+</tr>
+  <tr>
+<td class="green">green cell</td>
+<td>3.2</td>
+<td>3.3</td>
+      <td class="green">green cell</td>
+<td>3.5</td>
+<td>3.6</td>
+      <td class="green">green cell</td>
+<td>3.8</td>
+</tr>
+</table>
+</div>
+
+<p>This paragraph is here only to fill space in the DOM</p>
+<address>And this address too..</address>
+<p>So does this paragraph !</p>
+<p class="red">But this one should have green background</p>
+<dl>
+  <dt class="red">First definition term that should have green background</dt>
+    <dd class="red">First definition that should have green background</dd>
+  <dt>Second definition term</dt>
+    <dd>Second definition</dd>
+  <dt>Third definition term</dt>
+    <dd>Third definition</dd>
+  <dt class="red">Fourth definition term that should have green background</dt>
+    <dd class="red">Fourth definition that should have green background</dd>
+  <dt>Fifth definition term</dt>
+    <dd>Fifth definition</dd>
+  <dt>Sixth definition term</dt>
+    <dd>Sixth definition</dd>
+</dl>
+
+<p class="red">This paragraph should have green background</p>
+<address>But this address is here only to fill space in the dom..</address>
+<p>So does this paragraph !</p>
+<p>And so does this one too.</p>
+<dl>
+  <dt>First definition term</dt>
+    <dd>First definition</dd>
+  <dt>Second definition term</dt>
+    <dd>Second definition</dd>
+  <dt class="red">Third definition term that should have green background</dt>
+    <dd class="red">Third definition that should have green background</dd>
+  <dt>Fourth definition term</dt>
+    <dd>Fourth definition</dd>
+  <dt>Fifth definition term</dt>
+    <dd>Fifth definition</dd>
+  <dt class="red">Sixth definition term that should have green background</dt>
+    <dd class="red">Sixth definition that should have green background</dd>
+</dl>
+
+<div>
+<table class="t1" border="1">
+  <tr>
+    <td class="red">green cell</td>
+    <td>1.2</td>
+    <td>1.3</td>
+  </tr>
+  <tr>
+    <td class="red">green cell</td>
+    <td>2.2</td>
+    <td>2.3</td>
+  </tr>
+  <tr>
+    <td class="red">green cell</td>
+    <td>3.2</td>
+    <td>3.3</td>
+  </tr>
+</table>
+</div>
+<p>This paragraph contains some text
+          <span>and a span that should have a green background</span>
+</p>
+
+<div>
+<table class="t1" border="1">
+  <tr>
+    <td>1.1</td>
+    <td>1.2</td>
+    <td class="red">green cell</td>
+  </tr>
+  <tr>
+    <td>2.1</td>
+    <td>2.2</td>
+    <td class="red">green cell</td>
+  </tr>
+  <tr>
+    <td>3.1</td>
+    <td>3.2</td>
+    <td class="red">green cell</td>
+  </tr>
+</table>
+</div>
+<p>
+<span>This paragraph contains a span that should
+     have a green background</span> and some text after it.</p>
+
+<div>This div contains 3 addresses:
+<address class="red">A first address that should have a green background</address>
+<address>A second address with normal background</address>
+<address>A third address with normal background</address>
+</div>
+
+<div>
+<address>A first address with normal background</address>
+<address>A second address with normal background</address>
+<address class="red">A third address that should have a green background</address>
+This div contains 3 addresses above this sentence.</div>
+
+<p>This paragraph should have normal background</p>
+<div>This div contains only one paragraph
+    <p class="red">This paragraph should have green background</p>
+</div>
+
+<div class="t1">
+<p>This paragraph should have normal background</p>
+<address class="red">But this address should have green background</address>
+<p>This paragraph should have normal background</p>
+</div>
+
+<div class="t1">
+  <p class="red">This paragraph should have a green background</p>
+  <table>
+   <tbody>
+    <tr>
+     <td>
+      <p class="red">This paragraph should have a green background</p>
+     </td>
+    </tr>
+   </tbody>
+  </table>
+ </div>
+ <table>
+  <tbody>
+   <tr>
+    <td>
+     <p class="white">This paragraph should be unstyled.</p>
+    </td>
+   </tr>
+  </tbody>
+ </table>
+
+<div class="t1">
+  <p class="white">This paragraph should be unstyled</p>
+  <table>
+   <tbody>
+    <tr>
+     <td>
+      <p class="white">This paragraph should be unstyled</p>
+     </td>
+    </tr>
+   </tbody>
+  </table>
+ </div>
+ <table>
+  <tbody>
+   <tr>
+    <td>
+     <p class="green">This paragraph should have a green background</p>
+    </td>
+   </tr>
+  </tbody>
+ </table>
+
+<div>
+  <p class="red test">This paragraph should have a green background</p>
+  <div>
+   <p class="red test">This paragraph should have a green background</p>
+  </div>
+ </div>
+ <table>
+  <tbody>
+   <tr>
+    <td>
+     <p class="white test">This paragraph should be unstyled.</p>
+    </td>
+   </tr>
+  </tbody>
+ </table>
+
+<div>
+  <p class="white test">This paragraph should be unstyled.</p>
+  <div>
+   <p class="white test">This paragraph should be unstyled.</p>
+  </div>
+ </div>
+ <table>
+  <tbody>
+   <tr>
+    <td>
+     <p class="green test">This paragraph should have a green background.</p>
+    </td>
+   </tr>
+  </tbody>
+ </table>
+
+<div> This should be unstyled. </div>
+  <div class="control"> This should have a green background. </div>
+
+<div> This should be unstyled. </div>
+  <p> This should have a green background. </p>
+
+<div class="stub">
+  <p>This paragraph should be unstyled.</p>
+  <p class="red">But this one should have a green background.</p>
+  <p class="red">And this one should also have a green background.</p>
+  <address>This address is only here to fill some space between two paragraphs.</address>
+  <p>This paragraph should be unstyled.</p>
+ </div>
+
+<div class="stub">
+  <p class="green">This paragraph should have a green background.</p>
+  <p class="white">But this one should be unstyled.</p>
+  <p class="white">And this one should also be unstyled.</p>
+  <address class="green">This address is only here to fill some space between two paragraphs and should have a green background.</address>
+  <p class="green">This paragraph should have a green background too.</p>
+ </div>
+
+<div class="stub">
+  <p>This paragraph should be unstyled.</p>
+  <p class="red">But this one should have a green background</p>
+  <p class="red">And this one should also have a green background</p>
+  <address>This address is only here to fill some space between two paragraphs</address>
+ <p class="red">This paragraph should have a green background</p>
+ </div>
+
+<div class="stub">
+  <p>This paragraph should be unstyled.</p>
+  <p class="green">But this one should have a green background</p>
+  <p class="green">And this one should also have a green background</p>
+  <address>This address is only here to fill some space between two paragraphs</address>
+  <p class="green">This paragraph should have a green background</p>
+ </div>
+
+<div class="stub">
+<p>This paragraph should be in green characters.</p>
+<p title="on chante?">This paragraph should be in green characters.</p>
+<p title="si on chantait">
+     <span title="si il chantait">This paragraph should be in green characters.</span>
+</p>
+</div>
+
+<div class="stub">
+<p>This paragraph should be in green characters.</p>
+<p title="on chante?">This paragraph should be in green characters.</p>
+<p title="si on chantait">
+     <span title="si il chante">This paragraph should be in green characters.</span>
+</p>
+</div>
+
+<div class="stub">
+<p>This paragraph should be in green characters.</p>
+<p class="bar foofoo tut">This paragraph should be in green characters.</p>
+<p class="bar foo tut">
+     <span class="tut foo2">This paragraph should be in green characters.</span>
+</p>
+</div>
+
+<div class="stub">
+<p>This paragraph should be in green characters.</p>
+<p id="foo2">This paragraph should be in green characters.</p>
+<p id="foo">
+     <span>This paragraph should be in green characters.</span>
+</p>
+</div>
+
+<ul>
+			<li>First list item</li>
+			<li class="red">This second list item should have a green background</li>
+			<li>Third list</li>
+			<li class="red">This fourth list item should have a green background</li>
+			<li>Fifth list item</li>
+			<li class="red">This sixth list item should have a green background</li>
+		</ul>
+		<ol>
+			<li class="red">This first list item should have a green background</li>
+			<li>Second list item</li>
+			<li class="red">This third list item should have a green background</li>
+			<li>Fourth list item</li>
+			<li class="red">This fifth list item should have a green background</li>
+			<li>Sixth list item</li>
+		</ol>
+		<div>
+		<table border="1" class="t1">
+			<tr>
+		<td>1.1</td>
+		<td>1.2</td>
+			<td>1.3</td>
+		</tr>
+			<tr>
+		<td>2.1</td>
+		<td>2.2</td>
+			<td>2.3</td>
+		</tr>
+			<tr>
+		<td>3.1</td>
+		<td>3.2</td>
+			<td>3.3</td>
+		</tr>
+			<tr>
+		<td>4.1</td>
+		<td>4.2</td>
+				<td>4.3</td>
+		</tr>
+			<tr class="red">
+		<td>Green row : 5.1</td>
+		<td>5.2</td>
+		<td>5.3</td>
+		</tr>
+			<tr class="red">
+		<td>Green row : 6.1</td>
+		<td>6.2</td>
+		<td>6.3</td>
+		</tr>
+		</table>
+		<p></p>
+		<table class="t2" border="1">
+			<tr>
+		<td>1.1</td>
+		<td class="red">green cell</td>
+		<td class="red">green cell</td>
+				<td>1.4</td>
+		<td class="red">green cell</td>
+		<td class="red">green cell</td>
+				<td>1.7</td>
+		<td class="red">green cell</td>
+		</tr>
+			<tr>
+		<td>2.1</td>
+		<td class="red">green cell</td>
+		<td class="red">green cell</td>
+				<td>2.4</td>
+		<td class="red">green cell</td>
+		<td class="red">green cell</td>
+				<td>2.7</td>
+		<td class="red">green cell</td>
+		</tr>
+			<tr>
+		<td>3.1</td>
+		<td class="red">green cell</td>
+		<td class="red">green cell</td>
+				<td>3.4</td>
+		<td class="red">green cell</td>
+		<td class="red">green cell</td>
+				<td>3.7</td>
+		<td class="red">green cell</td>
+		</tr>
+		</table>
+		</div>
+
+<ul>
+			<li>First list item</li>
+			<li class="green">This second list item should have a green background</li>
+			<li>Third list</li>
+			<li class="green">This fourth list item should have a green background</li>
+			<li>Fifth list item</li>
+			<li class="green">This sixth list item should have a green background</li>
+		</ul>
+		<ol>
+			<li class="green">This first list item should have a green background</li>
+			<li>Second list item</li>
+			<li class="green">This third list item should have a green background</li>
+			<li>Fourth list item</li>
+			<li class="green">This fifth list item should have a green background</li>
+			<li>Sixth list item</li>
+		</ol>
+		<div>
+		<table border="1" class="t1">
+			<tr>
+		<td>1.1</td>
+		<td>1.2</td>
+			<td>1.3</td>
+		</tr>
+			<tr>
+		<td>2.1</td>
+		<td>2.2</td>
+			<td>2.3</td>
+		</tr>
+			<tr>
+		<td>3.1</td>
+		<td>3.2</td>
+			<td>3.3</td>
+		</tr>
+			<tr>
+		<td>4.1</td>
+		<td>4.2</td>
+				<td>4.3</td>
+		</tr>
+			<tr class="green">
+		<td>Green row : 5.1</td>
+		<td>5.2</td>
+		<td>5.3</td>
+		</tr>
+			<tr class="green">
+		<td>Green row : 6.1</td>
+		<td>6.2</td>
+		<td>6.3</td>
+		</tr>
+		</table>
+		<p></p>
+		<table class="t2" border="1">
+			<tr>
+		<td>1.1</td>
+		<td class="green">green cell</td>
+		<td class="green">green cell</td>
+				<td>1.4</td>
+		<td class="green">green cell</td>
+		<td class="green">green cell</td>
+				<td>1.7</td>
+		<td class="green">green cell</td>
+		</tr>
+			<tr>
+		<td>2.1</td>
+		<td class="green">green cell</td>
+		<td class="green">green cell</td>
+				<td>2.4</td>
+		<td class="green">green cell</td>
+		<td class="green">green cell</td>
+				<td>2.7</td>
+		<td class="green">green cell</td>
+		</tr>
+			<tr>
+		<td>3.1</td>
+		<td class="green">green cell</td>
+		<td class="green">green cell</td>
+				<td>3.4</td>
+		<td class="green">green cell</td>
+		<td class="green">green cell</td>
+				<td>3.7</td>
+		<td class="green">green cell</td>
+		</tr>
+		</table>
+		</div>
+
+<p class="red">This paragraph should have green background</p>
+		<address>And this address should be unstyled.</address>
+		<p class="red">This paragraph should also have green background!</p>
+		<p>But this one should be unstyled again.</p>
+		<dl>
+			<dt>First definition term</dt>
+			<dd>First definition</dd>
+			<dt class="red">Second definition term that should have green background</dt>
+			<dd class="red">Second definition that should have green background</dd>
+			<dt class="red">Third definition term that should have green background</dt>
+			<dd class="red">Third definition that should have green background</dd>
+			<dt>Fourth definition term</dt>
+			<dd>Fourth definition</dd>
+			<dt class="red">Fifth definition term that should have green background</dt>
+			<dd class="red">Fifth definition that should have green background</dd>
+			<dt class="red">Sixth definition term that should have green background</dt>
+			<dd class="red">Sixth definition that should have green background</dd>
+		</dl>
+
+<div>
+  <table class="t1" border="1">
+   <tr>
+    <td>1.1</td>
+    <td class="red">green cell</td>
+    <td class="red">green cell</td>
+   </tr>
+   <tr>
+    <td>2.1</td>
+    <td class="red">green cell</td>
+    <td class="red">green cell</td>
+   </tr>
+   <tr>
+    <td>3.1</td>
+    <td class="red">green cell</td>
+    <td class="red">green cell</td>
+   </tr>
+ </table>
+ </div>
+ <p>This paragraph <span>should be</span> unstyled.</p>
+
+<div>
+  <table class="t1" border="1">
+   <tr>
+    <td>1.1</td>
+    <td class="green">green cell</td>
+    <td class="green">green cell</td>
+   </tr>
+   <tr>
+    <td>2.1</td>
+    <td class="green">green cell</td>
+    <td class="green">green cell</td>
+   </tr>
+   <tr>
+    <td>3.1</td>
+    <td class="green">green cell</td>
+    <td class="green">green cell</td>
+   </tr>
+ </table>
+ </div>
+ <p>This paragraph <span>should be</span> unstyled.</p>
+
+<div>
+  <table class="t1" border="1">
+   <tr>
+    <td class="red">green cell</td>
+    <td class="red">green cell</td>
+    <td>1.3</td>
+   </tr>
+   <tr>
+    <td class="red">green cell</td>
+    <td class="red">green cell</td>
+    <td>2.3</td>
+   </tr>
+   <tr>
+    <td class="red">green cell</td>
+    <td class="red">green cell</td>
+    <td>3.3</td>
+   </tr>
+  </table>
+ </div>
+ <p>This <span>paragraph should</span> be unstyled.</p>
+
+<div>
+  <table class="t1" border="1">
+   <tr>
+    <td class="green">green cell</td>
+    <td class="green">green cell</td>
+    <td>1.3</td>
+   </tr>
+   <tr>
+    <td class="green">green cell</td>
+    <td class="green">green cell</td>
+    <td>2.3</td>
+   </tr>
+   <tr>
+    <td class="green">green cell</td>
+    <td class="green">green cell</td>
+    <td>3.3</td>
+   </tr>
+  </table>
+ </div>
+ <p>This <span>paragraph should</span> be unstyled.</p>
+
+<div>This div contains 3 addresses :
+		<address>A first address with normal background</address>
+		<address class="red">A second address that should have a green background</address>
+		<address class="red">A third address that should have a green background</address>
+		</div>
+
+<div>
+		<address class="red">A first address that should have a green background</address>
+		<address class="red">A second address that should have a green background</address>
+		<address>A third address with normal background</address>
+		This div should have three addresses above it.</div>
+
+<p class="red">This paragraph should have a green background.</p>
+ <div>This div contains only one paragraph.
+  <p>This paragraph should be unstyled.</p>
+ </div>
+
+<p class="green">This paragraph should have a green background.</p>
+ <div>This div contains only one paragraph.
+  <p>This paragraph should be unstyled.</p>
+ </div>
+
+<main>
+<div>I am `div` #1.</div>
+<p>I am the only `p` among my siblings.</p>
+<div>I am `div` #2.</div>
+<div>I am `div` #3.
+<i>I am the only `i` child.</i>
+<i name>I am the only `i` child.</i>
+<em>I am `em` #1.</em>
+<em>I am `em` #2.</em>
+</div>
+</main>
+
+<div class="t1">
+		<p class="red">This paragraph should have green background.</p>
+		<address>But this address should be unstyled.</address>
+		<p class="red">This paragraph should have green background.</p>
+		</div>
+
+<p>This paragraph should have a green background</p>
+
+<blockquote>
+<div>
+<div>
+<p>This text should be green.</p>
+</div>
+</div>
+</blockquote>
+
+<blockquote><div>This text should be unstyled.</div></blockquote>
+<div>This text should be unstyled.</div>
+<div>This text should be unstyled.</div>
+<p>This text should be green.</p>
+
+<blockquote><div>This text should be unstyled.</div></blockquote>
+<div>
+<div>
+<p>This text should be green.</p>
+</div>
+</div>
+
+<p html:lang="en-us">This paragraph should have a green background.</p>
+<q foo="bargain-trash">This paragraph should be unstyled.</q>
+<r foo="bar-drink-glass">This paragraph should have a green background</r>
+<s foo="bar-drink-glass">This paragraph should be unstyled.</s>
+
+<p title="si on chantait">This paragraph should have a green background.</p>
+<q title="et si on chantait">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+
+<p title="si on chantait">This paragraph should have a green background.</p>
+<q title="si nous chantions">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+
+<p title="si on chantait">This paragraph should have a green background</p>
+<q title="si nous chantions">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+
+<p title="si on chantait">This paragraph should have a green background</p>
+<q foo="si on chantait">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background</r>
+<s b:title="si on chantait">This paragraph should have a green background</s>
+
+<p title="si on chantait">This paragraph should have a green background.</p>
+<q foo="si on chantait">This paragraph should be unstyled.</q>
+<q title="si nous chantions">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should have a green background.</s>
+
+<p class="un deux trois">This paragraph should have a green background.</p>
+<q a:bar="un deux trois">This paragraph should be unstyled.</q>
+<q foo="un second deuxieme trois">This paragraph should be unstyled.</q>
+<r foo="un deux trois">This paragraph should have a green background.</r>
+<s foo="un deux trois">This paragraph should have a green background.</s>
+
+<p lang="en-us">This paragraph should have a green background</p>
+<q foo="un-deux-trois">This paragraph should be unstyled.</q>
+<q foo="un-second-deuxieme-trois">This paragraph should be unstyled.</q>
+<r foo="un-d-trois">This paragraph should have a green background.</r>
+<s foo="un-d-trois">This paragraph should be unstyled.</s>
+
+<p title="si on chantait">This paragraph should have a green background.</p>
+<q title="si nous chantions">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should have a green background.</s>
+<t b:ti="si on chantait">This paragraph should be unstyled.</t>
+
+<p title="si on chantait">This paragraph should have a green background</p>
+<q title="si on chantait">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background</r>
+
+<p title="si on chantait">This paragraph should have a green background.</p>
+<q title="si on chantait">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+<t title="si nous chantions">This paragraph should be unstyled.</t>
+
+<p class="bar foo toto">This paragraph should have a green background.</p>
+<address class="bar foofoo toto">This address should be unstyled.</address>
+<q class="bar foo toto">This paragraph should have a green background.</q>
+<r b:class="bar foo toto">This paragraph should be unstyled.</r>
+
+<p lang="foo-bar">This paragraph should have a green background.</p>
+<address lang="foo-b">This address should be unstyled.</address>
+<address lang="foo-barbar-toto">This address should be unstyled.</address>
+<q myattr="tat-tut-tot">This paragraph should have a green background.</q>
+<r b:myattr="tat-tut-tot">This paragraph should be unstyled.</r>
+
+<p title="si on chantait">This paragraph should have a green background.</p>
+<q title="si nous chantions">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+<t b:ti="si on chantait">This paragraph should be unstyled.</t>
+
+<p title="si on chantait">This paragraph should have a green background.</p>
+<q title="si nous chantions">This paragraph should be unstyled.</q>
+<r title="si on chantait">This paragraph should have a green background.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+<t title="si nous chantions">This paragraph should be unstyled.</t>
+
+<div class="test">
+ <p>This paragraph should have a green background.</p>
+ <p>This paragraph should have a green background.</p>
+ <p xmlns="">This paragraph should have a green background.</p>
+ <p>
+ <l>This paragraph should have a green background.</l>
+ </p>
+</div>
+
+<div class="test">
+<div class="stub">
+<p>This paragraph should have a green background.</p>
+<p>This paragraph should have a green background.</p>
+<p xmlns="">This paragraph should have a green background.</p>
+<p>This paragraph should have a green background.</p>
+</div>
+<address>This address should have a green background.</address>
+<s>This paragraph should have a green background.</s>
+<t xmlns="">This paragraph should have a green background.</t>
+<u>This paragraph should have a green background.</u>
+</div>
+
+<div class="stub">
+<p>This paragraph should have a green background</p>
+<p>This paragraph should have a green background</p>
+<l>
+<p xmlns="">This paragraph should have a
+                green background</p>
+</l>
+<p>This paragraph should have a green background</p>
+</div>
+
+<div class="stub">
+<address>This address should be in green characters.</address>
+<s>This paragraph should be in green characters.</s>
+<t xmlns="">This paragraph should be in green characters.</t>
+<u>
+<v>This paragraph should be in green characters.</v>
+</u>
+</div>
+
+<div class="stub">
+<address>This address should have a green background</address>
+<s>This paragraph should have a green background</s>
+<t xmlns="">This paragraph should have a green background</t>
+<u>This paragraph should have a green background</u>
+</div>
+
+<div class="stub">
+<address>This address should be in green characters.</address>
+<s>This paragraph should be in green characters.</s>
+<u>This paragraph should be in green characters.</u>
+</div>
+
+<div class="stub">
+<t xmlns="">This paragraph should be in green characters.</t>
+</div>
+
+<div class="stub">
+<p title="foo">This paragraph should have a green background.</p>
+<q title="foo">This paragraph should be unstyled.</q>
+<s title="foobar">This paragraph should have a green background.</s>
+<r b:title="foo">This paragraph should have a green background.</r>
+</div>
+
+<div class="stub">
+<q foo="hgt bardot f">This paragraph should have a green background.</q>
+<r foo="hgt bar f">This paragraph should be unstyled.</r>
+<s foo="hgt bar f">This paragraph should have a green background.</s>
+</div>
+
+<div class="stub">
+<q foo="bargain-trash">This paragraph should have a green background.</q>
+<r foo="bar-drink-glass">This paragraph should be unstyled.</r>
+<s foo="bar-drink-glass">This paragraph should have a green background.</s>
+</div>
+
+<div class="stub">
+<q title="et si on chantait">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+<s b:title="si on chantait">This paragraph should have a green background.</s>
+</div>
+
+<div class="stub">
+<q title="si nous chantions">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+<s b:title="si on chantait">This paragraph should have a green background.</s>
+</div>
+
+<div class="stub">
+<q foo="si on chantait">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+</div>
+
+<div class="stub">
+<q foo="si on chantait">This paragraph should have a green background.</q>
+<q title="si nous chantions">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+</div>
+
+<div class="stub">
+<p class="un deux trois">This paragraph should be unstyled</p>
+<p class="un deu trois">This paragraph should have a green background.</p>
+<q a:bar="un deux trois">This paragraph should have a green background.</q>
+<q foo="un second deuxieme trois">This paragraph should have a green background.</q>
+<r foo="un deux trois">This paragraph should be unstyled.</r>
+<s foo="un deux trois">This paragraph should be unstyled.</s>
+</div>
+
+<div class="stub">
+<p lang="en-us">This paragraph should be unstyled.</p>
+<p lang="fr" class="foo">This paragraph should have a green background.</p>
+<q foo="un-deux-trois">This paragraph should have a green background.</q>
+<q foo="un-second-deuxieme-trois">This paragraph should have a green background.</q>
+<r foo="un-d-trois">This paragraph should be unstyled.</r>
+<s foo="un-d-trois">This paragraph should have a green background.</s>
+</div>
+
+<div class="stub">
+<p title="si on chantait">This paragraph should be unstyled.</p>
+<p title="si il chantait" class="red">This paragraph should have a green background.</p>
+<q title="si nous chantions">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+<t b:ti="si on chantait">This paragraph should have a green background.</t>
+</div>
+
+<div class="stub">
+<p title="si on chantait">This paragraph should be unstyled.</p>
+<p title="si tu chantais" class="red">This paragraph should have a green background.</p>
+<q title="si nous chantions">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+<s b:title="si on chantait">This paragraph should be unstyled.</s>
+<t b:ti="si on chantait">This paragraph should have a green background.</t>
+</div>
+
+<div class="stub">
+<q title="si on chantait">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+</div>
+
+<div class="stub">
+<q title="si on chantait">This paragraph should have a green background.</q>
+<r title="si on chantait">This paragraph should be unstyled.</r>
+<s b:title="si on chantait">This paragraph should have a green background.</s>
+<t title="si nous chantions">This paragraph should have a green background.</t>
+</div>
+
+<div class="stub">
+<p class="bar foo toto">This paragraph should be unstyled.</p>
+<address class="bar foofoo toto">This address should have a green background.</address>
+<q class="bar foo toto">This paragraph should be unstyled.</q>
+<r b:class="bar foo toto">This paragraph should have a green background.</r>
+</div>
+
+<div class="stub">
+<p lang="foo-bar">This paragraph should be unstyled.</p>
+<address lang="foo-b">This address should have a green background.</address>
+<address lang="foo-barbar-toto">This address should have a green background.</address>
+<q lang="foo-bar">This paragraph should be unstyled.</q>
+<r b:lang="foo-bar">This paragraph should have a green background.</r>
+</div>
+
+<test xmlns="http://www.example.org/">
+  <line type="odd">This line should be green.</line>
+  <line type="even">This line should be unstyled.</line>
+  <line type="odd" hidden="hidden">This line should be green.</line>
+  <line type="even">This line should be unstyled.</line>
+  <line type="odd">This line should be green.</line>
+  <line type="even">This line should be unstyled.</line>
+  <line type="odd">This line should be green.</line>
+  <line type="even" hidden="hidden">This line should be unstyled.</line>
+  <line type="odd">This line should be green.</line>
+  <line type="even">This line should be unstyled.</line>
+  <line type="odd">This line should be green.</line>
+  <line type="even" hidden="hidden">This line should be unstyled.</line>
+  <line type="odd" hidden="hidden">This line should be green.</line>
+  <line type="even">This line should be unstyled.</line>
+  <line type="odd">This line should be green.</line>
+ </test>
+
+<test xmlns="http://www.example.org/">
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="" hidden="hidden">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="" hidden="hidden">This line should be unstyled.</line>
+  <line type="match" hidden="hidden">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+ </test>
+
+<p>This line should have a green background.</p>
+
+<address></address>
+ <div class="text">This line should have a green background.</div>
+
+<address><!-- --></address>
+ <div class="text">This line should have a green background.</div>
+ <p>(Note: This test is based on unpublished errata.)</p>
+
+<address> </address>
+		<div class="text">This line should have a green background.</div>
+
+<address><span></span></address>
+		<div class="text">This line should have a green background.</div>
+
+<address xmlns="http://tests.example.org/xml-only/"></address>
+ <div class="text">This line should have a green background.</div>
+ <p>(Note: This test is based on unpublished errata.)</p>
+
+<p class="5cm">This line should have a green background.</p>
+
+<p class="one.word">This line should have a green background.</p>
+
+<div xmlns="http://www.w3.org/2000/xmlns/">
+   <p attribute="pass">This should be green.</p>
+</div>
+<div>
+	<p attribute="pass">This should be green.</p>
+</div>
+
+<div xmlns="http://www.w3.org/2000/xmlns/" xmlns:ns="http://www.w3.org/2000/xmlns/">
+   <ns:p ns:attribute="pass">This should be green.</ns:p>
+   <p attribute="pass">This should be green.</p>
+</div>
+<div>
+	<p attribute="pass">This should be green.</p>
+</div>
+
+<p id="id" class="class test">This line should be green.</p>
+  <div id="theid" class="class test">This line should be green.</div>
+
+<p xmlns="http://www.w3.org/1999/xhtml">This paragraph should be unstyled.</p>
+<address xmlns="http://www.w3.org/1999/xhtml">This address should be unstyled.</address>
+<p xmlns="http://www.w3.org/1999/xhtml" class="red">This paragraph should have green background.</p>
+<p xmlns="http://www.w3.org/1999/xhtml" class="red">This paragraph should have green background.</p>
+<dl xmlns="http://www.w3.org/1999/xhtml">
+  <dt class="red">First definition term that should have green background.</dt>
+    <dd class="red">First definition that should also have a green background.</dd>
+  <dt class="red">Second definition term that should have green background.</dt>
+    <dd class="red">Second definition that should have green background.</dd>
+  <dt>Third definition term.</dt>
+    <dd>Third definition.</dd>
+  <dt class="red">Fourth definition term that should have green background.</dt>
+    <dd class="red">Fourth definition that should have green background.</dd>
+  <dt class="red">Fifth definition term that should have green background.</dt>
+    <dd class="red">Fifth definition that should have green background.</dd>
+  <dt>Sixth definition term.</dt>
+    <dd>Sixth definition.</dd>
+</dl>
+
+<p xmlns="http://www.w3.org/1999/xhtml">This paragraph should be unstyled.</p>
+<address xmlns="http://www.w3.org/1999/xhtml">This address should be unstyled.</address>
+<p xmlns="http://www.w3.org/1999/xhtml" class="green">This paragraph should have green background.</p>
+<p xmlns="http://www.w3.org/1999/xhtml" class="green">This paragraph should have green background.</p>
+<dl xmlns="http://www.w3.org/1999/xhtml">
+  <dt class="green">First definition term that should have green background.</dt>
+    <dd class="green">First definition that should also have a green background.</dd>
+  <dt class="green">Second definition term that should have green background.</dt>
+    <dd class="green">Second definition that should have green background.</dd>
+  <dt>Third definition term.</dt>
+    <dd>Third definition.</dd>
+  <dt class="green">Fourth definition term that should have green background.</dt>
+    <dd class="green">Fourth definition that should have green background.</dd>
+  <dt class="green">Fifth definition term that should have green background.</dt>
+    <dd class="green">Fifth definition that should have green background.</dd>
+  <dt>Sixth definition term.</dt>
+    <dd>Sixth definition.</dd>
+</dl>
+
+<test xmlns="http://www.example.org/">
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match" hidden="hidden">This line should be green.</line>
+  <line type="" hidden="hidden">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="" hidden="hidden">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="">This line should be unstyled.</line>
+  <line type="match">This line should be green.</line>
+  <line type="">This line should be unstyled.</line>
+ </test>
+</body>
+</html>

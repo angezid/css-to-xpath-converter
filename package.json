@@ -14,17 +14,20 @@
     "url": "https://github.com/angezid"
   },
   "description": "Advanced CSS to XPath converter",
+  "main": "dist/converter.js",
   "repository": "angezid/css-to-xpath-converter",
   "bugs": {
     "url": "https://github.com/angezid/css-to-xpath-converter/issues"
   },
   "homepage": "https://github.com/angezid/css-to-xpath-converter",
   "scripts": {
-    "css2xpath": "node scripts/run-css2xpath-test.js",
+    "css2xpath": "node test/test.js",
     "build": "npm run css2xpath",
     "test": "npm run css2xpath"
   },
   "devDependencies": {
+    "puppeteer": "^22.11.2",
+    "puppeteer-core": "^22.11.2",
     "chalk": "^4.0.0"
   }
 }

@@ -7,8 +7,6 @@ It's inspired by [css2xpath](https://github.com/css2xpath/css2xpath), but it is 
 Although the converter is capture a lot of mistakes, but not all.
 
 This JavaScript version is ported from C# converter, which is intended to work with an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`.  
-C# version is heavily tested, but for now I don't have any idea how to translate these tests to run them in e.g. Puppeteer.  
-Currently it's only tested that JavaScript version generate XPathes exactly as C# version does.
 
 **Note** that generated XPathes may seem not optimised e.g. CSS selector `p:nth-of-type(3)` is resulted in `//p[(count(preceding-sibling::p) + 1) = 3]` instead of `//p[3]`, but it works with XPath of selector `p:not(:nth-of-type(3))` -> `//p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]` (CSS selector example is taken from AngleSharp tests).
 

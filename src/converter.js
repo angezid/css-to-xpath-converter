@@ -368,7 +368,7 @@
 				argument = obj.argument;
 
 				if (pseudoName === "root") {
-					xpath += "[ancestor-or-self::*[last()]]";
+					xpath = "/";
 
 				} else {
 					xpath = addOwner(owner, xpath, predicate);
@@ -464,7 +464,7 @@
 	}
 
 	function processAttribute(attrName, attrValue, operation, modifier, xpath) {
-		const ignoreCase = modifier === "i",
+		const ignoreCase = modifier === "i" || attrName === 'type' && getOwner(xpath) == "input",
 			lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
 
 		if (attrName === "class") {
@@ -628,7 +628,7 @@
 				break;
 
 			case "first-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 				//xpath += addRange("[name(preceding-sibling::", owner, ") != name()]");
 				xpath += addRange("[not(preceding-sibling::", owner, ")]");
 				break;
@@ -655,7 +655,7 @@
 				break;
 
 			case "only-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 				xpath += addRange("[count(preceding-sibling::", owner, ") = 0 and count(following-sibling::", owner, ") = 0]");
 				//xpath += addRange("[name(preceding-sibling::", owner, ") != name() and name(following-sibling::", owner, ") != name()]");
 				break;
@@ -727,7 +727,7 @@
 				break;
 
 			case "last-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 				//xpath += addRange("[name(following-sibling::", owner, ") != name()]");
 				xpath += addRange("[not(following-sibling::", owner, ")]");
 				break;
@@ -837,7 +837,7 @@
 				break;
 
 			case "nth-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 
 				if (isNumber(arg)) {
 					xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) = ", arg, "]");
@@ -864,7 +864,7 @@
 				break;
 
 			case "nth-last-of-type" :
-				owner = getOwner(xpath);
+				owner = getOwner(xpath, name);
 
 				if (isNumber(arg)) {
 					xpath += addRange("[position() >= (last() - ", arg, ") and (count(following-sibling::", owner, ") + 1) = ", arg, "]");
@@ -1065,9 +1065,9 @@
 		return false;
 	}
 
-	function getOwner(xpath) {
+	function getOwner(xpath, name) {
 		let str = xpath === 'self::node()' ? combined : xpath,
-			owner = [],
+			array = [],
 			index = 0,
 			num = 10;
 
@@ -1078,21 +1078,24 @@
 					index = findBracketStart(str, '[', ']');
 
 					if (index > -1) {
-						owner.push(str.substring(index));
+						array.push(str.substring(index));
 						str = str.substring(0, index);
 
 					} else break;
 
 				} else {
-					owner.push(rm[0]);
+					array.push(rm[0]);
 					break;
 				}
 			}
 		}
 
-		if (owner.length) {
-			owner.reverse();
-			return owner.join('');
+		if (array.length) {
+			array.reverse();
+			const owner = array.join('');
+			//if (name && owner == "*") warning += "The universal selector with pseudo-class ':" + name + "' is not work correctly ";
+			if (name && owner == "*") parseException("Pseudo-class ':" + name + "' is required element name to work correctly; '*' is not implemented.");
+			return owner;
 		}
 		return '';
 	}
