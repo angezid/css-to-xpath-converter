@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+	<meta charset='utf-8'>
+	<title>Test coverage</title>
+</head>
+<body><h2>CssSelector.json</h2>
+<h3>Passed:</h3>
+<p>* &nbsp;===&nbsp; //*</p>
+<p>body === //body</p>
+<p>p > * === //p/*</p>
+<p>div>p === //div/p</p>
+<p>div p === //div//p</p>
+<p>div a === //div//a</p>
+<p>div> p === //div/p</p>
+<p>div >p === //div/p</p>
+<p>div > p === //div/p</p>
+<p>div div === //div//div</p>
+<p>div[id] === //div[@id]</p>
+<p>div p a === //div//p//a</p>
+<p>div > * > * === //div/*/*</p>
+<p>#myDiv === //*[@id='myDiv']</p>
+<p>form input === //form//input</p>
+<p>#myDiv>* === //*[@id='myDiv']/*</p>
+<p>#-a-b-c- === //*[@id='-a-b-c-']</p>
+<p>#myDiv * === //*[@id='myDiv']//*</p>
+<p>div#myDiv === //div[@id='myDiv']</p>
+<p>div:has(> p) === //div[count(p) > 0]</p>
+<p>div:has(p) === //div[count(.//p) > 0]</p>
+<p>*:empty === //*[not(*) and not(text())]</p>
+<p>div ~ form === //div/following-sibling::form</p>
+<p>*:last-child === //*[not(following-sibling::*)]</p>
+<p>p:last-child === //p[not(following-sibling::*)]</p>
+<p>*:first-child === //*[not(preceding-sibling::*)]</p>
+<p>p:first-child === //p[not(preceding-sibling::*)]</p>
+<p>a+span === //a/following-sibling::*[1]/self::span</p>
+<p>a+ span === //a/following-sibling::*[1]/self::span</p>
+<p>a +span === //a/following-sibling::*[1]/self::span</p>
+<p>a + span === //a/following-sibling::*[1]/self::span</p>
+<p>:nth-child(2) === //*[(count(preceding-sibling::*) + 1) = 2]</p>
+<p>*:nth-child(2) === //*[(count(preceding-sibling::*) + 1) = 2]</p>
+<p>p:nth-child(2) === //p[(count(preceding-sibling::*) + 1) = 2]</p>
+<p>:is(div, section) > h1 === //*[self::div or self::section]/h1</p>
+<p>p:has(+ p) === //p[count(following-sibling::*[1]/self::p) > 0]</p>
+<p>*:nth-child(-n+3) === //*[(count(preceding-sibling::*) + 1) <= 3]</p>
+<p>:nth-last-child(2) === //*[(count(following-sibling::*) + 1) = 2]</p>
+<p>a + span, div > p === //a/following-sibling::*[1]/self::span|//div/p</p>
+<p>span:nth-last-child(2) === //span[(count(following-sibling::*) + 1) = 2]</p>
+<p>div:has(p + p) === //div[count(.//p/following-sibling::*[1]/self::p) > 0]</p>
+<p>span:nth-child(even) === //span[(count(preceding-sibling::*) + 1) mod 2 = 0]</p>
+<p>*:only-child === //*[not(preceding-sibling::*) and not(following-sibling::*)]</p>
+<p>p:only-child === //p[not(preceding-sibling::*) and not(following-sibling::*)]</p>
+<p>p.ohyeah === //p[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]</p>
+<p>.checkit === //*[contains(concat(' ', normalize-space(@class), ' '), ' checkit ')]</p>
+<p>*[class^=check] === //*[contains(concat(' ', normalize-space(@class), ' '), ' check')]</p>
+<p>#myDiv :nth-last-child(2) === //*[@id='myDiv']//*[(count(following-sibling::*) + 1) = 2]</p>
+<p>p.hiclass,a === //p[contains(concat(' ', normalize-space(@class), ' '), ' hiclass ')]|//a</p>
+<p>div .ohyeah === //div//*[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]</p>
+<p>p.hiclass, a === //p[contains(concat(' ', normalize-space(@class), ' '), ' hiclass ')]|//a</p>
+<p>p.hiclass ,a === //p[contains(concat(' ', normalize-space(@class), ' '), ' hiclass ')]|//a</p>
+<p>p.hiclass , a === //p[contains(concat(' ', normalize-space(@class), ' '), ' hiclass ')]|//a</p>
+<p>div > p.ohyeah === //div/p[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]</p>
+<p>span:nth-child(10n+1)  === //span[position() >= 1 and (count(preceding-sibling::*)) mod 10 = 0]</p>
+<p>span:nth-child(10n-1)  === //span[position() >= 1 and (count(preceding-sibling::*) + 2) mod 10 = 0]</p>
+<p>section:not(:has(h1, h2, h3, h4, h5, h6)) === //section[not(self::node()[count(.//h1|.//h2|.//h3|.//h4|.//h5|.//h6) > 0])]</p>
+<p>section:has(:not(h1, h2, h3, h4, h5, h6)) === //section[count(.//*[not(self::h1|self::h2|self::h3|self::h4|self::h5|self::h6)]) > 0]</p>
+<p>.omg.ohyeah === //*[contains(concat(' ', normalize-space(@class), ' '), ' omg ') and contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]</p>
+<p>input[type='text'] === //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')=translate('text', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]</p>
+<p>input[type='TEXT'] === //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')=translate('TEXT', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]</p>
+<p>span:is(.this, .that) === //span[self::node()[contains(concat(' ', normalize-space(@class), ' '), ' this ')] or self::node()[contains(concat(' ', normalize-space(@class), ' '), ' that ')]]</p>
+<p>*[style*='display: none' i],*[style*='display:none' i] === //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]|//*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]</p>
+<h2>CssToXPath.json</h2>
+<h3>Passed:</h3>
+<p>* === //*</p>
+<p>ul === //ul</p>
+<p>div, p === //div|//p</p>
+<p>p:has(b) === //p[count(.//b) > 0]</p>
+<p>:root === //ancestor-or-self::*[last()]</p>
+<p>div:empty === //div[not(*) and not(text())]</p>
+<p>a:is([name], [href]) === //a[@name or @href]</p>
+<p>main > div[id=lists] === //main/div[@id='lists']</p>
+<p>div:last-child === //div[not(following-sibling::*)]</p>
+<p>div:first-child === //div[not(preceding-sibling::*)]</p>
+<p>div[id]:has(h1, h2) === //div[@id][count(.//h1|.//h2) > 0]</p>
+<p>ul>li[title*='Item'] === //ul/li[contains(@title, 'Item')]</p>
+<p>p:nth-child(3) === //p[(count(preceding-sibling::*) + 1) = 3]</p>
+<p>ul>li[title^='Item'] === //ul/li[starts-with(@title, 'Item')]</p>
+<p>p:nth-of-type(3) === //p[(count(preceding-sibling::p) + 1) = 3]</p>
+<p>body[lang|=EN] === //body[@lang='EN' or starts-with(@lang, 'EN-')]</p>
+<p>p:nth-last-child(3) === //p[(count(following-sibling::*) + 1) = 3]</p>
+<p>article p:first-of-type === //article//p[not(preceding-sibling::p)]</p>
+<p>p:nth-child(odd) === //p[(count(preceding-sibling::*) + 1) mod 2 = 1]</p>
+<p>article em:last-of-type === //article//em[not(following-sibling::em)]</p>
+<p>p:nth-child(even) === //p[(count(preceding-sibling::*) + 1) mod 2 = 0]</p>
+<p>ul li:nth-child(3) === //ul//li[(count(preceding-sibling::*) + 1) = 3]</p>
+<p>p:nth-of-type(odd) === //p[(count(preceding-sibling::p) + 1) mod 2 = 1]</p>
+<p>p:nth-of-type(even) === //p[(count(preceding-sibling::p) + 1) mod 2 = 0]</p>
+<p>ul li:nth-child(n+3) === //ul//li[(count(preceding-sibling::*) + 1) >= 3]</p>
+<p>ul li:nth-child(n+4) === //ul//li[(count(preceding-sibling::*) + 1) >= 4]</p>
+<p>ul li:nth-of-type(3) === //ul//li[(count(preceding-sibling::li) + 1) = 3]</p>
+<p>ul li:nth-child(-n+4) === //ul//li[(count(preceding-sibling::*) + 1) <= 4]</p>
+<p>p:nth-last-child(odd) === //p[(count(following-sibling::*) + 1) mod 2 = 1]</p>
+<p>ul>li[title*='em Twenty On'] === //ul/li[contains(@title, 'em Twenty On')]</p>
+<p>p:nth-last-child(even) === //p[(count(following-sibling::*) + 1) mod 2 = 0]</p>
+<p>ul li:nth-last-child(3) === //ul//li[(count(following-sibling::*) + 1) = 3]</p>
+<p>ul li:nth-of-type(n+3) === //ul//li[(count(preceding-sibling::li) + 1) >= 3]</p>
+<p>ul li:nth-of-type(n+4) === //ul//li[(count(preceding-sibling::li) + 1) >= 4]</p>
+<p>p:nth-last-of-type(odd) === //p[(count(following-sibling::p) + 1) mod 2 = 1]</p>
+<p>article>div>em:last-of-type === //article/div/em[not(following-sibling::em)]</p>
+<p>ul li:nth-of-type(-n+4) === //ul//li[(count(preceding-sibling::li) + 1) <= 4]</p>
+<p>p:nth-last-of-type(even) === //p[(count(following-sibling::p) + 1) mod 2 = 0]</p>
+<p>ul li:nth-child(odd) === //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 1]</p>
+<p>ul li:nth-child(even) === //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 0]</p>
+<p>ul li:nth-of-type(odd) === //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 1]</p>
+<p>ul li:nth-of-type(even) === //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 0]</p>
+<p>:is(ol,ul) :is(ol,ul) ol === //*[self::ol or self::ul]//*[self::ol or self::ul]//ol</p>
+<p>ul li:nth-last-child(odd) === //ul//li[(count(following-sibling::*) + 1) mod 2 = 1]</p>
+<p>ul li:nth-last-child(even) === //ul//li[(count(following-sibling::*) + 1) mod 2 = 0]</p>
+<p>div>*:only-child === //div/*[not(preceding-sibling::*) and not(following-sibling::*)]</p>
+<p>div:has(p, ul), div[id='header'] === //div[count(.//p|.//ul) > 0]|//div[@id='header']</p>
+<p>ul li:nth-last-child(n+3) === //ul//li[(count(preceding-sibling::*) + 1) <= (last() - 2)]</p>
+<p>ul li:nth-last-child(n+4) === //ul//li[(count(preceding-sibling::*) + 1) <= (last() - 3)]</p>
+<p>ul li:nth-last-child(-n+4) === //ul//li[(count(preceding-sibling::*) + 1) >= (last() - 3)]</p>
+<p>ul li:nth-last-of-type(n+3) === //ul//li[(count(preceding-sibling::li) + 1) <= (last() - 2)]</p>
+<p>ul li:nth-last-of-type(n+4) === //ul//li[(count(preceding-sibling::li) + 1) <= (last() - 3)]</p>
+<p>ul li:nth-last-of-type(-n+4) === //ul//li[(count(preceding-sibling::li) + 1) >= (last() - 3)]</p>
+<p>ul li:nth-child(3n+2) === //ul//li[position() >= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]</p>
+<p>ul li:nth-child(5n-2) === //ul//li[position() >= 1 and (count(preceding-sibling::*) + 3) mod 5 = 0]</p>
+<p>p:nth-last-of-type(3) === //p[position() >= (last() - 3) and (count(following-sibling::p) + 1) = 3]</p>
+<p>ul li:nth-child(-3n+4) === //ul//li[position() <= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]</p>
+<p>ul li:nth-of-type(3n+2) === //ul//li[position() >= 2 and (count(preceding-sibling::li) - 1) mod 3 = 0]</p>
+<p>ul li:nth-of-type(3n-2) === //ul//li[position() >= 1 and (count(preceding-sibling::li) + 3) mod 3 = 0]</p>
+<p>ul li:nth-of-type(-3n+4) === //ul//li[position() <= 4 and (count(preceding-sibling::li) - 3) mod 3 = 0]</p>
+<p>ul>li[title$='One'] === //ul/li[substring(@title, string-length(@title) - (string-length('One') - 1))='One']</p>
+<p>article p:only-of-type === //article//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0]</p>
+<p>ul li:nth-last-of-type(3) === //ul//li[position() >= (last() - 3) and (count(following-sibling::li) + 1) = 3]</p>
+<p>ul li:nth-last-child(5n-2) === //ul//li[position() <= last() and (count(following-sibling::*) + 3) mod 5 = 0]</p>
+<p>ul li:nth-last-of-type(3n-2) === //ul//li[position() <= last() and (count(following-sibling::li) + 3) mod 3 = 0]</p>
+<p>ul li:nth-last-child(3n+2) === //ul//li[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 3 = 0]</p>
+<p>article div:only-of-type === //article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]</p>
+<p>ul li:nth-last-child(-3n+4) === //ul//li[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]</p>
+<p>ul li:nth-last-of-type(3n+2) === //ul//li[position() <= (last() - 1) and (count(following-sibling::li) - 1) mod 3 = 0]</p>
+<p>ul li:nth-last-of-type(-3n+4) === //ul//li[position() >= (last() - 3) and (count(following-sibling::li) - 3) mod 3 = 0]</p>
+<p>ul>li[title='item one' i] === //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')=translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]</p>
+<p>ul>li[title^='item' i] === //ul/li[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('item', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]</p>
+<p>ul  >  li[  title  =  'item one'  i  ] === //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')=translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]</p>
+<p>ul>li[title*='em twenty on' i] === //ul/li[contains(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('em twenty on', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]</p>
+<p>ul>li[title$='one' i] === //ul/li[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('one') - 1))=translate('one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]</p>
+<p>ul>li[title~='two' i] === //ul/li[contains(concat(' ', normalize-space(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')), ' '), concat(' ', translate('two', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), ' '))]</p>
+<p>body[lang|=En i] === //body[translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')=translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-'))]</p>
+<h2>CssW3CSelector.json</h2>
+<h3>Passed:</h3>
+<p>li,p === //li|//p</p>
+<p>address === //address</p>
+<p>#foo === //*[@id='foo']</p>
+<p>li#t2 === //li[@id='t2']</p>
+<p>p[title] === //p[@title]</p>
+<p>[hidden] === //*[@hidden]</p>
+<p>p:empty === //p[not(*) and not(text())]</p>
+<p>*:root === //ancestor-or-self::*[last()]</p>
+<p>#pass#pass === //*[@id='pass'][@id='pass']</p>
+<p>address[lang=fi] === //address[@lang='fi']</p>
+<p>blockquote > div p === //blockquote/div//p</p>
+<p>blockquote div > p === //blockquote//div/p</p>
+<p>p[title*=bar] === //p[contains(@title, 'bar')]</p>
+<p>address[title=foo] === //address[@title='foo']</p>
+<p>p[title^=foo] === //p[starts-with(@title, 'foo')]</p>
+<p>address:empty === //address[not(*) and not(text())]</p>
+<p>p *:last-child === //p//*[not(following-sibling::*)]</p>
+<p>p *:first-child === //p//*[not(preceding-sibling::*)]</p>
+<p>#test1:empty === //*[@id='test1'][not(*) and not(text())]</p>
+<p>#test2:empty === //*[@id='test2'][not(*) and not(text())]</p>
+<p>p[lang|=en] === //p[@lang='en' or starts-with(@lang, 'en-')]</p>
+<p>#two:first-child === //*[@id='two'][not(preceding-sibling::*)]</p>
+<p>p:not(:target) === //p[not(self::node()[starts-with(@href, '#')])]</p>
+<p>address:last-of-type === //address[not(following-sibling::address)]</p>
+<p>address:first-of-type === //address[not(preceding-sibling::address)]</p>
+<p>.t1 === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]</p>
+<p>blockquote + div p === //blockquote/following-sibling::*[1]/self::div//p</p>
+<p>*.t1 === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]</p>
+<p>li.t2 === //li[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]</p>
+<p>p:only-child === //p[not(preceding-sibling::*) and not(following-sibling::*)]</p>
+<p>p > *:not(:last-child) === //p/*[not(self::node()[not(following-sibling::*)])]</p>
+<p>p[class~=b] === //p[contains(concat(' ', normalize-space(@class), ' '), ' b ')]</p>
+<p>p > *:not(:first-child) === //p/*[not(self::node()[not(preceding-sibling::*)])]</p>
+<p>[type~=odd] === //*[contains(concat(' ', normalize-space(@type), ' '), ' odd ')]</p>
+<p>#test:not(:empty) === //*[@id='test'][not(self::node()[not(*) and not(text())])]</p>
+<p>line:nth-of-type(odd) === //line[(count(preceding-sibling::line) + 1) mod 2 = 1]</p>
+<p>div.t1 p === //div[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//p</p>
+<p>[type~=match] === //*[contains(concat(' ', normalize-space(@type), ' '), ' match ')]</p>
+<p>div p.test === //div//p[contains(concat(' ', normalize-space(@class), ' '), ' test ')]</p>
+<p>div.test * === //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*</p>
+<p>div.stub * === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*</p>
+<p>div.stub v === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//v</p>
+<p>div.stub > * === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]/*</p>
+<p>table.t1 td === //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td</p>
+<p>blockquote+div~p === //blockquote/following-sibling::*[1]/self::div/following-sibling::p</p>
+<p>blockquote~div+p === //blockquote/following-sibling::div/following-sibling::*[1]/self::p</p>
+<p>p:not(:nth-of-type(3)) === //p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]</p>
+<p>address:not(:last-of-type) === //address[not(self::node()[not(following-sibling::address)])]</p>
+<p>address:not(:first-of-type) === //address[not(self::node()[not(preceding-sibling::address)])]</p>
+<p>address[title~=foo] === //address[contains(concat(' ', normalize-space(@title), ' '), ' foo ')]</p>
+<p>ul li:nth-child(2n+1) === //ul//li[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]</p>
+<p>line:nth-child(3n-1) === //line[position() >= 1 and (count(preceding-sibling::*) + 2) mod 3 = 0]</p>
+<p>p[title$=bar] === //p[substring(@title, string-length(@title) - (string-length('bar') - 1))='bar']</p>
+<p>ol li:nth-child(2n+0) === //ol//li[position() >= 1 and (count(preceding-sibling::*) + 1) mod 2 = 0]</p>
+<p>div:not(.t1) === //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])]</p>
+<p>p:not(:only-child) === //p[not(self::node()[not(preceding-sibling::*) and not(following-sibling::*)])]</p>
+<p>ul > li:not(:nth-child(odd)) === //ul/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 1])]</p>
+<p>ol > li:not(:nth-child(even)) === //ol/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 0])]</p>
+<p>div.test *:not(a) === //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::a)]</p>
+<p>div.stub *:not(p) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::p)]</p>
+<p>div.stub p~p === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//p/following-sibling::p</p>
+<p>div.test *:not(div) === //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::div)]</p>
+<p>div.stub *:not(div) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::div)]</p>
+<p>div.stub *:not(foo) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::foo)]</p>
+<p>line:nth-last-of-type(3n-1) === //line[position() <= last() and (count(following-sibling::line) + 2) mod 3 = 0]</p>
+<p>div.stub *:not(#foo) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id='foo')]</p>
+<p>.t1 td:last-child === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(following-sibling::*)]</p>
+<p>.t1 td:first-child === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(preceding-sibling::*)]</p>
+<p>div.stub p+p === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//p/following-sibling::*[1]/self::p</p>
+<p>p:not(:nth-last-of-type(3)) === //p[not(self::node()[position() >= (last() - 3) and (count(following-sibling::p) + 1) = 3])]</p>
+<p>div.test *:not(p):not(div) === //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::p)][not(self::div)]</p>
+<p>p.t1.t2 === //p[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]</p>
+<p>.t1 td:not(:last-child) === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(self::node()[not(following-sibling::*)])]</p>
+<p>.t1 td:not(:first-child) === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(self::node()[not(preceding-sibling::*)])]</p>
+<p>table.t1 tr:nth-child(-1n+4) === //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[(count(preceding-sibling::*) + 1) <= 4]</p>
+<p>div.stub *:not([title*=' on']) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(@title, ' on')])]</p>
+<p>address.t5.t5 === //address[contains(concat(' ', normalize-space(@class), ' '), ' t5 ') and contains(concat(' ', normalize-space(@class), ' '), ' t5 ')]</p>
+<p>div.stub *:not([title^='si on']) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[starts-with(@title, 'si on')])]</p>
+<p>.t1:not(.t2) === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])]</p>
+<p>:not(.t2).t1 === //*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])][contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]</p>
+<p>.t2:not(.t1) === //*[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])]</p>
+<p>:not(.t1).t2 === //*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])][contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]</p>
+<p>table.t2 td:nth-child(3n+1) === //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[position() >= 1 and (count(preceding-sibling::*)) mod 3 = 0]</p>
+<p>table.t1 tr:not(:nth-child(-1n+4)) === //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[not(self::node()[(count(preceding-sibling::*) + 1) <= 4])]</p>
+<p>table.t1 td,table.t2 td === //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td|//table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td</p>
+<p>div.stub *:not(.foo) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' foo ')])]</p>
+<p>p:not(.t1):not(.t2) === //p[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])]</p>
+<p>table.t2 td:not(:nth-child(3n+1)) === //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[not(self::node()[position() >= 1 and (count(preceding-sibling::*)) mod 3 = 0])]</p>
+<p>address:not(.t5):not(.t5) === //address[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t5 ')])][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t5 ')])]</p>
+<p>.t1 *:not(address:only-of-type) === //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//*[not(self::address[count(preceding-sibling::address) = 0 and count(following-sibling::address) = 0])]</p>
+<p>div.stub *:not([title$='tait']) === //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[substring(@title, string-length(@title) - (string-length('tait') - 1))='tait'])]</p>
+<p>main p:only-of-type, main i[name]:only-of-type === //main//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0]|//main//i[@name][count(preceding-sibling::i) = 0 and count(following-sibling::i) = 0]</p>
+<p>p:not(#other).class:not(.fail).test#id#id === //p[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='id'][@id='id']</p>
+<h2>Slickspeed.json</h2>
+<h3>Passed:</h3>
+<p>div === //div</p>
+<p>div p === //div//p</p>
+<p>div > p === //div/p</p>
+<p>div p a === //div//p//a</p>
+<p>#title === //*[@id='title']</p>
+<p>div, p, a === //div|//p|//a</p>
+<p>h1#title === //h1[@id='title']</p>
+<p>div #title === //div//*[@id='title']</p>
+<p>div ~ p === //div/following-sibling::p</p>
+<p>p:last-child === //p[not(following-sibling::*)]</p>
+<p>p:first-child === //p[not(preceding-sibling::*)]</p>
+<p>div + p === //div/following-sibling::*[1]/self::p</p>
+<p>p:nth-child(n) === //p[(count(preceding-sibling::*) + 1) >= 1]</p>
+<p>p:nth-child(odd) === //p[(count(preceding-sibling::*) + 1) mod 2 = 1]</p>
+<p>p:nth-child(even) === //p[(count(preceding-sibling::*) + 1) mod 2 = 0]</p>
+<p>.note === //*[contains(concat(' ', normalize-space(@class), ' '), ' note ')]</p>
+<p>p:only-child === //p[not(preceding-sibling::*) and not(following-sibling::*)]</p>
+<p>p:nth-child(2n+1) === //p[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]</p>
+<p>div.example === //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')]</p>
+<p>p:nth-child(2n) === //p[position() >= 1 and (count(preceding-sibling::*) + 1) mod 2 = 0]</p>
+<p>ul .tocline2 === //ul//*[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]</p>
+<p>div:not(.example) === //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' example ')])]</p>
+<p>ul.toc li.tocline2 === //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]//li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]</p>
+<p>ul.toc > li.tocline2 === //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]/li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]</p>
+<p>div[class^=exa][class$=mple] === //div[contains(concat(' ', normalize-space(@class), ' '), ' exa')][contains(concat(' ', normalize-space(@class), ' '), 'mple ')]</p>
+<p>div.example, div.note === //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')]|//div[contains(concat(' ', normalize-space(@class), ' '), ' note ')]</p>
+</body></html>

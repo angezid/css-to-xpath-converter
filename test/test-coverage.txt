@@ -1,0 +1,412 @@
+
+CssSelector.json
+
+Passed:
+* 89 === 89 //*
+body 1 === 1 //body
+p > * 3 === 3 //p/*
+#myDiv 1 === 1 //*[@id='myDiv']
+*:empty 21 === 21 //*[not(*) and not(text())]
+div p a 1 === 1 //div//p//a
+div > p 9 === 9 //div/p
+div[id] 2 === 2 //div[@id]
+#myDiv * 5 === 5 //*[@id='myDiv']//*
+#myDiv>* 2 === 2 //*[@id='myDiv']/*
+.checkit 2 === 2 //*[contains(concat(' ', normalize-space(@class), ' '), ' checkit ')]
+p.ohyeah 1 === 1 //p[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
+a + span 1 === 1 //a/following-sibling::*[1]/self::span
+#-a-b-c- 1 === 1 //*[@id='-a-b-c-']
+div#myDiv 1 === 1 //div[@id='myDiv']
+div:has(p) 9 === 9 //div[count(.//p) > 0]
+p:has(+ p) 2 === 2 //p[count(following-sibling::*[1]/self::p) > 0]
+div ~ form 1 === 1 //div/following-sibling::form
+p.hiclass,a 4 === 4 //p[contains(concat(' ', normalize-space(@class), ' '), ' hiclass ')] | //a
+.omg.ohyeah 1 === 1 //*[contains(concat(' ', normalize-space(@class), ' '), ' omg ') and contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
+div .ohyeah 1 === 1 //div//*[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
+div > * > * 9 === 9 //div/*/*
+div:has(> p) 7 === 7 //div[count(p) > 0]
+*:last-child 37 === 37 //*[not(following-sibling::*)]
+p:last-child 7 === 7 //p[not(following-sibling::*)]
+*:only-child 25 === 25 //*[not(preceding-sibling::*) and not(following-sibling::*)]
+p:only-child 4 === 4 //p[not(preceding-sibling::*) and not(following-sibling::*)]
+*:first-child 37 === 37 //*[not(preceding-sibling::*)]
+p:first-child 6 === 6 //p[not(preceding-sibling::*)]
+:nth-child(2) 12 === 12 //*[(count(preceding-sibling::*) + 1) = 2]
+div:has(p + p) 3 === 3 //div[count(.//p/following-sibling::*[1]/self::p) > 0]
+*:nth-child(2) 12 === 12 //*[(count(preceding-sibling::*) + 1) = 2]
+p:nth-child(2) 4 === 4 //p[(count(preceding-sibling::*) + 1) = 2]
+div > p.ohyeah 1 === 1 //div/p[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
+*[class^=check] 2 === 2 //*[contains(concat(' ', normalize-space(@class), ' '), ' check')]
+*:nth-child(-n+3) 54 === 54 //*[(count(preceding-sibling::*) + 1) <= 3]
+a + span, div > p 10 === 10 //a/following-sibling::*[1]/self::span | //div/p
+:nth-last-child(2) 12 === 12 //*[(count(following-sibling::*) + 1) = 2]
+input[type='text'] 1 === 1 //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('text', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+input[type='TEXT'] 1 === 1 //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('TEXT', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+span:nth-child(even) 5 === 5 //span[(count(preceding-sibling::*) + 1) mod 2 = 0]
+span:is(.this, .that) 3 === 3 //span[self::node()[contains(concat(' ', normalize-space(@class), ' '), ' this ')] or self::node()[contains(concat(' ', normalize-space(@class), ' '), ' that ')]]
+:is(div, section) > h1 4 === 4 //*[self::div or self::section]/h1
+span:nth-child(10n-1)  1 === 1 //span[position() >= 1 and (count(preceding-sibling::*) + 2) mod 10 = 0]
+span:nth-child(10n+1)  3 === 3 //span[position() >= 1 and (count(preceding-sibling::*)) mod 10 = 0]
+span:nth-last-child(2) 1 === 1 //span[(count(following-sibling::*) + 1) = 2]
+#myDiv :nth-last-child(2) 2 === 2 //*[@id='myDiv']//*[(count(following-sibling::*) + 1) = 2]
+section:not(:has(h1, h2, h3, h4, h5, h6)) 1 === 1 //section[not(self::node()[count(.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6) > 0])]
+section:has(:not(h1, h2, h3, h4, h5, h6)) 2 === 2 //section[count(.//*[not(self::h1 | self::h2 | self::h3 | self::h4 | self::h5 | self::h6)]) > 0]
+*[style*='display: none' i],*[style*='display:none' i] 1 === 1 //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))] | //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+
+Have no matches:
+head p - 0 - //head//p
+#theBody #myDiv - 0 - //*[@id='theBody']//*[@id='myDiv']
+#theBody>#myDiv - 0 - //*[@id='theBody']/*[@id='myDiv']
+#someOtherDiv>* - 0 - //*[@id='someOtherDiv']/*
+input[id='text'] - 0 - //input[@id = 'text']
+input[id='TEXT'] - 0 - //input[@id = 'TEXT']
+span:nth-last-child(3) - 0 - //span[(count(following-sibling::*) + 1) = 3]
+#theBody #whatwhatwhat - 0 - //*[@id='theBody']//*[@id='whatwhatwhat']
+#theBody>#someOtherDiv - 0 - //*[@id='theBody']/*[@id='someOtherDiv']
+span.this:nth-child(-n+3) - 0 - //span[contains(concat(' ', normalize-space(@class), ' '), ' this ')][(count(preceding-sibling::*) + 1) <= 3]
+#whatwhatwhat #someOtherDiv - 0 - //*[@id='whatwhatwhat']//*[@id='someOtherDiv']
+dd:nth-child(1)>div:nth-child(3)>div:nth-child(1)>a - 0 - //dd[(count(preceding-sibling::*) + 1) = 1]/div[(count(preceding-sibling::*) + 1) = 3]/div[(count(preceding-sibling::*) + 1) = 1]/a
+
+Coverter errors:
+:scope > p converter error
+span:nth-child(10n+-1)  converter error
+*:nth-child(-n+3 of span.this) converter error
+
+
+CssToXPath.json
+
+Passed:
+* 123 === 123 //*
+ul 6 === 6 //ul
+:root 1 === 1 //ancestor-or-self::*[last()]
+div, p 33 === 33 //div | //p
+p:has(b) 2 === 2 //p[count(.//b) > 0]
+div:empty 1 === 1 //div[not(*) and not(text())]
+body[lang|=EN] 1 === 1 //body[@lang = 'EN' or starts-with(@lang, 'EN-')]
+div:last-child 6 === 6 //div[not(following-sibling::*)]
+p:nth-child(3) 3 === 3 //p[(count(preceding-sibling::*) + 1) = 3]
+div:first-child 5 === 5 //div[not(preceding-sibling::*)]
+body[lang|=En i] 1 === 1 //body[translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-'))]
+div>*:only-child 3 === 3 //div/*[not(preceding-sibling::*) and not(following-sibling::*)]
+p:nth-child(odd) 8 === 8 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
+p:nth-of-type(3) 2 === 2 //p[(count(preceding-sibling::p) + 1) = 3]
+p:nth-child(even) 7 === 7 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
+ul li:nth-child(3) 5 === 5 //ul//li[(count(preceding-sibling::*) + 1) = 3]
+p:nth-of-type(odd) 10 === 10 //p[(count(preceding-sibling::p) + 1) mod 2 = 1]
+ul>li[title$='One'] 5 === 5 //ul/li[substring(@title, string-length(@title) - (string-length('One') - 1)) = 'One']
+div[id]:has(h1, h2) 2 === 2 //div[@id][count(.//h1 | .//h2) > 0]
+p:nth-last-child(3) 4 === 4 //p[(count(following-sibling::*) + 1) = 3]
+p:nth-of-type(even) 5 === 5 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
+ul>li[title^='Item'] 10 === 10 //ul/li[starts-with(@title, 'Item')]
+ul>li[title*='Item'] 10 === 10 //ul/li[contains(@title, 'Item')]
+main > div[id=lists] 1 === 1 //main/div[@id = 'lists']
+a:is([name], [href]) 2 === 2 //a[@name or @href]
+ul li:nth-child(odd) 22 === 22 //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 1]
+ul li:nth-child(n+3) 27 === 27 //ul//li[(count(preceding-sibling::*) + 1) >= 3]
+ul li:nth-child(n+4) 22 === 22 //ul//li[(count(preceding-sibling::*) + 1) >= 4]
+ul li:nth-of-type(3) 5 === 5 //ul//li[(count(preceding-sibling::li) + 1) = 3]
+ul>li[title$='one' i] 5 === 5 //ul/li[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('one') - 1)) = translate('one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul>li[title~='two' i] 5 === 5 //ul/li[contains(concat(' ', normalize-space(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')), ' '), concat(' ', translate('two', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), ' '))]
+ul li:nth-child(even) 19 === 19 //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 0]
+ul li:nth-child(3n+2) 13 === 13 //ul//li[position() >= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]
+ul li:nth-child(-n+4) 24 === 24 //ul//li[(count(preceding-sibling::*) + 1) <= 4]
+ul li:nth-child(5n-2) 7 === 7 //ul//li[position() >= 1 and (count(preceding-sibling::*) + 3) mod 5 = 0]
+p:nth-last-child(odd) 9 === 9 //p[(count(following-sibling::*) + 1) mod 2 = 1]
+p:nth-last-of-type(3) 2 === 2 //p[position() >= (last() - 3) and (count(following-sibling::p) + 1) = 3]
+ul>li[title^='item' i] 10 === 10 //ul/li[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('item', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+ul li:nth-child(-3n+4) 12 === 12 //ul//li[position() <= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]
+p:nth-last-child(even) 6 === 6 //p[(count(following-sibling::*) + 1) mod 2 = 0]
+ul li:nth-of-type(odd) 22 === 22 //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 1]
+ul li:nth-of-type(n+3) 27 === 27 //ul//li[(count(preceding-sibling::li) + 1) >= 3]
+ul li:nth-of-type(n+4) 22 === 22 //ul//li[(count(preceding-sibling::li) + 1) >= 4]
+article p:only-of-type 4 === 4 //article//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0]
+ul li:nth-last-child(3) 5 === 5 //ul//li[(count(following-sibling::*) + 1) = 3]
+ul li:nth-of-type(even) 19 === 19 //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 0]
+ul li:nth-of-type(3n+2) 13 === 13 //ul//li[position() >= 2 and (count(preceding-sibling::li) - 1) mod 3 = 0]
+ul li:nth-of-type(3n-2) 17 === 17 //ul//li[position() >= 1 and (count(preceding-sibling::li) + 3) mod 3 = 0]
+ul li:nth-of-type(-n+4) 24 === 24 //ul//li[(count(preceding-sibling::li) + 1) <= 4]
+p:nth-last-of-type(odd) 10 === 10 //p[(count(following-sibling::p) + 1) mod 2 = 1]
+article p:first-of-type 5 === 5 //article//p[not(preceding-sibling::p)]
+article em:last-of-type 3 === 3 //article//em[not(following-sibling::em)]
+:is(ol,ul) :is(ol,ul) ol 1 === 1 //*[self::ol or self::ul]//*[self::ol or self::ul]//ol
+ul li:nth-of-type(-3n+4) 12 === 12 //ul//li[position() <= 4 and (count(preceding-sibling::li) - 3) mod 3 = 0]
+p:nth-last-of-type(even) 5 === 5 //p[(count(following-sibling::p) + 1) mod 2 = 0]
+article div:only-of-type 2 === 2 //article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]
+ul>li[title='item one' i] 4 === 4 //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul li:nth-last-child(odd) 22 === 22 //ul//li[(count(following-sibling::*) + 1) mod 2 = 1]
+ul li:nth-last-child(n+3) 27 === 27 //ul//li[(count(preceding-sibling::*) + 1) <= (last() - 2)]
+ul li:nth-last-child(n+4) 22 === 22 //ul//li[(count(preceding-sibling::*) + 1) <= (last() - 3)]
+ul li:nth-last-of-type(3) 5 === 5 //ul//li[position() >= (last() - 3) and (count(following-sibling::li) + 1) = 3]
+ul li:nth-last-child(even) 19 === 19 //ul//li[(count(following-sibling::*) + 1) mod 2 = 0]
+ul li:nth-last-child(3n+2) 13 === 13 //ul//li[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 3 = 0]
+ul li:nth-last-child(-n+4) 24 === 24 //ul//li[(count(preceding-sibling::*) + 1) >= (last() - 3)]
+ul li:nth-last-child(5n-2) 7 === 7 //ul//li[position() <= last() and (count(following-sibling::*) + 3) mod 5 = 0]
+ul li:nth-last-child(-3n+4) 12 === 12 //ul//li[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]
+ul li:nth-last-of-type(n+3) 27 === 27 //ul//li[(count(preceding-sibling::li) + 1) <= (last() - 2)]
+ul li:nth-last-of-type(n+4) 22 === 22 //ul//li[(count(preceding-sibling::li) + 1) <= (last() - 3)]
+article>div>em:last-of-type 2 === 2 //article/div/em[not(following-sibling::em)]
+ul>li[title*='em Twenty On'] 1 === 1 //ul/li[contains(@title, 'em Twenty On')]
+ul li:nth-last-of-type(3n+2) 13 === 13 //ul//li[position() <= (last() - 1) and (count(following-sibling::li) - 1) mod 3 = 0]
+ul li:nth-last-of-type(3n-2) 17 === 17 //ul//li[position() <= last() and (count(following-sibling::li) + 3) mod 3 = 0]
+ul li:nth-last-of-type(-n+4) 24 === 24 //ul//li[(count(preceding-sibling::li) + 1) >= (last() - 3)]
+ul li:nth-last-of-type(-3n+4) 12 === 12 //ul//li[position() >= (last() - 3) and (count(following-sibling::li) - 3) mod 3 = 0]
+ul>li[title*='em twenty on' i] 1 === 1 //ul/li[contains(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('em twenty on', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+div:has(p, ul), div[id='header'] 7 === 7 //div[count(.//p | .//ul) > 0] | //div[@id = 'header']
+ul  >  li[  title  =  'item one'  i  ] 4 === 4 //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+
+Have no matches:
+p[title^='ΑβγδΕ' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('ΑβγδΕ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+p[title^='áβγδε' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('áβγδε', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+p[title$='στυφχψΩ' i] - 0 - //p[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('στυφχψΩ') - 1)) = translate('στυφχψΩ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+p[title='ΑβγδεζηθικλμνξοπρστυφχψΩ' i] - 0 - //p[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('ΑβγδεζηθικλμνξοπρστυφχψΩ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+
+
+CssToXPath_hard.json
+
+Passed:
+* 1781 === 1781 //*
+ul 22 === 22 //ul
+:root 1 === 1 //ancestor-or-self::*[last()]
+div, p 375 === 375 //div | //p
+p:has(b) 2 === 2 //p[count(.//b) > 0]
+div:last-child 1 === 1 //div[not(following-sibling::*)]
+p:nth-child(3) 8 === 8 //p[(count(preceding-sibling::*) + 1) = 3]
+div:first-child 1 === 1 //div[not(preceding-sibling::*)]
+div>*:only-child 3 === 3 //div/*[not(preceding-sibling::*) and not(following-sibling::*)]
+p:nth-child(odd) 166 === 166 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
+p:nth-of-type(3) 24 === 24 //p[(count(preceding-sibling::p) + 1) = 3]
+p:nth-child(even) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
+ul li:nth-child(3) 14 === 14 //ul//li[(count(preceding-sibling::*) + 1) = 3]
+p:nth-of-type(odd) 176 === 176 //p[(count(preceding-sibling::p) + 1) mod 2 = 1]
+p:nth-last-child(3) 22 === 22 //p[(count(following-sibling::*) + 1) = 3]
+p:nth-of-type(even) 148 === 148 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
+a:is([name], [href]) 296 === 296 //a[@name or @href]
+ul li:nth-child(odd) 52 === 52 //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 1]
+ul li:nth-child(n+3) 53 === 53 //ul//li[(count(preceding-sibling::*) + 1) >= 3]
+ul li:nth-child(n+4) 39 === 39 //ul//li[(count(preceding-sibling::*) + 1) >= 4]
+ul li:nth-of-type(3) 14 === 14 //ul//li[(count(preceding-sibling::li) + 1) = 3]
+ul li:nth-child(even) 42 === 42 //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 0]
+ul li:nth-child(3n+2) 31 === 31 //ul//li[position() >= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]
+ul li:nth-child(-n+4) 64 === 64 //ul//li[(count(preceding-sibling::*) + 1) <= 4]
+ul li:nth-child(5n-2) 18 === 18 //ul//li[position() >= 1 and (count(preceding-sibling::*) + 3) mod 5 = 0]
+p:nth-last-child(odd) 151 === 151 //p[(count(following-sibling::*) + 1) mod 2 = 1]
+p:nth-last-of-type(3) 24 === 24 //p[position() >= (last() - 3) and (count(following-sibling::p) + 1) = 3]
+ul li:nth-child(-3n+4) 31 === 31 //ul//li[position() <= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]
+p:nth-last-child(even) 173 === 173 //p[(count(following-sibling::*) + 1) mod 2 = 0]
+ul li:nth-of-type(odd) 52 === 52 //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 1]
+ul li:nth-of-type(n+3) 53 === 53 //ul//li[(count(preceding-sibling::li) + 1) >= 3]
+ul li:nth-of-type(n+4) 39 === 39 //ul//li[(count(preceding-sibling::li) + 1) >= 4]
+ul li:nth-last-child(3) 14 === 14 //ul//li[(count(following-sibling::*) + 1) = 3]
+ul li:nth-of-type(even) 42 === 42 //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 0]
+ul li:nth-of-type(3n+2) 31 === 31 //ul//li[position() >= 2 and (count(preceding-sibling::li) - 1) mod 3 = 0]
+ul li:nth-of-type(3n-2) 38 === 38 //ul//li[position() >= 1 and (count(preceding-sibling::li) + 3) mod 3 = 0]
+ul li:nth-of-type(-n+4) 64 === 64 //ul//li[(count(preceding-sibling::li) + 1) <= 4]
+p:nth-last-of-type(odd) 176 === 176 //p[(count(following-sibling::p) + 1) mod 2 = 1]
+ul li:nth-of-type(-3n+4) 31 === 31 //ul//li[position() <= 4 and (count(preceding-sibling::li) - 3) mod 3 = 0]
+p:nth-last-of-type(even) 148 === 148 //p[(count(following-sibling::p) + 1) mod 2 = 0]
+ul li:nth-last-child(odd) 52 === 52 //ul//li[(count(following-sibling::*) + 1) mod 2 = 1]
+ul li:nth-last-child(n+3) 53 === 53 //ul//li[(count(preceding-sibling::*) + 1) <= (last() - 2)]
+ul li:nth-last-child(n+4) 39 === 39 //ul//li[(count(preceding-sibling::*) + 1) <= (last() - 3)]
+ul li:nth-last-of-type(3) 14 === 14 //ul//li[position() >= (last() - 3) and (count(following-sibling::li) + 1) = 3]
+ul li:nth-last-child(even) 42 === 42 //ul//li[(count(following-sibling::*) + 1) mod 2 = 0]
+ul li:nth-last-child(3n+2) 31 === 31 //ul//li[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 3 = 0]
+ul li:nth-last-child(-n+4) 64 === 64 //ul//li[(count(preceding-sibling::*) + 1) >= (last() - 3)]
+ul li:nth-last-child(5n-2) 18 === 18 //ul//li[position() <= last() and (count(following-sibling::*) + 3) mod 5 = 0]
+ul li:nth-last-child(-3n+4) 31 === 31 //ul//li[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]
+ul li:nth-last-of-type(n+3) 53 === 53 //ul//li[(count(preceding-sibling::li) + 1) <= (last() - 2)]
+ul li:nth-last-of-type(n+4) 39 === 39 //ul//li[(count(preceding-sibling::li) + 1) <= (last() - 3)]
+ul li:nth-last-of-type(3n+2) 31 === 31 //ul//li[position() <= (last() - 1) and (count(following-sibling::li) - 1) mod 3 = 0]
+ul li:nth-last-of-type(3n-2) 38 === 38 //ul//li[position() <= last() and (count(following-sibling::li) + 3) mod 3 = 0]
+ul li:nth-last-of-type(-n+4) 64 === 64 //ul//li[(count(preceding-sibling::li) + 1) >= (last() - 3)]
+ul li:nth-last-of-type(-3n+4) 31 === 31 //ul//li[position() >= (last() - 3) and (count(following-sibling::li) - 3) mod 3 = 0]
+div:has(p, ul), div[id='header'] 51 === 51 //div[count(.//p | .//ul) > 0] | //div[@id = 'header']
+
+Have no matches:
+div:empty - 0 - //div[not(*) and not(text())]
+body[lang|=EN] - 0 - //body[@lang = 'EN' or starts-with(@lang, 'EN-')]
+body[lang|=En i] - 0 - //body[translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-'))]
+ul>li[title$='One'] - 0 - //ul/li[substring(@title, string-length(@title) - (string-length('One') - 1)) = 'One']
+p[title^='ΑβγδΕ' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('ΑβγδΕ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+p[title^='áβγδε' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('áβγδε', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+div[id]:has(h1, h2) - 0 - //div[@id][count(.//h1 | .//h2) > 0]
+ul>li[title^='Item'] - 0 - //ul/li[starts-with(@title, 'Item')]
+ul>li[title*='Item'] - 0 - //ul/li[contains(@title, 'Item')]
+main > div[id=lists] - 0 - //main/div[@id = 'lists']
+ul>li[title$='one' i] - 0 - //ul/li[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('one') - 1)) = translate('one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul>li[title~='two' i] - 0 - //ul/li[contains(concat(' ', normalize-space(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')), ' '), concat(' ', translate('two', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), ' '))]
+p[title$='στυφχψΩ' i] - 0 - //p[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('στυφχψΩ') - 1)) = translate('στυφχψΩ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul>li[title^='item' i] - 0 - //ul/li[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('item', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+article p:only-of-type - 0 - //article//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0]
+article p:first-of-type - 0 - //article//p[not(preceding-sibling::p)]
+article em:last-of-type - 0 - //article//em[not(following-sibling::em)]
+:is(ol,ul) :is(ol,ul) ol - 0 - //*[self::ol or self::ul]//*[self::ol or self::ul]//ol
+article div:only-of-type - 0 - //article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]
+ul>li[title='item one' i] - 0 - //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+article>div>em:last-of-type - 0 - //article/div/em[not(following-sibling::em)]
+ul>li[title*='em Twenty On'] - 0 - //ul/li[contains(@title, 'em Twenty On')]
+ul>li[title*='em twenty on' i] - 0 - //ul/li[contains(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('em twenty on', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+p[title='ΑβγδεζηθικλμνξοπρστυφχψΩ' i] - 0 - //p[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('ΑβγδεζηθικλμνξοπρστυφχψΩ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul  >  li[  title  =  'item one'  i  ] - 0 - //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+
+
+CssW3CSelector.json
+
+Passed:
+.t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
+li,p 222 === 222 //li | //p
+*.t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
+#foo 2 === 2 //*[@id='foo']
+li.t2 2 === 2 //li[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
+li#t2 1 === 1 //li[@id='t2']
+*:root 1 === 1 //ancestor-or-self::*[last()]
+address 43 === 43 //address
+p.t1.t2 4 === 4 //p[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
+p:empty 3 === 3 //p[not(*) and not(text())]
+p[title] 24 === 24 //p[@title]
+div.t1 p 8 === 8 //div[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//p
+[hidden] 10 === 10 //*[@hidden]
+#pass#pass 1 === 1 //*[@id='pass'][@id='pass']
+div p.test 4 === 4 //div//p[contains(concat(' ', normalize-space(@class), ' '), ' test ')]
+div.test * 14 === 14 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*
+div.stub * 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*
+div.stub v 1 === 1 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//v
+p[class~=b] 1 === 1 //p[contains(concat(' ', normalize-space(@class), ' '), ' b ')]
+p[lang|=en] 3 === 3 //p[@lang = 'en' or starts-with(@lang, 'en-')]
+table.t1 td 126 === 126 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td
+[type~=odd] 8 === 8 //*[contains(concat(' ', normalize-space(@type), ' '), ' odd ')]
+.t1:not(.t2) 20 === 20 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])]
+:not(.t2).t1 20 === 20 //*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])][contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
+.t2:not(.t1) 6 === 6 //*[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])]
+:not(.t1).t2 6 === 6 //*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])][contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
+div:not(.t1) 94 === 94 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])]
+#test1:empty 1 === 1 //*[@id='test1'][not(*) and not(text())]
+#test2:empty 1 === 1 //*[@id='test2'][not(*) and not(text())]
+p:only-child 17 === 17 //p[not(preceding-sibling::*) and not(following-sibling::*)]
+div.stub p+p 24 === 24 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//p/following-sibling::*[1]/self::p
+div.stub p~p 29 === 29 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//p/following-sibling::p
+div.stub > * 114 === 114 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]/*
+p[title^=foo] 4 === 4 //p[starts-with(@title, 'foo')]
+p[title$=bar] 2 === 2 //p[substring(@title, string-length(@title) - (string-length('bar') - 1)) = 'bar']
+p[title*=bar] 3 === 3 //p[contains(@title, 'bar')]
+address.t5.t5 1 === 1 //address[contains(concat(' ', normalize-space(@class), ' '), ' t5 ') and contains(concat(' ', normalize-space(@class), ' '), ' t5 ')]
+[type~=match] 14 === 14 //*[contains(concat(' ', normalize-space(@type), ' '), ' match ')]
+address:empty 3 === 3 //address[not(*) and not(text())]
+p *:last-child 14 === 14 //p//*[not(following-sibling::*)]
+p:not(:target) 164 === 164 //p[not(self::node()[starts-with(@href, '#')])]
+p *:first-child 14 === 14 //p//*[not(preceding-sibling::*)]
+address[lang=fi] 1 === 1 //address[@lang = 'fi']
+#two:first-child 1 === 1 //*[@id='two'][not(preceding-sibling::*)]
+blockquote+div~p 28 === 28 //blockquote/following-sibling::*[1]/self::div/following-sibling::p
+blockquote~div+p 6 === 6 //blockquote/following-sibling::div/following-sibling::*[1]/self::p
+#test:not(:empty) 1 === 1 //*[@id='test'][not(self::node()[not(*) and not(text())])]
+.t1 td:last-child 44 === 44 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(following-sibling::*)]
+div.test *:not(a) 14 === 14 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::a)]
+div.stub *:not(p) 73 === 73 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::p)]
+address[title=foo] 1 === 1 //address[@title = 'foo']
+.t1 td:first-child 44 === 44 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(preceding-sibling::*)]
+p:not(:only-child) 147 === 147 //p[not(self::node()[not(preceding-sibling::*) and not(following-sibling::*)])]
+blockquote > div p 1 === 1 //blockquote/div//p
+blockquote + div p 1 === 1 //blockquote/following-sibling::*[1]/self::div//p
+blockquote div > p 1 === 1 //blockquote//div/p
+address[title~=foo] 2 === 2 //address[contains(concat(' ', normalize-space(@title), ' '), ' foo ')]
+p:not(.t1):not(.t2) 159 === 159 //p[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])]
+div.test *:not(div) 13 === 13 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::div)]
+div.stub *:not(div) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::div)]
+div.stub *:not(foo) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::foo)]
+address:last-of-type 17 === 17 //address[not(following-sibling::address)]
+div.stub *:not(.foo) 116 === 116 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' foo ')])]
+div.stub *:not(#foo) 119 === 119 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id='foo')]
+line:nth-child(3n-1) 19 === 19 //line[position() >= 1 and (count(preceding-sibling::*) + 2) mod 3 = 0]
+ul li:nth-child(2n+1) 19 === 19 //ul//li[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]
+ol li:nth-child(2n+0) 12 === 12 //ol//li[position() >= 1 and (count(preceding-sibling::*) + 1) mod 2 = 0]
+address:first-of-type 17 === 17 //address[not(preceding-sibling::address)]
+line:nth-of-type(odd) 30 === 30 //line[(count(preceding-sibling::line) + 1) mod 2 = 1]
+p:not(:nth-of-type(3)) 151 === 151 //p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]
+p > *:not(:last-child) 1 === 1 //p/*[not(self::node()[not(following-sibling::*)])]
+table.t1 td,table.t2 td 222 === 222 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td | //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td
+p > *:not(:first-child) 1 === 1 //p/*[not(self::node()[not(preceding-sibling::*)])]
+.t1 td:not(:last-child) 84 === 84 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(self::node()[not(following-sibling::*)])]
+.t1 td:not(:first-child) 84 === 84 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(self::node()[not(preceding-sibling::*)])]
+address:not(.t5):not(.t5) 42 === 42 //address[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t5 ')])][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t5 ')])]
+address:not(:last-of-type) 26 === 26 //address[not(self::node()[not(following-sibling::address)])]
+div.test *:not(p):not(div) 5 === 5 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::p)][not(self::div)]
+table.t2 td:nth-child(3n+1) 36 === 36 //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[position() >= 1 and (count(preceding-sibling::*)) mod 3 = 0]
+address:not(:first-of-type) 26 === 26 //address[not(self::node()[not(preceding-sibling::address)])]
+p:not(:nth-last-of-type(3)) 151 === 151 //p[not(self::node()[position() >= (last() - 3) and (count(following-sibling::p) + 1) = 3])]
+line:nth-last-of-type(3n-1) 19 === 19 //line[position() <= last() and (count(following-sibling::line) + 2) mod 3 = 0]
+table.t1 tr:nth-child(-1n+4) 34 === 34 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[(count(preceding-sibling::*) + 1) <= 4]
+ul > li:not(:nth-child(odd)) 15 === 15 //ul/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 1])]
+ol > li:not(:nth-child(even)) 12 === 12 //ol/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 0])]
+div.stub *:not([title*=' on']) 105 === 105 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(@title, ' on')])]
+div.stub *:not([title$='tait']) 103 === 103 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[substring(@title, string-length(@title) - (string-length('tait') - 1)) = 'tait'])]
+.t1 *:not(address:only-of-type) 194 === 194 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//*[not(self::address[count(preceding-sibling::address) = 0 and count(following-sibling::address) = 0])]
+div.stub *:not([title^='si on']) 106 === 106 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[starts-with(@title, 'si on')])]
+table.t2 td:not(:nth-child(3n+1)) 60 === 60 //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[not(self::node()[position() >= 1 and (count(preceding-sibling::*)) mod 3 = 0])]
+table.t1 tr:not(:nth-child(-1n+4)) 8 === 8 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[not(self::node()[(count(preceding-sibling::*) + 1) <= 4])]
+p:not(#other).class:not(.fail).test#id#id 1 === 1 //p[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='id'][@id='id']
+main p:only-of-type, main i[name]:only-of-type 1 === 1 //main//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0] | //main//i[@name][count(preceding-sibling::i) = 0 and count(following-sibling::i) = 0]
+
+Have no matches:
+.t1.fail - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' fail ')]
+p:target - 0 - //p[starts-with(@href, '#')]
+div.te.st - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' te ') and contains(concat(' ', normalize-space(@class), ' '), ' st ')]
+.fail div - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' fail ')]//div
+#fail div - 0 - //*[@id='fail']//div
+.fail+div - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' fail ')]/following-sibling::*[1]/self::div
+#test#fail - 0 - //*[@id='test'][@id='fail']
+#fail#test - 0 - //*[@id='fail'][@id='test']
+span[title=a] - 0 - //span[@title = 'a']
+span[lang|=fr] - 0 - //span[@lang = 'fr' or starts-with(@lang, 'fr-')]
+#three:last-child - 0 - //*[@id='three'][not(following-sibling::*)]
+div.testText div p - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' testText ')]//div//p
+#stub~div div+div div - 0 - //*[@id='stub']/following-sibling::div//div/following-sibling::*[1]/self::div//div
+div.testText > div > p - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' testText ')]/div/p
+#Aone#Atwo,#Aone#Athree,#Atwo#Athree - 0 - //*[@id='Aone'][@id='Atwo'] | //*[@id='Aone'][@id='Athree'] | //*[@id='Atwo'][@id='Athree']
+#Bone#Btwo,#Bone#Bthree,#Btwo#Bthree - 0 - //*[@id='Bone'][@id='Btwo'] | //*[@id='Bone'][@id='Bthree'] | //*[@id='Btwo'][@id='Bthree']
+#Cone#Ctwo,#Cone#Cthree,#Ctwo#Cthree - 0 - //*[@id='Cone'][@id='Ctwo'] | //*[@id='Cone'][@id='Cthree'] | //*[@id='Ctwo'][@id='Cthree']
+#Done#Dtwo,#Done#Dthree,#Dtwo#Dthree - 0 - //*[@id='Done'][@id='Dtwo'] | //*[@id='Done'][@id='Dthree'] | //*[@id='Dtwo'][@id='Dthree']
+div:not(#theid).class:not(.fail).test#theid#theid - 0 - //div[not(@id='theid')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='theid'][@id='theid']
+div:not(#other).class:not(.test).test#theid#theid - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' test ')])][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='theid'][@id='theid']
+div:not(#other).notclass:not(.fail).test#theid#theid - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' notclass ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='theid'][@id='theid']
+div:not(#other).class:not(.fail).nottest#theid#theid - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id='theid'][@id='theid']
+div:not(#other).class:not(.fail).nottest#theid#other - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id='theid'][@id='other']
+
+Coverter errors:
+p, converter error
+foo & address, p converter error
+dl > *:not(:nth-of-type(3n+1)) converter error
+dl > *:not(:nth-last-of-type(3n+1)) converter error
+
+
+Slickspeed.json
+
+Passed:
+div 51 === 51 //div
+div p 140 === 140 //div//p
+.note 14 === 14 //*[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
+#title 1 === 1 //*[@id='title']
+div > p 134 === 134 //div/p
+div + p 22 === 22 //div/following-sibling::*[1]/self::p
+div ~ p 183 === 183 //div/following-sibling::p
+div p a 12 === 12 //div//p//a
+h1#title 1 === 1 //h1[@id='title']
+div, p, a 671 === 671 //div | //p | //a
+div #title 1 === 1 //div//*[@id='title']
+div.example 43 === 43 //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')]
+ul .tocline2 12 === 12 //ul//*[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+p:only-child 3 === 3 //p[not(preceding-sibling::*) and not(following-sibling::*)]
+p:last-child 19 === 19 //p[not(following-sibling::*)]
+p:first-child 54 === 54 //p[not(preceding-sibling::*)]
+p:nth-child(n) 324 === 324 //p[(count(preceding-sibling::*) + 1) >= 1]
+p:nth-child(2n) 158 === 158 //p[position() >= 1 and (count(preceding-sibling::*) + 1) mod 2 = 0]
+p:nth-child(odd) 166 === 166 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
+div:not(.example) 8 === 8 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' example ')])]
+p:nth-child(even) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
+p:nth-child(2n+1) 166 === 166 //p[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]
+ul.toc li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]//li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+ul.toc > li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]/li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+div.example, div.note 44 === 44 //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')] | //div[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
+div[class^=exa][class$=mple] 43 === 43 //div[contains(concat(' ', normalize-space(@class), ' '), ' exa')][contains(concat(' ', normalize-space(@class), ' '), 'mple ')]
+
+Have no matches:
+h1#title + div > p - 0 - //h1[@id='title']/following-sibling::*[1]/self::div/p

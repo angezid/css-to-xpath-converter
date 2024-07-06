@@ -21,9 +21,10 @@
   },
   "homepage": "https://github.com/angezid/css-to-xpath-converter",
   "scripts": {
-    "css2xpath": "node test/test.js",
-    "build": "npm run css2xpath",
-    "test": "npm run css2xpath"
+    "css2xpath": "node test/css2xpath.js",
+    "browser-test": "node test/test.js",
+    "build": "npm run css2xpath && npm run browser-test",
+    "test": "npm run browser-test"
   },
   "devDependencies": {
     "puppeteer": "^22.11.2",
