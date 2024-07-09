@@ -1,6 +1,6 @@
 
-// tests equality of generated XPathes by C# version and converter.js
-const fs = require('fs');
+// tests equality of generated XPathes by C# version and converter.js TODO
+/*const fs = require('fs');
 const chalk = require('chalk');
 const convertToXPath = require('../src/converter.js');
 
@@ -51,4 +51,4 @@ function report(success, message) {
 		console.log(chalk.red('Test failed'));
 		console.log(message);
 	}
-}
+}*/

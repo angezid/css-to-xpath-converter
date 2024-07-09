@@ -1,0 +1,33 @@
+
+name
+
+Passed: 26
+div 51 === 51 //div
+div p 140 === 140 //div//p
+.note 14 === 14 //*[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
+#title 1 === 1 //*[@id='title']
+div > p 134 === 134 //div/p
+div + p 22 === 22 //div/following-sibling::*[1]/self::p
+div ~ p 183 === 183 //div/following-sibling::p
+div p a 12 === 12 //div//p//a
+h1#title 1 === 1 //h1[@id='title']
+div, p, a 671 === 671 //div | //p | //a
+div #title 1 === 1 //div//*[@id='title']
+div.example 43 === 43 //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')]
+ul .tocline2 12 === 12 //ul//*[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+p:only-child 3 === 3 //p[not(preceding-sibling::*) and not(following-sibling::*)]
+p:last-child 19 === 19 //p[not(following-sibling::*)]
+p:first-child 54 === 54 //p[not(preceding-sibling::*)]
+p:nth-child(n) 324 === 324 //p
+p:nth-child(2n) 158 === 158 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p
+p:nth-child(odd) 166 === 166 //*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::p
+div:not(.example) 8 === 8 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' example ')])]
+p:nth-child(even) 158 === 158 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p
+p:nth-child(2n+1) 166 === 166 //*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::p
+ul.toc li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]//li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+ul.toc > li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]/li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+div.example, div.note 44 === 44 //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')] | //div[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
+div[class^=exa][class$=mple] 43 === 43 //div[contains(concat(' ', normalize-space(@class), ' '), ' exa')][contains(concat(' ', normalize-space(@class), ' '), 'mple ')]
+
+Have no matches: 1
+h1#title + div > p - 0 - //h1[@id='title']/following-sibling::*[1]/self::div/p
