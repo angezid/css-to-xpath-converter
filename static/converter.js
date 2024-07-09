@@ -25,7 +25,7 @@
 
 	const pseudoSelectorReg = /([a-z-]+)([(])?/y;
 
-	const nthEquationReg = /^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$/;
+	const nthEquationReg = /^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/;
 
 	const selectorOwnerReg = /(?:\b[a-zA-Z][a-zA-Z0-9_-]*|\*|(\]))$/;
 
@@ -49,8 +49,8 @@
 	function convertToXPath(selector, options) {
 		opt = Object.assign({}, {
 			axis : '//',
-			browserUse : false, // to suppress XPathNavigator warning message
-			normalizeClassSpaces : true, // do not use this property
+			browserUse : false,    // to suppress XPathNavigator warning message
+			normalizeClassSpaces : true,    // do not use this property
 			uppercaseLetters : '',
 			lowercaseLetters : '',
 			printError : printError,
@@ -368,7 +368,7 @@
 				argument = obj.argument;
 
 				if (pseudoName === "root") {
-					xpath = "/";
+					xpath = "//ancestor-or-self::*[last()]";
 
 				} else {
 					xpath = addOwner(owner, xpath, predicate);
@@ -616,7 +616,7 @@
 				break;
 
 			case "empty" :
-				xpath += "[not(*) and not(normalize-space())]";
+				xpath += "[not(*) and not(text())]";
 				break;
 
 			case "first-child" :
@@ -784,56 +784,86 @@
 	}
 
 	function processNth(name, arg, xpath) {
-		let owner;
+		if ( !arg) argumentException("argument is empty or white space");
+		arg = arg.replace(/\s+/g, '');
+
+		if (/^(?:-?0n?|-n(?:[+-]0|-\d+)?|(?:0|-\d+)n(?:-\d+)?|(?:0|-\d+)n\+0)$/.test(arg.replace(/^\+/, ''))) {
+			warning += pseudo + name + '\' with these parameters yield no matches';
+			argumentException(warning);
+		}
+
+		let owner, len;
 		switch (name) {
 			case "nth-child" :
+				owner = getFullOwner(xpath, name);
+				if (owner && owner !== '*') {
+					xpath = xpath.replace(/[^/]+$/, '');
+				}
+				len = xpath.length;
+
 				if (isNumber(arg)) {
-					xpath += addRange("[(count(preceding-sibling::*) + 1) = ", arg, "]");
+					xpath += addRange("*[(count(preceding-sibling::*) + 1) = ", arg, "]/self::", owner);
 					break;
 				}
+
 				switch (arg) {
 					case "odd" :
-						xpath += "[(count(preceding-sibling::*) + 1) mod 2 = 1]";
+						xpath += "*[(count(preceding-sibling::*) + 1) mod 2 = 1]";
 						break;
 
 					case "even" :
-						xpath += "[(count(preceding-sibling::*) + 1) mod 2 = 0]";
+						xpath += "*[(count(preceding-sibling::*) + 1) mod 2 = 0]";
 						break;
 					default :
-						const obj = parseFnNotation(arg);
+						const obj = parseFnNotation(arg, name);
+						if (obj.valueA > 0) {
+							if (obj.type === 'mod') xpath += addRange("*[(count(preceding-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+							else if (obj.type === 'pos') xpath += addRange("*[position()", obj.comparison, obj.posValue, "]");
+							else if (obj.type === 'both') xpath += addRange("*[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
 
-						if (obj.valueA) {
-							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
 						} else {
-							xpath += addRange("[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
+							xpath += addRange("*[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
 						}
 						break;
 				}
+				if (xpath.length > len) xpath += "/self::" + owner;
+				else xpath += owner;
 				break;
 
 			case "nth-last-child" :
+				owner = getFullOwner(xpath, name);
+				if (owner && owner !== '*') {
+					xpath = xpath.replace(/[^/]+$/, '');
+				}
+				len = xpath.length;
+
 				if (isNumber(arg)) {
-					xpath += addRange("[(count(following-sibling::*) + 1) = ", arg, "]");
+					xpath += addRange("*[(count(following-sibling::*) + 1) = ", arg, "]/self::" + owner);
 					break;
 				}
 				switch (arg) {
 					case "odd" :
-						xpath += "[(count(following-sibling::*) + 1) mod 2 = 1]";
+						xpath += "*[(count(following-sibling::*) + 1) mod 2 = 1]";
 						break;
 
 					case "even" :
-						xpath += "[(count(following-sibling::*) + 1) mod 2 = 0]";
+						xpath += "*[(count(following-sibling::*) + 1) mod 2 = 0]";
 						break;
 					default :
 						const obj = parseFnNotationOfLast(arg);
 
-						if (obj.valueA) {
-							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						if (obj.valueA > 0) {
+							if (obj.type === 'mod') xpath += addRange("*[(count(following-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+							else if (obj.type === 'pos') xpath += addRange("*[position()", obj.comparison, obj.posValue, "]");
+							else if (obj.type === 'both') xpath += addRange("*[position()", obj.comparison, obj.posValue, " and (count(following-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+
 						} else {
-							xpath += addRange("[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
+							xpath += addRange("*[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
 						}
 						break;
 				}
+				if (xpath.length > len) xpath += "/self::" + owner;
+				else xpath += owner;
 				break;
 
 			case "nth-of-type" :
@@ -854,8 +884,11 @@
 					default :
 						const obj = parseFnNotation(arg);
 
-						if (obj.valueA) {
-							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						if (obj.valueA > 0) {
+							if (obj.type === 'mod') xpath += addRange("[(count(preceding-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+							else if (obj.type === 'pos') xpath += addRange("[position()", obj.comparison, obj.posValue, "]");
+							else if (obj.type === 'both') xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+
 						} else {
 							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
 						}
@@ -881,8 +914,11 @@
 					default :
 						const obj = parseFnNotationOfLast(arg);
 
-						if (obj.valueA) {
-							xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+						if (obj.valueA > 0) {
+							if (obj.type === 'mod') xpath += addRange("[(count(following-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+							else if (obj.type === 'pos') xpath += addRange("[position()", obj.comparison, obj.posValue, "]");
+							else if (obj.type === 'both') xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
+
 						} else {
 							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
 						}
@@ -898,7 +934,6 @@
 	function getNumber(str) {
 		const num = 1 - str;
 		if (num === 0) return '';
-
 		return (num < 0 ? ' - ' : ' + ') + Math.abs(num);
 	}
 
@@ -907,47 +942,58 @@
 	}
 
 	function parseFnNotation(argument) {
-		if ( !argument) argumentException("argument is empty or white space");
-
-		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
+		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^([+-])?([0-9]+)?n(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
-			const minus = isPresent(rm[1]),
-				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '',
-				valueA = GetValue(rm[2], 1, null),
-				valueB = sign + GetValue(rm[4], 0, "0"),
-				comparison = minus ? " <= " : " >= ";
+			const minus = isPresent(rm[1]) && rm[1] === '-',
+				valueA = GetValue(rm[1], rm[2], 1),
+				valueB = GetValue(rm[3], rm[4], 0),
+				comparison = valueA === 0 ? " = " : minus ? " <= " : " >= ",
+				absA = Math.abs(valueA);
 
-			let num = +rm[4],
-				posValue = GetValue(num, 0, "1");
+			let posValue = valueB;
 
-			if (sign === '-' && num && --num > 0) {
-				posValue = num;
+			let type = 'x';
+			if (comparison === " = ") type = 'pos';
+			else if (posValue > 0) {
+				if (absA > 1) type = 'both';
+				else type = 'pos';
+
+			} else if (absA > 1) {
+				type = 'mod';
 			}
 
-			return { valueA, valueB, posValue, comparison };
+			return { valueA : absA, valueB, posValue, comparison, type };
 		}
 		regexException(0, "parseFnNotation", nthEquationReg, argument);
 	}
 
 	function parseFnNotationOfLast(argument) {
-		if ( !argument) argumentException("argument is empty or white space");
-
-		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^(-)?([0-9]+)?n?(?:\s*([+-])\s*([0-9]*))?$"
+		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^([+-])?([0-9]+)?n(?:\s*([+-])\s*([0-9]*))?$"
 		if (rm !== null) {
-			const minus = isPresent(rm[1]),
-				sign = isPresent(rm[3]) && rm[3] === '-' ? '-' : '',
-				valueA = GetValue(rm[2], 1, null),
-				valueB = sign + GetValue(rm[4], 0, "0"),
-				comparison = minus ? " >= " : " <= ";
+			const minus = isPresent(rm[1]) && rm[1] === '-',
+				valueA = GetValue(rm[1], rm[2], 1),
+				valueB = GetValue(rm[3], rm[4], 0),
+				comparison = valueA === 0 ? " = " : minus ? " >= " : " <= ",
+				absA = Math.abs(valueA);
 
-			let num = +rm[4],
+			let num = valueB,
 				posValue = "last()";
 
-			if (sign !== '-' && num && --num > 0) {
+			if (--num > 0) {
 				posValue = '(last() - ' + num + ')';
 			}
 
-			return { valueA, valueB, posValue, comparison };
+			let type = 'x';
+			if (comparison === " = ") type = 'pos';
+			else if (valueB > 0) {
+				if (absA > 1) type = 'both';
+				else if ( !(comparison === " <= " && posValue === "last()")) type = 'pos';
+
+			} else if (absA > 1) {
+				type = 'mod';
+			}
+
+			return { valueA : absA, valueB, posValue, comparison, type };
 		}
 		regexException(0, "parseFnNotationOfLast", nthEquationReg, argument);
 	}
@@ -956,8 +1002,9 @@
 		return typeof arg !== 'undefined';
 	}
 
-	function GetValue(num, min, defaultVal) {
-		return typeof num !== 'undefined' && num > min ? num : defaultVal;
+	function GetValue(sign, num, defaultVal) {
+		const minus = sign && sign === '-' ? '-' : '';
+		return typeof num !== 'undefined' ? +(minus + num) : defaultVal;
 	}
 
 	function normalizeArg(name, argument, isString = true) {
@@ -1065,9 +1112,15 @@
 		return false;
 	}
 
+	function getFullOwner(xpath, name) {
+		const index = xpath.lastIndexOf('/');
+		if (index === -1) return xpath;
+		return xpath.substring(index + 1);
+	}
+
 	function getOwner(xpath, name) {
 		let str = xpath === 'self::node()' ? combined : xpath,
-			array = [],
+			owner = '',
 			index = 0,
 			num = 10;
 
@@ -1078,21 +1131,18 @@
 					index = findBracketStart(str, '[', ']');
 
 					if (index > -1) {
-						array.push(str.substring(index));
 						str = str.substring(0, index);
 
 					} else break;
 
 				} else {
-					array.push(rm[0]);
+					owner = rm[0];
 					break;
 				}
 			}
 		}
 
-		if (array.length) {
-			array.reverse();
-			const owner = array.join('');
+		if (owner) {
 			//if (name && owner == "*") warning += "The universal selector with pseudo-class ':" + name + "' is not work correctly ";
 			if (name && owner == "*") parseException("Pseudo-class ':" + name + "' is required element name to work correctly; '*' is not implemented.");
 			return owner;
