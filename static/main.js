@@ -167,7 +167,7 @@
 		axis : '//',
 		uppercaseLetters : '',
 		lowercaseLetters : '',
-		printError : (message) => results.innerHTML = message
+		printError : (message) => results.innerHTML = '<span class="errors">' + message + '</span>'
 	};
 
 	function initConverter() {

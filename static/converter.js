@@ -53,7 +53,7 @@
 			normalizeClassSpaces : true,    // do not use this property
 			uppercaseLetters : '',
 			lowercaseLetters : '',
-			printError : printError,
+			printError : () => {},
 		}, options);
 
 		combined = '';
@@ -372,7 +372,7 @@
 
 				} else {
 					xpath = addOwner(owner, xpath, predicate);
-					xpath = processPseudoSelector(pseudoName, argument, xpath);
+					xpath = processPseudoSelector(pseudoName, argument, xpath, predicate);
 				}
 
 				state = State.Text;
@@ -603,7 +603,7 @@
 		}
 	}
 
-	function processPseudoSelector(name, arg, xpath) {
+	function processPseudoSelector(name, arg, xpath, predicate) {
 		let result, owner, str2;
 
 		switch (name) {
@@ -664,7 +664,7 @@
 			case "nth-last-child" :
 			case "nth-of-type" :
 			case "nth-last-of-type" :
-				xpath = processNth(name, arg, xpath);
+				xpath = processNth(name, arg, xpath, predicate);
 				break;
 
 			case "text" :
@@ -692,7 +692,8 @@
 			case "not" :
 				const axis = isOwnerUniversalSelector(xpath) ? "self::" : "";
 				combined += xpath;
-				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()"), ")]");
+				//xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()"), ")]");
+				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()", true), ")]");
 				break;
 
 			case "is" :
@@ -783,7 +784,7 @@
 		return xpath;
 	}
 
-	function processNth(name, arg, xpath) {
+	function processNth(name, arg, xpath, predicate) {
 		if ( !arg) argumentException("argument is empty or white space");
 		arg = arg.replace(/\s+/g, '');
 
@@ -792,142 +793,87 @@
 			argumentException(warning);
 		}
 
-		let owner, len;
+		let owner;
 		switch (name) {
 			case "nth-child" :
-				owner = getFullOwner(xpath, name);
-				if (owner && owner !== '*') {
-					xpath = xpath.replace(/[^/]+$/, '');
-				}
-				len = xpath.length;
-
-				if (isNumber(arg)) {
-					xpath += addRange("*[(count(preceding-sibling::*) + 1) = ", arg, "]/self::", owner);
-					break;
-				}
-
-				switch (arg) {
-					case "odd" :
-						xpath += "*[(count(preceding-sibling::*) + 1) mod 2 = 1]";
-						break;
-
-					case "even" :
-						xpath += "*[(count(preceding-sibling::*) + 1) mod 2 = 0]";
-						break;
-					default :
-						const obj = parseFnNotation(arg, name);
-						if (obj.valueA > 0) {
-							if (obj.type === 'mod') xpath += addRange("*[(count(preceding-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-							else if (obj.type === 'pos') xpath += addRange("*[position()", obj.comparison, obj.posValue, "]");
-							else if (obj.type === 'both') xpath += addRange("*[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-
-						} else {
-							xpath += addRange("*[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
-						}
-						break;
-				}
-				if (xpath.length > len) xpath += "/self::" + owner;
-				else xpath += owner;
-				break;
+				xpath = addNthXpath(name, arg, xpath, 'preceding', '*', { child : 'nth' }, predicate);
+				return xpath;
 
 			case "nth-last-child" :
-				owner = getFullOwner(xpath, name);
-				if (owner && owner !== '*') {
-					xpath = xpath.replace(/[^/]+$/, '');
-				}
-				len = xpath.length;
-
-				if (isNumber(arg)) {
-					xpath += addRange("*[(count(following-sibling::*) + 1) = ", arg, "]/self::" + owner);
-					break;
-				}
-				switch (arg) {
-					case "odd" :
-						xpath += "*[(count(following-sibling::*) + 1) mod 2 = 1]";
-						break;
-
-					case "even" :
-						xpath += "*[(count(following-sibling::*) + 1) mod 2 = 0]";
-						break;
-					default :
-						const obj = parseFnNotationOfLast(arg);
-
-						if (obj.valueA > 0) {
-							if (obj.type === 'mod') xpath += addRange("*[(count(following-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-							else if (obj.type === 'pos') xpath += addRange("*[position()", obj.comparison, obj.posValue, "]");
-							else if (obj.type === 'both') xpath += addRange("*[position()", obj.comparison, obj.posValue, " and (count(following-sibling::*)", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-
-						} else {
-							xpath += addRange("*[(count(preceding-sibling::*) + 1)", obj.comparison, obj.posValue, "]");
-						}
-						break;
-				}
-				if (xpath.length > len) xpath += "/self::" + owner;
-				else xpath += owner;
-				break;
+				xpath = addNthXpath(name, arg, xpath, 'following', '*', { child: 'nth-last', last : true }, predicate);
+				return xpath;
 
 			case "nth-of-type" :
 				owner = getOwner(xpath, name);
-
-				if (isNumber(arg)) {
-					xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) = ", arg, "]");
-					break;
-				}
-
-				switch (arg) {
-					case "odd" :
-						xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) mod 2 = 1]");
-						break;
-					case "even" :
-						xpath += addRange("[(count(preceding-sibling::", owner, ") + 1) mod 2 = 0]");
-						break;
-					default :
-						const obj = parseFnNotation(arg);
-
-						if (obj.valueA > 0) {
-							if (obj.type === 'mod') xpath += addRange("[(count(preceding-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-							else if (obj.type === 'pos') xpath += addRange("[position()", obj.comparison, obj.posValue, "]");
-							else if (obj.type === 'both') xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(preceding-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-
-						} else {
-							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
-						}
-						break;
-				}
-				break;
+				xpath = addNthXpath(name, arg, xpath, 'preceding', owner, { type: 'nth-of' }, predicate);
+				return xpath;
 
 			case "nth-last-of-type" :
 				owner = getOwner(xpath, name);
-
-				if (isNumber(arg)) {
-					xpath += addRange("[position() >= (last() - ", arg, ") and (count(following-sibling::", owner, ") + 1) = ", arg, "]");
-					break;
-				}
-
-				switch (arg) {
-					case "odd" :
-						xpath += addRange("[(count(following-sibling::", owner, ") + 1) mod 2 = 1]");
-						break;
-					case "even" :
-						xpath += addRange("[(count(following-sibling::", owner, ") + 1) mod 2 = 0]");
-						break;
-					default :
-						const obj = parseFnNotationOfLast(arg);
-
-						if (obj.valueA > 0) {
-							if (obj.type === 'mod') xpath += addRange("[(count(following-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-							else if (obj.type === 'pos') xpath += addRange("[position()", obj.comparison, obj.posValue, "]");
-							else if (obj.type === 'both') xpath += addRange("[position()", obj.comparison, obj.posValue, " and (count(following-sibling::", owner, ")", getNumber(obj.valueB), ") mod ", obj.valueA, " = 0]");
-
-						} else {
-							xpath += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
-						}
-						break;
-				}
-				break;
+				xpath = addNthXpath(name, arg, xpath, 'following', owner, { type: 'nth-last-of', last : true }, predicate);
+				return xpath;
 
 			default : break;
 		}
+		return xpath;
+	}
+
+	function addNthXpath(name, arg, xpath, sibling, owner, pseudo, predicate) {
+		if (isNumber(arg)) {
+			return xpath += addRange("[(count(", sibling, "-sibling::", owner, ") + 1) = ", arg, "]");
+		}
+		switch (arg) {
+			case "odd" :
+				return xpath += addRange("[(count(", sibling, "-sibling::", owner, ") + 1) mod 2 = 1]");
+
+			case "even" :
+				return xpath += addRange("[(count(", sibling, "-sibling::", owner, ") + 1) mod 2 = 0]");
+
+			default :
+				let str = '';
+				const obj = pseudo.last ? parseFnNotationOfLast(arg) : parseFnNotation(arg);
+
+
+				if (obj.valueA) {
+					const num = getNumber(obj.valueB);
+
+					if (obj.type === 'mod') str += addRange("[(count(", sibling, "-sibling::", owner, ")", num, ") mod ", obj.valueA, " = 0]");
+					else if (predicate) {
+						if (obj.type === 'pos') str += addRange("[(count(", sibling, "-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
+						else if (obj.type === 'both') str += addRange("[(count(", sibling, "-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, " and (count(", sibling, "-sibling::", owner, ")", num, ") mod ", obj.valueA, " = 0]");
+
+					} else {
+						if (obj.type === 'pos') str += addRange("[position()", obj.comparison, obj.posValue, "]");
+						else if (obj.type === 'both') str += addRange("[position()", obj.comparison, obj.posValue, " and (count(", sibling, "-sibling::", owner, ")", num, ") mod ", obj.valueA, " = 0]");
+
+						if (str.length > 0 && pseudo.child) {
+							return addChild(name, str, xpath);
+						}
+					}
+
+				} else {
+					// console.log(pseudo.child, obj.type, obj.valueA, pseudo.last, predicate, (str.length > 0 && pseudo.child));
+					if (predicate) {
+						str += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
+					} else {
+						str += addRange("[position()", obj.comparison, obj.posValue, "]");
+					}
+
+					if (str.length > 0 && pseudo.child) {
+						return addChild(name, str, xpath);
+					}
+				}
+				return xpath += str;
+		}
+	}
+
+	function addChild(name, str, xpath) {
+		const owner = getFullOwner(xpath, name);
+
+		if (owner) {
+			xpath = xpath.replace(/[^/]+$/, '');
+		}
+		xpath += '*' + str + (owner !== 'self::node()' ? "/self::" + owner : '/self::*');
 		return xpath;
 	}
 
@@ -1301,7 +1247,7 @@
 
 	function printError(message) {
 		if (typeof opt.printError === 'function') {
-			opt.printError('<span class="errors">' + message + '</span>');
+			opt.printError(message);
 		}
 	}
 
@@ -1322,16 +1268,16 @@
 	}
 
 	function characterException(ch, i, message) {
-		const text = message + ". Unexpected character '<b>" + ch + "</b>' in the substring - <b>" + code.substring(i) + '</b>';
+		const text = message + ". Unexpected character '<b>" + ch + "</b>' in the substring - <b>" + code.substring(i) + "</b>";
 		printError(text);
 		message += ". Unexpected character '" + ch + "' in the substring - " + code.substring(i);
 		throw new Error(message);
 	}
 
 	function regexException(i, message, reg, code) {
-		const text = message + " function - RegExp failed to match the string:\n<b>" + code.substring(i) + '</b>\n' + reg;
+		const text = message + " function - RegExp failed to match the string:\n<b>\'" + code.substring(i) + "'</b>\n" + reg;
 		printError(text);
-		message += " function - RegExp failed to match the string:\n" + code.substring(i) + '\n' + reg;
+		message += " function - RegExp failed to match the string:\n'" + code.substring(i) + "'\n" + reg;
 		throw new Error(message);
 	}
 
