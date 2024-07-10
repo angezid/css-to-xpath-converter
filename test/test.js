@@ -28,9 +28,9 @@ async function performTest() {
 		for (const file of htmls) {
 			const name = file.replace(/\.html$/, '.json');
 			console.log('testing ' + name);
-			
+
+			//if (name !== 'CssW3CSelector.json') continue;
 			//if ( !name.startsWith('nth-')) continue;
-			//if ( !name.startsWith('nth-last')) continue;
 
 			const str = await readFile(jsonDir + '/' + name, 'utf8');
 			const json = JSON.parse(str);
@@ -44,7 +44,7 @@ async function performTest() {
 					css = entitize(selector);
 				let cssElems, xpathElems, xpath, obj;
 
-				try { obj = convertToXPath(selector); } catch (e) { array.push({ 'error' : true, 'text' : `${css}`, message : e }); }
+				try { obj = convertToXPath(selector); } catch (e) { array.push({ 'error' : true, 'text' : `${css}`, message : e.message }); }
 				if ( !obj) continue;
 
 				xpath = entitize(obj.xpath);
@@ -150,17 +150,17 @@ function reportCoverage(coverage, name) {
 
 			} else if (item.warning) {
 				error.push(`<p>${item.text} <b>converter warning</b></p>\n`);
-				
+
 			} else if (item.error) {
-				error.push(`<p>${item.text} <b>converter error:</b> </p>\n`);
+				error.push(`<p>${item.text} <b>converter error:</b> ${item.message}</p>\n`);
 
 			} else if (item.notEquals) {
 				match.push(`<p>${item.css} <b>${item.cssCount} !== ${item.xpathCount}</b> ${item.xpath}</p>\n`);
 			}
 		});
-		
+
 		let str = '';
-		
+
 		if (passed.length) str += '<h3>Passed: <b>' + passed.length + '</b></h3>\n' + passed.join('');
 		if (failed.length) str += '<h3>Failed: <b>' + failed.length + '</b></h3>\n' + failed.join('');
 		if (notValid.length) str += '<h3>Not valid: <b>' + notValid.length + '</b></h3>\n' + notValid.join('');
@@ -168,7 +168,7 @@ function reportCoverage(coverage, name) {
 		if (noMatch.length) str += '<h3>Have no matches: <b>' + noMatch.length + '</b></h3>\n' + noMatch.join('');
 		if (error.length) str += '<h3>Coverter errors: <b>' + error.length + '</b></h3>\n' + error.join('');
 		//if (warning.length) str += '<h3>Coverter warnings: <b>' + warning.length + '</b></h3>\n' + warning.join('');
-		
+
 		result += `\n<h2 id="${id}">${key}</h2>\n` + (str || '<p>Has no tests</p>\n');
 		nav += `<li><a href="#${id}">${key}</a></li>\n`;
 	}
@@ -226,7 +226,7 @@ async function performTestDebug() {
 
 				let cssElems, xpathElems, xpath, obj;
 
-				try { obj = convertToXPath(css); } catch (e) { console.log(css, ' to XPath error'); }
+				try { obj = convertToXPath(css); } catch (e) { console.log(css, ' to XPath error', e); }
 				if ( !obj) continue;
 
 				xpath = entitize(obj.xpath);

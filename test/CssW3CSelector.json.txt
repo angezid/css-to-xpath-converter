@@ -1,7 +1,7 @@
 
 name
 
-Passed: 89
+Passed: 93
 .t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
 li,p 222 === 222 //li | //p
 *.t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
@@ -66,9 +66,9 @@ div.stub *:not(foo) 120 === 120 //div[contains(concat(' ', normalize-space(@clas
 address:last-of-type 17 === 17 //address[not(following-sibling::address)]
 div.stub *:not(.foo) 116 === 116 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' foo ')])]
 div.stub *:not(#foo) 119 === 119 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id='foo')]
-line:nth-child(3n-1) 19 === 19 //*[(count(preceding-sibling::*) + 2) mod 3 = 0]/self::line
+line:nth-child(3n-1) 19 === 19 //line[(count(preceding-sibling::*) + 2) mod 3 = 0]
 ul li:nth-child(2n+1) 19 === 19 //ul//*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::li
-ol li:nth-child(2n+0) 12 === 12 //ol//*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::li
+ol li:nth-child(2n+0) 12 === 12 //ol//li[(count(preceding-sibling::*) + 1) mod 2 = 0]
 address:first-of-type 17 === 17 //address[not(preceding-sibling::address)]
 line:nth-of-type(odd) 30 === 30 //line[(count(preceding-sibling::line) + 1) mod 2 = 1]
 p:not(:nth-of-type(3)) 151 === 151 //p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]
@@ -82,21 +82,19 @@ address:not(:last-of-type) 26 === 26 //address[not(self::node()[not(following-si
 div.test *:not(p):not(div) 5 === 5 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::p)][not(self::div)]
 table.t2 td:nth-child(3n+1) 36 === 36 //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//*[position() >= 1 and (count(preceding-sibling::*)) mod 3 = 0]/self::td
 address:not(:first-of-type) 26 === 26 //address[not(self::node()[not(preceding-sibling::address)])]
-p:not(:nth-last-of-type(3)) 151 === 151 //p[not(self::node()[position() >= (last() - 3) and (count(following-sibling::p) + 1) = 3])]
+p:not(:nth-last-of-type(3)) 151 === 151 //p[not(self::node()[(count(following-sibling::p) + 1) = 3])]
 line:nth-last-of-type(3n-1) 19 === 19 //line[(count(following-sibling::line) + 2) mod 3 = 0]
 table.t1 tr:nth-child(-1n+4) 34 === 34 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//*[position() <= 4]/self::tr
+ul > li:not(:nth-child(odd)) 15 === 15 //ul/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 1])]
+ol > li:not(:nth-child(even)) 12 === 12 //ol/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 0])]
 div.stub *:not([title*=' on']) 105 === 105 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(@title, ' on')])]
 div.stub *:not([title$='tait']) 103 === 103 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[substring(@title, string-length(@title) - (string-length('tait') - 1)) = 'tait'])]
 .t1 *:not(address:only-of-type) 194 === 194 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//*[not(self::address[count(preceding-sibling::address) = 0 and count(following-sibling::address) = 0])]
 div.stub *:not([title^='si on']) 106 === 106 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[starts-with(@title, 'si on')])]
+table.t2 td:not(:nth-child(3n+1)) 60 === 60 //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[not(self::node()[(count(preceding-sibling::*) + 1) >= 1 and (count(preceding-sibling::*)) mod 3 = 0])]
+table.t1 tr:not(:nth-child(-1n+4)) 8 === 8 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[not(self::node()[(count(preceding-sibling::*) + 1) <= 4])]
 p:not(#other).class:not(.fail).test#id#id 1 === 1 //p[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='id'][@id='id']
 main p:only-of-type, main i[name]:only-of-type 1 === 1 //main//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0] | //main//i[@name][count(preceding-sibling::i) = 0 and count(following-sibling::i) = 0]
-
-Not valid: 4
-ul > li:not(:nth-child(odd)) --> //ul/li[not(*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::self::node())] XPath
-ol > li:not(:nth-child(even)) --> //ol/li[not(*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::self::node())] XPath
-table.t2 td:not(:nth-child(3n+1)) --> //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[not(*[position() >= 1 and (count(preceding-sibling::*)) mod 3 = 0]/self::self::node())] XPath
-table.t1 tr:not(:nth-child(-1n+4)) --> //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[not(*[position() <= 4]/self::self::node())] XPath
 
 Have no matches: 23
 .t1.fail - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' fail ')]
@@ -124,7 +122,7 @@ div:not(#other).class:not(.fail).nottest#theid#theid - 0 - //div[not(@id='other'
 div:not(#other).class:not(.fail).nottest#theid#other - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id='theid'][@id='other']
 
 Coverter errors: 4
-p, converter error: 
-foo & address, p converter error: 
-dl > *:not(:nth-of-type(3n+1)) converter error: 
-dl > *:not(:nth-last-of-type(3n+1)) converter error: 
+p, converter error: Unexpected comma
+foo & address, p converter error: State.Text, check=true. Unexpected character '&' in the substring - & address,p
+dl > *:not(:nth-of-type(3n+1)) converter error: Pseudo-class ':nth-of-type' is required element name to work correctly; '*' is not implemented.
+dl > *:not(:nth-last-of-type(3n+1)) converter error: Pseudo-class ':nth-last-of-type' is required element name to work correctly; '*' is not implemented.

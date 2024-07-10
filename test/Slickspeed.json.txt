@@ -19,10 +19,10 @@ p:only-child 3 === 3 //p[not(preceding-sibling::*) and not(following-sibling::*)
 p:last-child 19 === 19 //p[not(following-sibling::*)]
 p:first-child 54 === 54 //p[not(preceding-sibling::*)]
 p:nth-child(n) 324 === 324 //p
-p:nth-child(2n) 158 === 158 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p
-p:nth-child(odd) 166 === 166 //*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::p
+p:nth-child(2n) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
+p:nth-child(odd) 166 === 166 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
 div:not(.example) 8 === 8 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' example ')])]
-p:nth-child(even) 158 === 158 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p
+p:nth-child(even) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
 p:nth-child(2n+1) 166 === 166 //*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::p
 ul.toc li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]//li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
 ul.toc > li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]/li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
