@@ -1,4 +1,7 @@
 {
+  "paths": [
+    "CssW3CSelector.html"
+  ],
   "selectors": [
     "p,",
     ".t1",

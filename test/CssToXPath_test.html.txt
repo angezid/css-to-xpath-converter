@@ -1,5 +1,5 @@
 
-name
+reportName
 
 Passed: 56
 * 1781 === 1781 //*

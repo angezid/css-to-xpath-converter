@@ -1,4 +1,7 @@
 {
+  "paths": [
+    "CssSelector.html"
+  ],
   "selectors": [
     "*",
     "body",

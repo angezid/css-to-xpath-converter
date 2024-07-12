@@ -1,4 +1,8 @@
 {
+  "paths": [
+    "CssToXPath.html",
+    "test.html"
+  ],
   "selectors": [
     "*",
     "ul",

@@ -1,22 +1,17 @@
 
 CssSelector.json
 
-Passed: 50
+Passed: 41
 * 89 === 89 //*
 body 1 === 1 //body
 p > * 3 === 3 //p/*
-#myDiv 1 === 1 //*[@id='myDiv']
 *:empty 21 === 21 //*[not(*) and not(text())]
 div p a 1 === 1 //div//p//a
 div > p 9 === 9 //div/p
 div[id] 2 === 2 //div[@id]
-#myDiv * 5 === 5 //*[@id='myDiv']//*
-#myDiv>* 2 === 2 //*[@id='myDiv']/*
 .checkit 2 === 2 //*[contains(concat(' ', normalize-space(@class), ' '), ' checkit ')]
 p.ohyeah 1 === 1 //p[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
 a + span 1 === 1 //a/following-sibling::*[1]/self::span
-#-a-b-c- 1 === 1 //*[@id='-a-b-c-']
-div#myDiv 1 === 1 //div[@id='myDiv']
 div:has(p) 9 === 9 //div[count(.//p) > 0]
 p:has(+ p) 2 === 2 //p[count(following-sibling::*[1]/self::p) > 0]
 div ~ form 1 === 1 //div/following-sibling::form
@@ -40,46 +35,88 @@ div > p.ohyeah 1 === 1 //div/p[contains(concat(' ', normalize-space(@class), ' '
 *:nth-child(-n+3) 54 === 54 //*[position() <= 3]/self::*
 a + span, div > p 10 === 10 //a/following-sibling::*[1]/self::span | //div/p
 :nth-last-child(2) 12 === 12 //*[(count(following-sibling::*) + 1) = 2]
-input[type='text'] 1 === 1 //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('text', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
-input[type='TEXT'] 1 === 1 //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('TEXT', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 span:nth-child(even) 5 === 5 //span[(count(preceding-sibling::*) + 1) mod 2 = 0]
 span:is(.this, .that) 3 === 3 //span[self::node()[contains(concat(' ', normalize-space(@class), ' '), ' this ')] or self::node()[contains(concat(' ', normalize-space(@class), ' '), ' that ')]]
 :is(div, section) > h1 4 === 4 //*[self::div or self::section]/h1
 span:nth-child(10n-1)  1 === 1 //span[(count(preceding-sibling::*) + 2) mod 10 = 0]
 span:nth-child(10n+1)  3 === 3 //*[position() >= 1 and (count(preceding-sibling::*)) mod 10 = 0]/self::span
 span:nth-last-child(2) 1 === 1 //span[(count(following-sibling::*) + 1) = 2]
-#myDiv :nth-last-child(2) 2 === 2 //*[@id='myDiv']//*[(count(following-sibling::*) + 1) = 2]
 section:not(:has(h1, h2, h3, h4, h5, h6)) 1 === 1 //section[not(self::node()[count(.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6) > 0])]
 section:has(:not(h1, h2, h3, h4, h5, h6)) 2 === 2 //section[count(.//*[not(self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6)]) > 0]
-*[style*='display: none' i],*[style*='display:none' i] 1 === 1 //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))] | //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 
-Have no matches: 12
+Have no matches: 21
+#myDiv - 0 - //*[@id='myDiv']
 head p - 0 - //head//p
+#myDiv * - 0 - //*[@id='myDiv']//*
+#myDiv>* - 0 - //*[@id='myDiv']/*
+#-a-b-c- - 0 - //*[@id='-a-b-c-']
+div#myDiv - 0 - //div[@id='myDiv']
 #theBody #myDiv - 0 - //*[@id='theBody']//*[@id='myDiv']
 #theBody>#myDiv - 0 - //*[@id='theBody']/*[@id='myDiv']
 #someOtherDiv>* - 0 - //*[@id='someOtherDiv']/*
 input[id='text'] - 0 - //input[@id = 'text']
 input[id='TEXT'] - 0 - //input[@id = 'TEXT']
+input[type='text'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('text', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+input[type='TEXT'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('TEXT', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 span:nth-last-child(3) - 0 - //span[(count(following-sibling::*) + 1) = 3]
 #theBody #whatwhatwhat - 0 - //*[@id='theBody']//*[@id='whatwhatwhat']
 #theBody>#someOtherDiv - 0 - //*[@id='theBody']/*[@id='someOtherDiv']
 span.this:nth-child(-n+3) - 0 - //*[position() <= 3]/self::span[contains(concat(' ', normalize-space(@class), ' '), ' this ')]
+#myDiv :nth-last-child(2) - 0 - //*[@id='myDiv']//*[(count(following-sibling::*) + 1) = 2]
 #whatwhatwhat #someOtherDiv - 0 - //*[@id='whatwhatwhat']//*[@id='someOtherDiv']
 dd:nth-child(1)>div:nth-child(3)>div:nth-child(1)>a - 0 - //dd[(count(preceding-sibling::*) + 1) = 1]/div[(count(preceding-sibling::*) + 1) = 3]/div[(count(preceding-sibling::*) + 1) = 1]/a
+*[style*='display: none' i],*[style*='display:none' i] - 0 - //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))] | //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 
 Coverter errors: 3
 :scope > p converter error: Pseudo selector ':scope' is not implemented
+
 span:nth-child(10n+-1)  converter error: parseFnNotation function - RegExp failed to match the string:
 '10n+-1'
 /^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/
+
 *:nth-child(-n+3 of span.this) converter error: parseFnNotation function - RegExp failed to match the string:
 '-n+3ofspan.this'
 /^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/
 
 
+
+CssSelector2_test.html
+
+Passed: 16
+div 51 === 51 //div
+div p 140 === 140 //div//p
+div > p 134 === 134 //div/p
+div + p 22 === 22 //div/following-sibling::*[1]/self::p
+div ~ p 183 === 183 //div/following-sibling::p
+div p a 12 === 12 //div//p//a
+div, p, a 671 === 671 //div | //p | //a
+p:only-child 3 === 3 //p[not(preceding-sibling::*) and not(following-sibling::*)]
+p:last-child 19 === 19 //p[not(following-sibling::*)]
+p:first-child 54 === 54 //p[not(preceding-sibling::*)]
+p:nth-child(n) 324 === 324 //p
+p:nth-child(2n) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
+p:nth-child(odd) 166 === 166 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
+div:not(.example) 51 === 51 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' example ')])]
+p:nth-child(even) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
+p:nth-child(2n+1) 166 === 166 //*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::p
+
+Have no matches: 11
+.note - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
+#title - 0 - //*[@id='title']
+h1#title - 0 - //h1[@id='title']
+div #title - 0 - //div//*[@id='title']
+div.example - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')]
+ul .tocline2 - 0 - //ul//*[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+ul.toc li.tocline2 - 0 - //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]//li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+h1#title + div > p - 0 - //h1[@id='title']/following-sibling::*[1]/self::div/p
+ul.toc > li.tocline2 - 0 - //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]/li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
+div.example, div.note - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')] | //div[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
+div[class^=exa][class$=mple] - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' exa')][contains(concat(' ', normalize-space(@class), ' '), 'mple ')]
+
+
 CssToXPath.json
 
-Passed: 77
+Passed: 66
 * 123 === 123 //*
 ul 6 === 6 //ul
 :root 1 === 1 //ancestor-or-self::*[last()]
@@ -97,27 +134,20 @@ p:nth-of-type(3) 2 === 2 //p[(count(preceding-sibling::p) + 1) = 3]
 p:nth-child(even) 7 === 7 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
 ul li:nth-child(3) 5 === 5 //ul//li[(count(preceding-sibling::*) + 1) = 3]
 p:nth-of-type(odd) 10 === 10 //p[(count(preceding-sibling::p) + 1) mod 2 = 1]
-ul>li[title$='One'] 5 === 5 //ul/li[substring(@title, string-length(@title) - (string-length('One') - 1)) = 'One']
 div[id]:has(h1, h2) 2 === 2 //div[@id][count(.//h1 | .//h2) > 0]
 p:nth-last-child(3) 4 === 4 //p[(count(following-sibling::*) + 1) = 3]
 p:nth-of-type(even) 5 === 5 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-ul>li[title^='Item'] 10 === 10 //ul/li[starts-with(@title, 'Item')]
-ul>li[title*='Item'] 10 === 10 //ul/li[contains(@title, 'Item')]
-main > div[id=lists] 1 === 1 //main/div[@id = 'lists']
 a:is([name], [href]) 2 === 2 //a[@name or @href]
 ul li:nth-child(odd) 22 === 22 //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 1]
 ul li:nth-child(n+3) 27 === 27 //ul//*[position() >= 3]/self::li
 ul li:nth-child(n+4) 22 === 22 //ul//*[position() >= 4]/self::li
 ul li:nth-of-type(3) 5 === 5 //ul//li[(count(preceding-sibling::li) + 1) = 3]
-ul>li[title$='one' i] 5 === 5 //ul/li[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('one') - 1)) = translate('one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
-ul>li[title~='two' i] 5 === 5 //ul/li[contains(concat(' ', normalize-space(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')), ' '), concat(' ', translate('two', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), ' '))]
 ul li:nth-child(even) 19 === 19 //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 0]
 ul li:nth-child(3n+2) 13 === 13 //ul//*[position() >= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]/self::li
 ul li:nth-child(-n+4) 24 === 24 //ul//*[position() <= 4]/self::li
 ul li:nth-child(5n-2) 7 === 7 //ul//li[(count(preceding-sibling::*) + 3) mod 5 = 0]
 p:nth-last-child(odd) 9 === 9 //p[(count(following-sibling::*) + 1) mod 2 = 1]
 p:nth-last-of-type(3) 2 === 2 //p[(count(following-sibling::p) + 1) = 3]
-ul>li[title^='item' i] 10 === 10 //ul/li[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('item', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 ul li:nth-child(-3n+4) 12 === 12 //ul//*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]/self::li
 p:nth-last-child(even) 6 === 6 //p[(count(following-sibling::*) + 1) mod 2 = 0]
 ul li:nth-of-type(odd) 22 === 22 //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 1]
@@ -136,7 +166,6 @@ article em:last-of-type 3 === 3 //article//em[not(following-sibling::em)]
 ul li:nth-of-type(-3n+4) 12 === 12 //ul//li[position() <= 4 and (count(preceding-sibling::li) - 3) mod 3 = 0]
 p:nth-last-of-type(even) 5 === 5 //p[(count(following-sibling::p) + 1) mod 2 = 0]
 article div:only-of-type 2 === 2 //article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]
-ul>li[title='item one' i] 4 === 4 //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 ul li:nth-last-child(odd) 22 === 22 //ul//li[(count(following-sibling::*) + 1) mod 2 = 1]
 ul li:nth-last-child(n+3) 27 === 27 //ul//*[position() <= (last() - 2)]/self::li
 ul li:nth-last-child(n+4) 22 === 22 //ul//*[position() <= (last() - 3)]/self::li
@@ -149,23 +178,31 @@ ul li:nth-last-child(-3n+4) 12 === 12 //ul//*[position() >= (last() - 3) and (co
 ul li:nth-last-of-type(n+3) 27 === 27 //ul//li[position() <= (last() - 2)]
 ul li:nth-last-of-type(n+4) 22 === 22 //ul//li[position() <= (last() - 3)]
 article>div>em:last-of-type 2 === 2 //article/div/em[not(following-sibling::em)]
-ul>li[title*='em Twenty On'] 1 === 1 //ul/li[contains(@title, 'em Twenty On')]
 ul li:nth-last-of-type(3n+2) 13 === 13 //ul//li[position() <= (last() - 1) and (count(following-sibling::li) - 1) mod 3 = 0]
 ul li:nth-last-of-type(3n-2) 17 === 17 //ul//li[(count(following-sibling::li) + 3) mod 3 = 0]
 ul li:nth-last-of-type(-n+4) 24 === 24 //ul//li[position() >= (last() - 3)]
 ul li:nth-last-of-type(-3n+4) 12 === 12 //ul//li[position() >= (last() - 3) and (count(following-sibling::li) - 3) mod 3 = 0]
-ul>li[title*='em twenty on' i] 1 === 1 //ul/li[contains(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('em twenty on', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
-div:has(p, ul), div[id='header'] 7 === 7 //div[count(.//p | .//ul) > 0] | //div[@id = 'header']
-ul  >  li[  title  =  'item one'  i  ] 4 === 4 //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+div:has(p, ul), div[id='header'] 6 === 6 //div[count(.//p | .//ul) > 0] | //div[@id = 'header']
 
-Have no matches: 4
+Have no matches: 15
+ul>li[title$='One'] - 0 - //ul/li[substring(@title, string-length(@title) - (string-length('One') - 1)) = 'One']
 p[title^='ΑβγδΕ' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('ΑβγδΕ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 p[title^='áβγδε' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('áβγδε', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+ul>li[title^='Item'] - 0 - //ul/li[starts-with(@title, 'Item')]
+ul>li[title*='Item'] - 0 - //ul/li[contains(@title, 'Item')]
+main > div[id=lists] - 0 - //main/div[@id = 'lists']
+ul>li[title$='one' i] - 0 - //ul/li[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('one') - 1)) = translate('one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul>li[title~='two' i] - 0 - //ul/li[contains(concat(' ', normalize-space(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')), ' '), concat(' ', translate('two', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), ' '))]
 p[title$='στυφχψΩ' i] - 0 - //p[substring(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), string-length(@title) - (string-length('στυφχψΩ') - 1)) = translate('στυφχψΩ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul>li[title^='item' i] - 0 - //ul/li[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('item', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
+ul>li[title='item one' i] - 0 - //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul>li[title*='em Twenty On'] - 0 - //ul/li[contains(@title, 'em Twenty On')]
+ul>li[title*='em twenty on' i] - 0 - //ul/li[contains(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('em twenty on', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 p[title='ΑβγδεζηθικλμνξοπρστυφχψΩ' i] - 0 - //p[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('ΑβγδεζηθικλμνξοπρστυφχψΩ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+ul  >  li[  title  =  'item one'  i  ] - 0 - //ul/li[translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('item one', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 
 
-CssToXPath_hard.json
+CssToXPath_test.html
 
 Passed: 56
 * 1781 === 1781 //*
@@ -255,11 +292,10 @@ ul  >  li[  title  =  'item one'  i  ] - 0 - //ul/li[translate(@title, 'ABCDEFGH
 
 CssW3CSelector.json
 
-Passed: 93
+Passed: 80
 .t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
 li,p 222 === 222 //li | //p
 *.t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
-#foo 2 === 2 //*[@id='foo']
 li.t2 2 === 2 //li[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
 li#t2 1 === 1 //li[@id='t2']
 *:root 1 === 1 //ancestor-or-self::*[last()]
@@ -269,7 +305,6 @@ p:empty 3 === 3 //p[not(*) and not(text())]
 p[title] 24 === 24 //p[@title]
 div.t1 p 8 === 8 //div[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//p
 [hidden] 10 === 10 //*[@hidden]
-#pass#pass 1 === 1 //*[@id='pass'][@id='pass']
 div p.test 4 === 4 //div//p[contains(concat(' ', normalize-space(@class), ' '), ' test ')]
 div.test * 14 === 14 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*
 div.stub * 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*
@@ -277,49 +312,38 @@ div.stub v 1 === 1 //div[contains(concat(' ', normalize-space(@class), ' '), ' s
 p[class~=b] 1 === 1 //p[contains(concat(' ', normalize-space(@class), ' '), ' b ')]
 p[lang|=en] 3 === 3 //p[@lang = 'en' or starts-with(@lang, 'en-')]
 table.t1 td 126 === 126 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td
-[type~=odd] 8 === 8 //*[contains(concat(' ', normalize-space(@type), ' '), ' odd ')]
 .t1:not(.t2) 20 === 20 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])]
 :not(.t2).t1 20 === 20 //*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])][contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
 .t2:not(.t1) 6 === 6 //*[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])]
 :not(.t1).t2 6 === 6 //*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])][contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
 div:not(.t1) 94 === 94 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])]
-#test1:empty 1 === 1 //*[@id='test1'][not(*) and not(text())]
-#test2:empty 1 === 1 //*[@id='test2'][not(*) and not(text())]
 p:only-child 17 === 17 //p[not(preceding-sibling::*) and not(following-sibling::*)]
 div.stub p+p 24 === 24 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//p/following-sibling::*[1]/self::p
 div.stub p~p 29 === 29 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//p/following-sibling::p
 div.stub > * 114 === 114 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]/*
-p[title^=foo] 4 === 4 //p[starts-with(@title, 'foo')]
-p[title$=bar] 2 === 2 //p[substring(@title, string-length(@title) - (string-length('bar') - 1)) = 'bar']
-p[title*=bar] 3 === 3 //p[contains(@title, 'bar')]
 address.t5.t5 1 === 1 //address[contains(concat(' ', normalize-space(@class), ' '), ' t5 ') and contains(concat(' ', normalize-space(@class), ' '), ' t5 ')]
-[type~=match] 14 === 14 //*[contains(concat(' ', normalize-space(@type), ' '), ' match ')]
 address:empty 3 === 3 //address[not(*) and not(text())]
 p *:last-child 14 === 14 //p//*[not(following-sibling::*)]
 p:not(:target) 164 === 164 //p[not(self::node()[starts-with(@href, '#')])]
 p *:first-child 14 === 14 //p//*[not(preceding-sibling::*)]
 address[lang=fi] 1 === 1 //address[@lang = 'fi']
-#two:first-child 1 === 1 //*[@id='two'][not(preceding-sibling::*)]
 blockquote+div~p 28 === 28 //blockquote/following-sibling::*[1]/self::div/following-sibling::p
 blockquote~div+p 6 === 6 //blockquote/following-sibling::div/following-sibling::*[1]/self::p
-#test:not(:empty) 1 === 1 //*[@id='test'][not(self::node()[not(*) and not(text())])]
 .t1 td:last-child 44 === 44 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(following-sibling::*)]
 div.test *:not(a) 14 === 14 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::a)]
 div.stub *:not(p) 73 === 73 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::p)]
-address[title=foo] 1 === 1 //address[@title = 'foo']
 .t1 td:first-child 44 === 44 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td[not(preceding-sibling::*)]
 p:not(:only-child) 147 === 147 //p[not(self::node()[not(preceding-sibling::*) and not(following-sibling::*)])]
 blockquote > div p 1 === 1 //blockquote/div//p
 blockquote + div p 1 === 1 //blockquote/following-sibling::*[1]/self::div//p
 blockquote div > p 1 === 1 //blockquote//div/p
-address[title~=foo] 2 === 2 //address[contains(concat(' ', normalize-space(@title), ' '), ' foo ')]
 p:not(.t1):not(.t2) 159 === 159 //p[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')])][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')])]
 div.test *:not(div) 13 === 13 //div[contains(concat(' ', normalize-space(@class), ' '), ' test ')]//*[not(self::div)]
 div.stub *:not(div) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::div)]
 div.stub *:not(foo) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::foo)]
 address:last-of-type 17 === 17 //address[not(following-sibling::address)]
 div.stub *:not(.foo) 116 === 116 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' foo ')])]
-div.stub *:not(#foo) 119 === 119 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id='foo')]
+div.stub *:not(#foo) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id='foo')]
 line:nth-child(3n-1) 19 === 19 //line[(count(preceding-sibling::*) + 2) mod 3 = 0]
 ul li:nth-child(2n+1) 19 === 19 //ul//*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::li
 ol li:nth-child(2n+0) 12 === 12 //ol//li[(count(preceding-sibling::*) + 1) mod 2 = 0]
@@ -341,16 +365,17 @@ line:nth-last-of-type(3n-1) 19 === 19 //line[(count(following-sibling::line) + 2
 table.t1 tr:nth-child(-1n+4) 34 === 34 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//*[position() <= 4]/self::tr
 ul > li:not(:nth-child(odd)) 15 === 15 //ul/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 1])]
 ol > li:not(:nth-child(even)) 12 === 12 //ol/li[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 0])]
-div.stub *:not([title*=' on']) 105 === 105 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(@title, ' on')])]
-div.stub *:not([title$='tait']) 103 === 103 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[substring(@title, string-length(@title) - (string-length('tait') - 1)) = 'tait'])]
+div.stub *:not([title*=' on']) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(@title, ' on')])]
+div.stub *:not([title$='tait']) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[substring(@title, string-length(@title) - (string-length('tait') - 1)) = 'tait'])]
 .t1 *:not(address:only-of-type) 194 === 194 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//*[not(self::address[count(preceding-sibling::address) = 0 and count(following-sibling::address) = 0])]
-div.stub *:not([title^='si on']) 106 === 106 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[starts-with(@title, 'si on')])]
+div.stub *:not([title^='si on']) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[starts-with(@title, 'si on')])]
 table.t2 td:not(:nth-child(3n+1)) 60 === 60 //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[not(self::node()[(count(preceding-sibling::*) + 1) >= 1 and (count(preceding-sibling::*)) mod 3 = 0])]
 table.t1 tr:not(:nth-child(-1n+4)) 8 === 8 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[not(self::node()[(count(preceding-sibling::*) + 1) <= 4])]
 p:not(#other).class:not(.fail).test#id#id 1 === 1 //p[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' fail ')])][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='id'][@id='id']
 main p:only-of-type, main i[name]:only-of-type 1 === 1 //main//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0] | //main//i[@name][count(preceding-sibling::i) = 0 and count(following-sibling::i) = 0]
 
-Have no matches: 23
+Have no matches: 36
+#foo - 0 - //*[@id='foo']
 .t1.fail - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' fail ')]
 p:target - 0 - //p[starts-with(@href, '#')]
 div.te.st - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' te ') and contains(concat(' ', normalize-space(@class), ' '), ' st ')]
@@ -359,10 +384,22 @@ div.te.st - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' te '
 .fail+div - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' fail ')]/following-sibling::*[1]/self::div
 #test#fail - 0 - //*[@id='test'][@id='fail']
 #fail#test - 0 - //*[@id='fail'][@id='test']
+#pass#pass - 0 - //*[@id='pass'][@id='pass']
+[type~=odd] - 0 - //*[contains(concat(' ', normalize-space(@type), ' '), ' odd ')]
+#test1:empty - 0 - //*[@id='test1'][not(*) and not(text())]
+#test2:empty - 0 - //*[@id='test2'][not(*) and not(text())]
 span[title=a] - 0 - //span[@title = 'a']
+p[title^=foo] - 0 - //p[starts-with(@title, 'foo')]
+p[title$=bar] - 0 - //p[substring(@title, string-length(@title) - (string-length('bar') - 1)) = 'bar']
+p[title*=bar] - 0 - //p[contains(@title, 'bar')]
+[type~=match] - 0 - //*[contains(concat(' ', normalize-space(@type), ' '), ' match ')]
 span[lang|=fr] - 0 - //span[@lang = 'fr' or starts-with(@lang, 'fr-')]
+#two:first-child - 0 - //*[@id='two'][not(preceding-sibling::*)]
+#test:not(:empty) - 0 - //*[@id='test'][not(self::node()[not(*) and not(text())])]
 #three:last-child - 0 - //*[@id='three'][not(following-sibling::*)]
+address[title=foo] - 0 - //address[@title = 'foo']
 div.testText div p - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' testText ')]//div//p
+address[title~=foo] - 0 - //address[contains(concat(' ', normalize-space(@title), ' '), ' foo ')]
 #stub~div div+div div - 0 - //*[@id='stub']/following-sibling::div//div/following-sibling::*[1]/self::div//div
 div.testText > div > p - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' testText ')]/div/p
 #Aone#Atwo,#Aone#Athree,#Atwo#Athree - 0 - //*[@id='Aone'][@id='Atwo'] | //*[@id='Aone'][@id='Athree'] | //*[@id='Atwo'][@id='Athree']
@@ -377,9 +414,13 @@ div:not(#other).class:not(.fail).nottest#theid#other - 0 - //div[not(@id='other'
 
 Coverter errors: 4
 p, converter error: Unexpected comma
+
 foo & address, p converter error: State.Text, check=true. Unexpected character '&' in the substring - & address,p
+
 dl > *:not(:nth-of-type(3n+1)) converter error: Pseudo-class ':nth-of-type' is required element name to work correctly; '*' is not implemented.
+
 dl > *:not(:nth-last-of-type(3n+1)) converter error: Pseudo-class ':nth-last-of-type' is required element name to work correctly; '*' is not implemented.
+
 
 
 nth-child.json
@@ -533,83 +574,6 @@ p:nth-child(-4n+2) 3 === 3 //*[position() <= 2 and (count(preceding-sibling::*) 
 p:nth-child(-4n+3) 5 === 5 //*[position() <= 3 and (count(preceding-sibling::*) - 2) mod 4 = 0]/self::p
 p:nth-child(-4n+4) 5 === 5 //*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 4 = 0]/self::p
 
-Coverter errors: 75
-p:nth-child(0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-
 
 nth-last-child.json
 
@@ -761,83 +725,6 @@ p:nth-last-child(-4n+1) 4 === 4 //*[position() >= last() and (count(following-si
 p:nth-last-child(-4n+2) 4 === 4 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 4 = 0]/self::p
 p:nth-last-child(-4n+3) 4 === 4 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 4 = 0]/self::p
 p:nth-last-child(-4n+4) 4 === 4 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 4 = 0]/self::p
-
-Coverter errors: 75
-p:nth-last-child(0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
 
 
 nth-last-of-type.json
@@ -991,83 +878,6 @@ p:nth-last-of-type(-4n+2) 5 === 5 //p[position() >= (last() - 1) and (count(foll
 p:nth-last-of-type(-4n+3) 5 === 5 //p[position() >= (last() - 2) and (count(following-sibling::p) - 2) mod 4 = 0]
 p:nth-last-of-type(-4n+4) 4 === 4 //p[position() >= (last() - 3) and (count(following-sibling::p) - 3) mod 4 = 0]
 
-Coverter errors: 75
-p:nth-last-of-type(0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-
 
 nth-of-type.json
 
@@ -1219,721 +1029,3 @@ p:nth-of-type(-4n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p
 p:nth-of-type(-4n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 4 = 0]
 p:nth-of-type(-4n+3) 5 === 5 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 4 = 0]
 p:nth-of-type(-4n+4) 4 === 4 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 4 = 0]
-
-Coverter errors: 75
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-
-
-nth_hard.json
-
-Passed: 380
-p:nth-child(1) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 1]
-p:nth-child(1) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 1]
-p:nth-child(2) 3 === 3 //p[(count(preceding-sibling::*) + 1) = 2]
-p:nth-child(2) 3 === 3 //p[(count(preceding-sibling::*) + 1) = 2]
-p:nth-child(3) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 3]
-p:nth-child(3) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 3]
-p:nth-child(4) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 4]
-p:nth-child(4) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 4]
-p:nth-child(1n) 42 === 42 //p
-p:nth-child(2n) 20 === 20 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
-p:nth-child(3n) 13 === 13 //p[(count(preceding-sibling::*) + 1) mod 3 = 0]
-p:nth-child(4n) 11 === 11 //p[(count(preceding-sibling::*) + 1) mod 4 = 0]
-p:nth-of-type(1) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 1]
-p:nth-of-type(1) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 1]
-p:nth-of-type(2) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 2]
-p:nth-of-type(2) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 2]
-p:nth-of-type(3) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 3]
-p:nth-of-type(3) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 3]
-p:nth-of-type(4) 4 === 4 //p[(count(preceding-sibling::p) + 1) = 4]
-p:nth-of-type(4) 4 === 4 //p[(count(preceding-sibling::p) + 1) = 4]
-p:nth-of-type(1) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 1]
-p:nth-of-type(1) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 1]
-p:nth-of-type(2) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 2]
-p:nth-of-type(2) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 2]
-p:nth-of-type(3) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 3]
-p:nth-of-type(3) 5 === 5 //p[(count(preceding-sibling::p) + 1) = 3]
-p:nth-of-type(4) 4 === 4 //p[(count(preceding-sibling::p) + 1) = 4]
-p:nth-of-type(4) 4 === 4 //p[(count(preceding-sibling::p) + 1) = 4]
-p:nth-child(0n+1) 5 === 5 //*[position() = 1]/self::p
-p:nth-child(0n+2) 3 === 3 //*[position() = 2]/self::p
-p:nth-child(0n+3) 5 === 5 //*[position() = 3]/self::p
-p:nth-child(0n+4) 5 === 5 //*[position() = 4]/self::p
-p:nth-child(1n+0) 42 === 42 //p
-p:nth-child(1n-0) 42 === 42 //p
-p:nth-child(1n+1) 42 === 42 //*[position() >= 1]/self::p
-p:nth-child(1n-1) 42 === 42 //p
-p:nth-child(1n+2) 37 === 37 //*[position() >= 2]/self::p
-p:nth-child(1n-2) 42 === 42 //p
-p:nth-child(1n+3) 34 === 34 //*[position() >= 3]/self::p
-p:nth-child(1n-3) 42 === 42 //p
-p:nth-child(1n+4) 29 === 29 //*[position() >= 4]/self::p
-p:nth-child(1n-4) 42 === 42 //p
-p:nth-child(2n+0) 20 === 20 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
-p:nth-child(2n-0) 20 === 20 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
-p:nth-child(2n+1) 22 === 22 //*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::p
-p:nth-child(2n-1) 22 === 22 //p[(count(preceding-sibling::*) + 2) mod 2 = 0]
-p:nth-child(2n+2) 20 === 20 //*[position() >= 2 and (count(preceding-sibling::*) - 1) mod 2 = 0]/self::p
-p:nth-child(2n-2) 20 === 20 //p[(count(preceding-sibling::*) + 3) mod 2 = 0]
-p:nth-child(2n+3) 17 === 17 //*[position() >= 3 and (count(preceding-sibling::*) - 2) mod 2 = 0]/self::p
-p:nth-child(2n-3) 22 === 22 //p[(count(preceding-sibling::*) + 4) mod 2 = 0]
-p:nth-child(2n+4) 17 === 17 //*[position() >= 4 and (count(preceding-sibling::*) - 3) mod 2 = 0]/self::p
-p:nth-child(2n-4) 20 === 20 //p[(count(preceding-sibling::*) + 5) mod 2 = 0]
-p:nth-child(3n+0) 13 === 13 //p[(count(preceding-sibling::*) + 1) mod 3 = 0]
-p:nth-child(3n-0) 13 === 13 //p[(count(preceding-sibling::*) + 1) mod 3 = 0]
-p:nth-child(3n+1) 17 === 17 //*[position() >= 1 and (count(preceding-sibling::*)) mod 3 = 0]/self::p
-p:nth-child(3n-1) 12 === 12 //p[(count(preceding-sibling::*) + 2) mod 3 = 0]
-p:nth-child(3n+2) 12 === 12 //*[position() >= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]/self::p
-p:nth-child(3n-2) 17 === 17 //p[(count(preceding-sibling::*) + 3) mod 3 = 0]
-p:nth-child(3n+3) 13 === 13 //*[position() >= 3 and (count(preceding-sibling::*) - 2) mod 3 = 0]/self::p
-p:nth-child(3n-3) 13 === 13 //p[(count(preceding-sibling::*) + 4) mod 3 = 0]
-p:nth-child(3n+4) 12 === 12 //*[position() >= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]/self::p
-p:nth-child(3n-4) 12 === 12 //p[(count(preceding-sibling::*) + 5) mod 3 = 0]
-p:nth-child(4n+0) 11 === 11 //p[(count(preceding-sibling::*) + 1) mod 4 = 0]
-p:nth-child(4n-0) 11 === 11 //p[(count(preceding-sibling::*) + 1) mod 4 = 0]
-p:nth-child(4n+1) 11 === 11 //*[position() >= 1 and (count(preceding-sibling::*)) mod 4 = 0]/self::p
-p:nth-child(4n-1) 11 === 11 //p[(count(preceding-sibling::*) + 2) mod 4 = 0]
-p:nth-child(4n+2) 9 === 9 //*[position() >= 2 and (count(preceding-sibling::*) - 1) mod 4 = 0]/self::p
-p:nth-child(4n-2) 9 === 9 //p[(count(preceding-sibling::*) + 3) mod 4 = 0]
-p:nth-child(4n+3) 11 === 11 //*[position() >= 3 and (count(preceding-sibling::*) - 2) mod 4 = 0]/self::p
-p:nth-child(4n-3) 11 === 11 //p[(count(preceding-sibling::*) + 4) mod 4 = 0]
-p:nth-child(4n+4) 11 === 11 //*[position() >= 4 and (count(preceding-sibling::*) - 3) mod 4 = 0]/self::p
-p:nth-child(4n-4) 11 === 11 //p[(count(preceding-sibling::*) + 5) mod 4 = 0]
-p:nth-of-type(1n) 42 === 42 //p
-p:nth-of-type(2n) 20 === 20 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-p:nth-of-type(3n) 14 === 14 //p[(count(preceding-sibling::p) + 1) mod 3 = 0]
-p:nth-of-type(4n) 9 === 9 //p[(count(preceding-sibling::p) + 1) mod 4 = 0]
-p:nth-of-type(1n) 42 === 42 //p
-p:nth-of-type(2n) 20 === 20 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-p:nth-of-type(3n) 14 === 14 //p[(count(preceding-sibling::p) + 1) mod 3 = 0]
-p:nth-of-type(4n) 9 === 9 //p[(count(preceding-sibling::p) + 1) mod 4 = 0]
-p:nth-child(-0n+1) 5 === 5 //*[position() = 1]/self::p
-p:nth-child(-0n+2) 3 === 3 //*[position() = 2]/self::p
-p:nth-child(-0n+3) 5 === 5 //*[position() = 3]/self::p
-p:nth-child(-0n+4) 5 === 5 //*[position() = 4]/self::p
-p:nth-child(-1n+1) 5 === 5 //*[position() <= 1]/self::p
-p:nth-child(-1n+2) 8 === 8 //*[position() <= 2]/self::p
-p:nth-child(-1n+3) 13 === 13 //*[position() <= 3]/self::p
-p:nth-child(-1n+4) 18 === 18 //*[position() <= 4]/self::p
-p:nth-child(-2n+1) 5 === 5 //*[position() <= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::p
-p:nth-child(-2n+2) 3 === 3 //*[position() <= 2 and (count(preceding-sibling::*) - 1) mod 2 = 0]/self::p
-p:nth-child(-2n+3) 10 === 10 //*[position() <= 3 and (count(preceding-sibling::*) - 2) mod 2 = 0]/self::p
-p:nth-child(-2n+4) 8 === 8 //*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 2 = 0]/self::p
-p:nth-child(-3n+1) 5 === 5 //*[position() <= 1 and (count(preceding-sibling::*)) mod 3 = 0]/self::p
-p:nth-child(-3n+2) 3 === 3 //*[position() <= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]/self::p
-p:nth-child(-3n+3) 5 === 5 //*[position() <= 3 and (count(preceding-sibling::*) - 2) mod 3 = 0]/self::p
-p:nth-child(-3n+4) 10 === 10 //*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]/self::p
-p:nth-child(-4n+1) 5 === 5 //*[position() <= 1 and (count(preceding-sibling::*)) mod 4 = 0]/self::p
-p:nth-child(-4n+2) 3 === 3 //*[position() <= 2 and (count(preceding-sibling::*) - 1) mod 4 = 0]/self::p
-p:nth-child(-4n+3) 5 === 5 //*[position() <= 3 and (count(preceding-sibling::*) - 2) mod 4 = 0]/self::p
-p:nth-child(-4n+4) 5 === 5 //*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 4 = 0]/self::p
-p:nth-last-child(1) 4 === 4 //p[(count(following-sibling::*) + 1) = 1]
-p:nth-last-child(1) 4 === 4 //p[(count(following-sibling::*) + 1) = 1]
-p:nth-last-child(2) 4 === 4 //p[(count(following-sibling::*) + 1) = 2]
-p:nth-last-child(2) 4 === 4 //p[(count(following-sibling::*) + 1) = 2]
-p:nth-last-child(3) 4 === 4 //p[(count(following-sibling::*) + 1) = 3]
-p:nth-last-child(3) 4 === 4 //p[(count(following-sibling::*) + 1) = 3]
-p:nth-last-child(4) 4 === 4 //p[(count(following-sibling::*) + 1) = 4]
-p:nth-last-child(4) 4 === 4 //p[(count(following-sibling::*) + 1) = 4]
-p:nth-of-type(0n+1) 5 === 5 //p[position() = 1]
-p:nth-of-type(0n+2) 5 === 5 //p[position() = 2]
-p:nth-of-type(0n+3) 5 === 5 //p[position() = 3]
-p:nth-of-type(0n+4) 4 === 4 //p[position() = 4]
-p:nth-of-type(1n+0) 42 === 42 //p
-p:nth-of-type(1n-0) 42 === 42 //p
-p:nth-of-type(1n+1) 42 === 42 //p[position() >= 1]
-p:nth-of-type(1n-1) 42 === 42 //p
-p:nth-of-type(1n+2) 37 === 37 //p[position() >= 2]
-p:nth-of-type(1n-2) 42 === 42 //p
-p:nth-of-type(1n+3) 32 === 32 //p[position() >= 3]
-p:nth-of-type(1n-3) 42 === 42 //p
-p:nth-of-type(1n+4) 27 === 27 //p[position() >= 4]
-p:nth-of-type(1n-4) 42 === 42 //p
-p:nth-of-type(2n+0) 20 === 20 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-p:nth-of-type(2n-0) 20 === 20 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-p:nth-of-type(2n+1) 22 === 22 //p[position() >= 1 and (count(preceding-sibling::p)) mod 2 = 0]
-p:nth-of-type(2n-1) 22 === 22 //p[(count(preceding-sibling::p) + 2) mod 2 = 0]
-p:nth-of-type(2n+2) 20 === 20 //p[position() >= 2 and (count(preceding-sibling::p) - 1) mod 2 = 0]
-p:nth-of-type(2n-2) 20 === 20 //p[(count(preceding-sibling::p) + 3) mod 2 = 0]
-p:nth-of-type(2n+3) 17 === 17 //p[position() >= 3 and (count(preceding-sibling::p) - 2) mod 2 = 0]
-p:nth-of-type(2n-3) 22 === 22 //p[(count(preceding-sibling::p) + 4) mod 2 = 0]
-p:nth-of-type(2n+4) 15 === 15 //p[position() >= 4 and (count(preceding-sibling::p) - 3) mod 2 = 0]
-p:nth-of-type(2n-4) 20 === 20 //p[(count(preceding-sibling::p) + 5) mod 2 = 0]
-p:nth-of-type(3n+0) 14 === 14 //p[(count(preceding-sibling::p) + 1) mod 3 = 0]
-p:nth-of-type(3n-0) 14 === 14 //p[(count(preceding-sibling::p) + 1) mod 3 = 0]
-p:nth-of-type(3n+1) 14 === 14 //p[position() >= 1 and (count(preceding-sibling::p)) mod 3 = 0]
-p:nth-of-type(3n-1) 14 === 14 //p[(count(preceding-sibling::p) + 2) mod 3 = 0]
-p:nth-of-type(3n+2) 14 === 14 //p[position() >= 2 and (count(preceding-sibling::p) - 1) mod 3 = 0]
-p:nth-of-type(3n-2) 14 === 14 //p[(count(preceding-sibling::p) + 3) mod 3 = 0]
-p:nth-of-type(3n+3) 14 === 14 //p[position() >= 3 and (count(preceding-sibling::p) - 2) mod 3 = 0]
-p:nth-of-type(3n-3) 14 === 14 //p[(count(preceding-sibling::p) + 4) mod 3 = 0]
-p:nth-of-type(3n+4) 9 === 9 //p[position() >= 4 and (count(preceding-sibling::p) - 3) mod 3 = 0]
-p:nth-of-type(3n-4) 14 === 14 //p[(count(preceding-sibling::p) + 5) mod 3 = 0]
-p:nth-of-type(4n+0) 9 === 9 //p[(count(preceding-sibling::p) + 1) mod 4 = 0]
-p:nth-of-type(4n-0) 9 === 9 //p[(count(preceding-sibling::p) + 1) mod 4 = 0]
-p:nth-of-type(4n+1) 12 === 12 //p[position() >= 1 and (count(preceding-sibling::p)) mod 4 = 0]
-p:nth-of-type(4n-1) 10 === 10 //p[(count(preceding-sibling::p) + 2) mod 4 = 0]
-p:nth-of-type(4n+2) 11 === 11 //p[position() >= 2 and (count(preceding-sibling::p) - 1) mod 4 = 0]
-p:nth-of-type(4n-2) 11 === 11 //p[(count(preceding-sibling::p) + 3) mod 4 = 0]
-p:nth-of-type(4n+3) 10 === 10 //p[position() >= 3 and (count(preceding-sibling::p) - 2) mod 4 = 0]
-p:nth-of-type(4n-3) 12 === 12 //p[(count(preceding-sibling::p) + 4) mod 4 = 0]
-p:nth-of-type(4n+4) 9 === 9 //p[position() >= 4 and (count(preceding-sibling::p) - 3) mod 4 = 0]
-p:nth-of-type(4n-4) 9 === 9 //p[(count(preceding-sibling::p) + 5) mod 4 = 0]
-p:nth-of-type(0n+1) 5 === 5 //p[position() = 1]
-p:nth-of-type(0n+2) 5 === 5 //p[position() = 2]
-p:nth-of-type(0n+3) 5 === 5 //p[position() = 3]
-p:nth-of-type(0n+4) 4 === 4 //p[position() = 4]
-p:nth-of-type(1n+0) 42 === 42 //p
-p:nth-of-type(1n-0) 42 === 42 //p
-p:nth-of-type(1n+1) 42 === 42 //p[position() >= 1]
-p:nth-of-type(1n-1) 42 === 42 //p
-p:nth-of-type(1n+2) 37 === 37 //p[position() >= 2]
-p:nth-of-type(1n-2) 42 === 42 //p
-p:nth-of-type(1n+3) 32 === 32 //p[position() >= 3]
-p:nth-of-type(1n-3) 42 === 42 //p
-p:nth-of-type(1n+4) 27 === 27 //p[position() >= 4]
-p:nth-of-type(1n-4) 42 === 42 //p
-p:nth-of-type(2n+0) 20 === 20 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-p:nth-of-type(2n-0) 20 === 20 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-p:nth-of-type(2n+1) 22 === 22 //p[position() >= 1 and (count(preceding-sibling::p)) mod 2 = 0]
-p:nth-of-type(2n-1) 22 === 22 //p[(count(preceding-sibling::p) + 2) mod 2 = 0]
-p:nth-of-type(2n+2) 20 === 20 //p[position() >= 2 and (count(preceding-sibling::p) - 1) mod 2 = 0]
-p:nth-of-type(2n-2) 20 === 20 //p[(count(preceding-sibling::p) + 3) mod 2 = 0]
-p:nth-of-type(2n+3) 17 === 17 //p[position() >= 3 and (count(preceding-sibling::p) - 2) mod 2 = 0]
-p:nth-of-type(2n-3) 22 === 22 //p[(count(preceding-sibling::p) + 4) mod 2 = 0]
-p:nth-of-type(2n+4) 15 === 15 //p[position() >= 4 and (count(preceding-sibling::p) - 3) mod 2 = 0]
-p:nth-of-type(2n-4) 20 === 20 //p[(count(preceding-sibling::p) + 5) mod 2 = 0]
-p:nth-of-type(3n+0) 14 === 14 //p[(count(preceding-sibling::p) + 1) mod 3 = 0]
-p:nth-of-type(3n-0) 14 === 14 //p[(count(preceding-sibling::p) + 1) mod 3 = 0]
-p:nth-of-type(3n+1) 14 === 14 //p[position() >= 1 and (count(preceding-sibling::p)) mod 3 = 0]
-p:nth-of-type(3n-1) 14 === 14 //p[(count(preceding-sibling::p) + 2) mod 3 = 0]
-p:nth-of-type(3n+2) 14 === 14 //p[position() >= 2 and (count(preceding-sibling::p) - 1) mod 3 = 0]
-p:nth-of-type(3n-2) 14 === 14 //p[(count(preceding-sibling::p) + 3) mod 3 = 0]
-p:nth-of-type(3n+3) 14 === 14 //p[position() >= 3 and (count(preceding-sibling::p) - 2) mod 3 = 0]
-p:nth-of-type(3n-3) 14 === 14 //p[(count(preceding-sibling::p) + 4) mod 3 = 0]
-p:nth-of-type(3n+4) 9 === 9 //p[position() >= 4 and (count(preceding-sibling::p) - 3) mod 3 = 0]
-p:nth-of-type(3n-4) 14 === 14 //p[(count(preceding-sibling::p) + 5) mod 3 = 0]
-p:nth-of-type(4n+0) 9 === 9 //p[(count(preceding-sibling::p) + 1) mod 4 = 0]
-p:nth-of-type(4n-0) 9 === 9 //p[(count(preceding-sibling::p) + 1) mod 4 = 0]
-p:nth-of-type(4n+1) 12 === 12 //p[position() >= 1 and (count(preceding-sibling::p)) mod 4 = 0]
-p:nth-of-type(4n-1) 10 === 10 //p[(count(preceding-sibling::p) + 2) mod 4 = 0]
-p:nth-of-type(4n+2) 11 === 11 //p[position() >= 2 and (count(preceding-sibling::p) - 1) mod 4 = 0]
-p:nth-of-type(4n-2) 11 === 11 //p[(count(preceding-sibling::p) + 3) mod 4 = 0]
-p:nth-of-type(4n+3) 10 === 10 //p[position() >= 3 and (count(preceding-sibling::p) - 2) mod 4 = 0]
-p:nth-of-type(4n-3) 12 === 12 //p[(count(preceding-sibling::p) + 4) mod 4 = 0]
-p:nth-of-type(4n+4) 9 === 9 //p[position() >= 4 and (count(preceding-sibling::p) - 3) mod 4 = 0]
-p:nth-of-type(4n-4) 9 === 9 //p[(count(preceding-sibling::p) + 5) mod 4 = 0]
-p:nth-last-child(1n) 42 === 42 //p
-p:nth-last-child(2n) 20 === 20 //p[(count(following-sibling::*) + 1) mod 2 = 0]
-p:nth-last-child(3n) 13 === 13 //p[(count(following-sibling::*) + 1) mod 3 = 0]
-p:nth-last-child(4n) 10 === 10 //p[(count(following-sibling::*) + 1) mod 4 = 0]
-p:nth-of-type(-0n+1) 5 === 5 //p[position() = 1]
-p:nth-of-type(-0n+2) 5 === 5 //p[position() = 2]
-p:nth-of-type(-0n+3) 5 === 5 //p[position() = 3]
-p:nth-of-type(-0n+4) 4 === 4 //p[position() = 4]
-p:nth-of-type(-1n+1) 5 === 5 //p[position() <= 1]
-p:nth-of-type(-1n+2) 10 === 10 //p[position() <= 2]
-p:nth-of-type(-1n+3) 15 === 15 //p[position() <= 3]
-p:nth-of-type(-1n+4) 19 === 19 //p[position() <= 4]
-p:nth-of-type(-2n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p)) mod 2 = 0]
-p:nth-of-type(-2n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 2 = 0]
-p:nth-of-type(-2n+3) 10 === 10 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 2 = 0]
-p:nth-of-type(-2n+4) 9 === 9 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 2 = 0]
-p:nth-of-type(-3n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p)) mod 3 = 0]
-p:nth-of-type(-3n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 3 = 0]
-p:nth-of-type(-3n+3) 5 === 5 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 3 = 0]
-p:nth-of-type(-3n+4) 9 === 9 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 3 = 0]
-p:nth-of-type(-4n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p)) mod 4 = 0]
-p:nth-of-type(-4n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 4 = 0]
-p:nth-of-type(-4n+3) 5 === 5 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 4 = 0]
-p:nth-of-type(-4n+4) 4 === 4 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 4 = 0]
-p:nth-of-type(-0n+1) 5 === 5 //p[position() = 1]
-p:nth-of-type(-0n+2) 5 === 5 //p[position() = 2]
-p:nth-of-type(-0n+3) 5 === 5 //p[position() = 3]
-p:nth-of-type(-0n+4) 4 === 4 //p[position() = 4]
-p:nth-of-type(-1n+1) 5 === 5 //p[position() <= 1]
-p:nth-of-type(-1n+2) 10 === 10 //p[position() <= 2]
-p:nth-of-type(-1n+3) 15 === 15 //p[position() <= 3]
-p:nth-of-type(-1n+4) 19 === 19 //p[position() <= 4]
-p:nth-of-type(-2n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p)) mod 2 = 0]
-p:nth-of-type(-2n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 2 = 0]
-p:nth-of-type(-2n+3) 10 === 10 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 2 = 0]
-p:nth-of-type(-2n+4) 9 === 9 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 2 = 0]
-p:nth-of-type(-3n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p)) mod 3 = 0]
-p:nth-of-type(-3n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 3 = 0]
-p:nth-of-type(-3n+3) 5 === 5 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 3 = 0]
-p:nth-of-type(-3n+4) 9 === 9 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 3 = 0]
-p:nth-of-type(-4n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p)) mod 4 = 0]
-p:nth-of-type(-4n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 4 = 0]
-p:nth-of-type(-4n+3) 5 === 5 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 4 = 0]
-p:nth-of-type(-4n+4) 4 === 4 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 4 = 0]
-p:nth-last-of-type(1) 5 === 5 //p[(count(following-sibling::p) + 1) = 1]
-p:nth-last-of-type(1) 5 === 5 //p[(count(following-sibling::p) + 1) = 1]
-p:nth-last-of-type(2) 5 === 5 //p[(count(following-sibling::p) + 1) = 2]
-p:nth-last-of-type(2) 5 === 5 //p[(count(following-sibling::p) + 1) = 2]
-p:nth-last-of-type(3) 5 === 5 //p[(count(following-sibling::p) + 1) = 3]
-p:nth-last-of-type(3) 5 === 5 //p[(count(following-sibling::p) + 1) = 3]
-p:nth-last-of-type(4) 4 === 4 //p[(count(following-sibling::p) + 1) = 4]
-p:nth-last-of-type(4) 4 === 4 //p[(count(following-sibling::p) + 1) = 4]
-p:nth-last-child(0n+1) 4 === 4 //*[position() = last()]/self::p
-p:nth-last-child(0n+2) 4 === 4 //*[position() = (last() - 1)]/self::p
-p:nth-last-child(0n+3) 4 === 4 //*[position() = (last() - 2)]/self::p
-p:nth-last-child(0n+4) 4 === 4 //*[position() = (last() - 3)]/self::p
-p:nth-last-child(1n+0) 42 === 42 //p
-p:nth-last-child(1n-0) 42 === 42 //p
-p:nth-last-child(1n+1) 42 === 42 //p
-p:nth-last-child(1n-1) 42 === 42 //p
-p:nth-last-child(1n+2) 38 === 38 //*[position() <= (last() - 1)]/self::p
-p:nth-last-child(1n-2) 42 === 42 //p
-p:nth-last-child(1n+3) 34 === 34 //*[position() <= (last() - 2)]/self::p
-p:nth-last-child(1n-3) 42 === 42 //p
-p:nth-last-child(1n+4) 30 === 30 //*[position() <= (last() - 3)]/self::p
-p:nth-last-child(1n-4) 42 === 42 //p
-p:nth-last-child(2n+0) 20 === 20 //p[(count(following-sibling::*) + 1) mod 2 = 0]
-p:nth-last-child(2n-0) 20 === 20 //p[(count(following-sibling::*) + 1) mod 2 = 0]
-p:nth-last-child(2n+1) 22 === 22 //*[position() <= last() and (count(following-sibling::*)) mod 2 = 0]/self::p
-p:nth-last-child(2n-1) 22 === 22 //p[(count(following-sibling::*) + 2) mod 2 = 0]
-p:nth-last-child(2n+2) 20 === 20 //*[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 2 = 0]/self::p
-p:nth-last-child(2n-2) 20 === 20 //p[(count(following-sibling::*) + 3) mod 2 = 0]
-p:nth-last-child(2n+3) 18 === 18 //*[position() <= (last() - 2) and (count(following-sibling::*) - 2) mod 2 = 0]/self::p
-p:nth-last-child(2n-3) 22 === 22 //p[(count(following-sibling::*) + 4) mod 2 = 0]
-p:nth-last-child(2n+4) 16 === 16 //*[position() <= (last() - 3) and (count(following-sibling::*) - 3) mod 2 = 0]/self::p
-p:nth-last-child(2n-4) 20 === 20 //p[(count(following-sibling::*) + 5) mod 2 = 0]
-p:nth-last-child(3n+0) 13 === 13 //p[(count(following-sibling::*) + 1) mod 3 = 0]
-p:nth-last-child(3n-0) 13 === 13 //p[(count(following-sibling::*) + 1) mod 3 = 0]
-p:nth-last-child(3n+1) 15 === 15 //*[position() <= last() and (count(following-sibling::*)) mod 3 = 0]/self::p
-p:nth-last-child(3n-1) 14 === 14 //p[(count(following-sibling::*) + 2) mod 3 = 0]
-p:nth-last-child(3n+2) 14 === 14 //*[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 3 = 0]/self::p
-p:nth-last-child(3n-2) 15 === 15 //p[(count(following-sibling::*) + 3) mod 3 = 0]
-p:nth-last-child(3n+3) 13 === 13 //*[position() <= (last() - 2) and (count(following-sibling::*) - 2) mod 3 = 0]/self::p
-p:nth-last-child(3n-3) 13 === 13 //p[(count(following-sibling::*) + 4) mod 3 = 0]
-p:nth-last-child(3n+4) 11 === 11 //*[position() <= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]/self::p
-p:nth-last-child(3n-4) 14 === 14 //p[(count(following-sibling::*) + 5) mod 3 = 0]
-p:nth-last-child(4n+0) 10 === 10 //p[(count(following-sibling::*) + 1) mod 4 = 0]
-p:nth-last-child(4n-0) 10 === 10 //p[(count(following-sibling::*) + 1) mod 4 = 0]
-p:nth-last-child(4n+1) 12 === 12 //*[position() <= last() and (count(following-sibling::*)) mod 4 = 0]/self::p
-p:nth-last-child(4n-1) 10 === 10 //p[(count(following-sibling::*) + 2) mod 4 = 0]
-p:nth-last-child(4n+2) 10 === 10 //*[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 4 = 0]/self::p
-p:nth-last-child(4n-2) 10 === 10 //p[(count(following-sibling::*) + 3) mod 4 = 0]
-p:nth-last-child(4n+3) 10 === 10 //*[position() <= (last() - 2) and (count(following-sibling::*) - 2) mod 4 = 0]/self::p
-p:nth-last-child(4n-3) 12 === 12 //p[(count(following-sibling::*) + 4) mod 4 = 0]
-p:nth-last-child(4n+4) 10 === 10 //*[position() <= (last() - 3) and (count(following-sibling::*) - 3) mod 4 = 0]/self::p
-p:nth-last-child(4n-4) 10 === 10 //p[(count(following-sibling::*) + 5) mod 4 = 0]
-p:nth-last-of-type(1n) 42 === 42 //p
-p:nth-last-of-type(2n) 20 === 20 //p[(count(following-sibling::p) + 1) mod 2 = 0]
-p:nth-last-of-type(3n) 14 === 14 //p[(count(following-sibling::p) + 1) mod 3 = 0]
-p:nth-last-of-type(4n) 9 === 9 //p[(count(following-sibling::p) + 1) mod 4 = 0]
-p:nth-last-child(-0n+1) 4 === 4 //*[position() = last()]/self::p
-p:nth-last-child(-0n+2) 4 === 4 //*[position() = (last() - 1)]/self::p
-p:nth-last-child(-0n+3) 4 === 4 //*[position() = (last() - 2)]/self::p
-p:nth-last-child(-0n+4) 4 === 4 //*[position() = (last() - 3)]/self::p
-p:nth-last-child(-1n+1) 4 === 4 //*[position() >= last()]/self::p
-p:nth-last-child(-1n+2) 8 === 8 //*[position() >= (last() - 1)]/self::p
-p:nth-last-child(-1n+3) 12 === 12 //*[position() >= (last() - 2)]/self::p
-p:nth-last-child(-1n+4) 16 === 16 //*[position() >= (last() - 3)]/self::p
-p:nth-last-child(-2n+1) 4 === 4 //*[position() >= last() and (count(following-sibling::*)) mod 2 = 0]/self::p
-p:nth-last-child(-2n+2) 4 === 4 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 2 = 0]/self::p
-p:nth-last-child(-2n+3) 8 === 8 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 2 = 0]/self::p
-p:nth-last-child(-2n+4) 8 === 8 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 2 = 0]/self::p
-p:nth-last-child(-3n+1) 4 === 4 //*[position() >= last() and (count(following-sibling::*)) mod 3 = 0]/self::p
-p:nth-last-child(-3n+2) 4 === 4 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 3 = 0]/self::p
-p:nth-last-child(-3n+3) 4 === 4 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 3 = 0]/self::p
-p:nth-last-child(-3n+4) 8 === 8 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]/self::p
-p:nth-last-child(-4n+1) 4 === 4 //*[position() >= last() and (count(following-sibling::*)) mod 4 = 0]/self::p
-p:nth-last-child(-4n+2) 4 === 4 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 4 = 0]/self::p
-p:nth-last-child(-4n+3) 4 === 4 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 4 = 0]/self::p
-p:nth-last-child(-4n+4) 4 === 4 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 4 = 0]/self::p
-p:nth-last-of-type(0n+1) 5 === 5 //p[position() = last()]
-p:nth-last-of-type(0n+2) 5 === 5 //p[position() = (last() - 1)]
-p:nth-last-of-type(0n+3) 5 === 5 //p[position() = (last() - 2)]
-p:nth-last-of-type(0n+4) 4 === 4 //p[position() = (last() - 3)]
-p:nth-last-of-type(1n+0) 42 === 42 //p
-p:nth-last-of-type(1n-0) 42 === 42 //p
-p:nth-last-of-type(1n+1) 42 === 42 //p
-p:nth-last-of-type(1n-1) 42 === 42 //p
-p:nth-last-of-type(1n+2) 37 === 37 //p[position() <= (last() - 1)]
-p:nth-last-of-type(1n-2) 42 === 42 //p
-p:nth-last-of-type(1n+3) 32 === 32 //p[position() <= (last() - 2)]
-p:nth-last-of-type(1n-3) 42 === 42 //p
-p:nth-last-of-type(1n+4) 27 === 27 //p[position() <= (last() - 3)]
-p:nth-last-of-type(1n-4) 42 === 42 //p
-p:nth-last-of-type(2n+0) 20 === 20 //p[(count(following-sibling::p) + 1) mod 2 = 0]
-p:nth-last-of-type(2n-0) 20 === 20 //p[(count(following-sibling::p) + 1) mod 2 = 0]
-p:nth-last-of-type(2n+1) 22 === 22 //p[position() <= last() and (count(following-sibling::p)) mod 2 = 0]
-p:nth-last-of-type(2n-1) 22 === 22 //p[(count(following-sibling::p) + 2) mod 2 = 0]
-p:nth-last-of-type(2n+2) 20 === 20 //p[position() <= (last() - 1) and (count(following-sibling::p) - 1) mod 2 = 0]
-p:nth-last-of-type(2n-2) 20 === 20 //p[(count(following-sibling::p) + 3) mod 2 = 0]
-p:nth-last-of-type(2n+3) 17 === 17 //p[position() <= (last() - 2) and (count(following-sibling::p) - 2) mod 2 = 0]
-p:nth-last-of-type(2n-3) 22 === 22 //p[(count(following-sibling::p) + 4) mod 2 = 0]
-p:nth-last-of-type(2n+4) 15 === 15 //p[position() <= (last() - 3) and (count(following-sibling::p) - 3) mod 2 = 0]
-p:nth-last-of-type(2n-4) 20 === 20 //p[(count(following-sibling::p) + 5) mod 2 = 0]
-p:nth-last-of-type(3n+0) 14 === 14 //p[(count(following-sibling::p) + 1) mod 3 = 0]
-p:nth-last-of-type(3n-0) 14 === 14 //p[(count(following-sibling::p) + 1) mod 3 = 0]
-p:nth-last-of-type(3n+1) 14 === 14 //p[position() <= last() and (count(following-sibling::p)) mod 3 = 0]
-p:nth-last-of-type(3n-1) 14 === 14 //p[(count(following-sibling::p) + 2) mod 3 = 0]
-p:nth-last-of-type(3n+2) 14 === 14 //p[position() <= (last() - 1) and (count(following-sibling::p) - 1) mod 3 = 0]
-p:nth-last-of-type(3n-2) 14 === 14 //p[(count(following-sibling::p) + 3) mod 3 = 0]
-p:nth-last-of-type(3n+3) 14 === 14 //p[position() <= (last() - 2) and (count(following-sibling::p) - 2) mod 3 = 0]
-p:nth-last-of-type(3n-3) 14 === 14 //p[(count(following-sibling::p) + 4) mod 3 = 0]
-p:nth-last-of-type(3n+4) 9 === 9 //p[position() <= (last() - 3) and (count(following-sibling::p) - 3) mod 3 = 0]
-p:nth-last-of-type(3n-4) 14 === 14 //p[(count(following-sibling::p) + 5) mod 3 = 0]
-p:nth-last-of-type(4n+0) 9 === 9 //p[(count(following-sibling::p) + 1) mod 4 = 0]
-p:nth-last-of-type(4n-0) 9 === 9 //p[(count(following-sibling::p) + 1) mod 4 = 0]
-p:nth-last-of-type(4n+1) 12 === 12 //p[position() <= last() and (count(following-sibling::p)) mod 4 = 0]
-p:nth-last-of-type(4n-1) 10 === 10 //p[(count(following-sibling::p) + 2) mod 4 = 0]
-p:nth-last-of-type(4n+2) 11 === 11 //p[position() <= (last() - 1) and (count(following-sibling::p) - 1) mod 4 = 0]
-p:nth-last-of-type(4n-2) 11 === 11 //p[(count(following-sibling::p) + 3) mod 4 = 0]
-p:nth-last-of-type(4n+3) 10 === 10 //p[position() <= (last() - 2) and (count(following-sibling::p) - 2) mod 4 = 0]
-p:nth-last-of-type(4n-3) 12 === 12 //p[(count(following-sibling::p) + 4) mod 4 = 0]
-p:nth-last-of-type(4n+4) 9 === 9 //p[position() <= (last() - 3) and (count(following-sibling::p) - 3) mod 4 = 0]
-p:nth-last-of-type(4n-4) 9 === 9 //p[(count(following-sibling::p) + 5) mod 4 = 0]
-p:nth-last-of-type(-0n+1) 5 === 5 //p[position() = last()]
-p:nth-last-of-type(-0n+2) 5 === 5 //p[position() = (last() - 1)]
-p:nth-last-of-type(-0n+3) 5 === 5 //p[position() = (last() - 2)]
-p:nth-last-of-type(-0n+4) 4 === 4 //p[position() = (last() - 3)]
-p:nth-last-of-type(-1n+1) 5 === 5 //p[position() >= last()]
-p:nth-last-of-type(-1n+2) 10 === 10 //p[position() >= (last() - 1)]
-p:nth-last-of-type(-1n+3) 15 === 15 //p[position() >= (last() - 2)]
-p:nth-last-of-type(-1n+4) 19 === 19 //p[position() >= (last() - 3)]
-p:nth-last-of-type(-2n+1) 5 === 5 //p[position() >= last() and (count(following-sibling::p)) mod 2 = 0]
-p:nth-last-of-type(-2n+2) 5 === 5 //p[position() >= (last() - 1) and (count(following-sibling::p) - 1) mod 2 = 0]
-p:nth-last-of-type(-2n+3) 10 === 10 //p[position() >= (last() - 2) and (count(following-sibling::p) - 2) mod 2 = 0]
-p:nth-last-of-type(-2n+4) 9 === 9 //p[position() >= (last() - 3) and (count(following-sibling::p) - 3) mod 2 = 0]
-p:nth-last-of-type(-3n+1) 5 === 5 //p[position() >= last() and (count(following-sibling::p)) mod 3 = 0]
-p:nth-last-of-type(-3n+2) 5 === 5 //p[position() >= (last() - 1) and (count(following-sibling::p) - 1) mod 3 = 0]
-p:nth-last-of-type(-3n+3) 5 === 5 //p[position() >= (last() - 2) and (count(following-sibling::p) - 2) mod 3 = 0]
-p:nth-last-of-type(-3n+4) 9 === 9 //p[position() >= (last() - 3) and (count(following-sibling::p) - 3) mod 3 = 0]
-p:nth-last-of-type(-4n+1) 5 === 5 //p[position() >= last() and (count(following-sibling::p)) mod 4 = 0]
-p:nth-last-of-type(-4n+2) 5 === 5 //p[position() >= (last() - 1) and (count(following-sibling::p) - 1) mod 4 = 0]
-p:nth-last-of-type(-4n+3) 5 === 5 //p[position() >= (last() - 2) and (count(following-sibling::p) - 2) mod 4 = 0]
-p:nth-last-of-type(-4n+4) 4 === 4 //p[position() >= (last() - 3) and (count(following-sibling::p) - 3) mod 4 = 0]
-
-Coverter errors: 220
-p:nth-child(0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-child(0n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-of-type(0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-child(-0n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-of-type(-0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-last-child(0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-of-type(0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-last-child(0n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-of-type(-0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-last-child(-0n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-of-type(0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-child(0n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(0n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-of-type(0n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-child(-0n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-0n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-1n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-2n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-3n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n+0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-0) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-1) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-2) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-3) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-child(-4n-4) converter error: Pseudo selector ':nth-last-child' with these parameters yield no matches
-p:nth-last-of-type(-0n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(0n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-0n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-1n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-2n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-3n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n+0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-0) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-1) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-2) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-3) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-p:nth-last-of-type(-4n-4) converter error: Pseudo selector ':nth-last-of-type' with these parameters yield no matches
-
-
-Slickspeed.json
-
-Passed: 26
-div 51 === 51 //div
-div p 140 === 140 //div//p
-.note 14 === 14 //*[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
-#title 1 === 1 //*[@id='title']
-div > p 134 === 134 //div/p
-div + p 22 === 22 //div/following-sibling::*[1]/self::p
-div ~ p 183 === 183 //div/following-sibling::p
-div p a 12 === 12 //div//p//a
-h1#title 1 === 1 //h1[@id='title']
-div, p, a 671 === 671 //div | //p | //a
-div #title 1 === 1 //div//*[@id='title']
-div.example 43 === 43 //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')]
-ul .tocline2 12 === 12 //ul//*[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
-p:only-child 3 === 3 //p[not(preceding-sibling::*) and not(following-sibling::*)]
-p:last-child 19 === 19 //p[not(following-sibling::*)]
-p:first-child 54 === 54 //p[not(preceding-sibling::*)]
-p:nth-child(n) 324 === 324 //p
-p:nth-child(2n) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
-p:nth-child(odd) 166 === 166 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
-div:not(.example) 8 === 8 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' example ')])]
-p:nth-child(even) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
-p:nth-child(2n+1) 166 === 166 //*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::p
-ul.toc li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]//li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
-ul.toc > li.tocline2 12 === 12 //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]/li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
-div.example, div.note 44 === 44 //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')] | //div[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
-div[class^=exa][class$=mple] 43 === 43 //div[contains(concat(' ', normalize-space(@class), ' '), ' exa')][contains(concat(' ', normalize-space(@class), ' '), 'mple ')]
-
-Have no matches: 1
-h1#title + div > p - 0 - //h1[@id='title']/following-sibling::*[1]/self::div/p

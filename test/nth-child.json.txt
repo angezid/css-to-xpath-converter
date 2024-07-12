@@ -1,5 +1,5 @@
 
-name
+reportName
 
 Passed: 147
 p:nth-child(n) 42 === 42 //p
@@ -149,80 +149,3 @@ p:nth-child(-4n+1) 5 === 5 //*[position() <= 1 and (count(preceding-sibling::*))
 p:nth-child(-4n+2) 3 === 3 //*[position() <= 2 and (count(preceding-sibling::*) - 1) mod 4 = 0]/self::p
 p:nth-child(-4n+3) 5 === 5 //*[position() <= 3 and (count(preceding-sibling::*) - 2) mod 4 = 0]/self::p
 p:nth-child(-4n+4) 5 === 5 //*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 4 = 0]/self::p
-
-Coverter errors: 75
-p:nth-child(0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(0n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-0n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-1n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-2n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-3n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n+0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-0) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-1) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-2) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-3) converter error: Pseudo selector ':nth-child' with these parameters yield no matches
-p:nth-child(-4n-4) converter error: Pseudo selector ':nth-child' with these parameters yield no matches

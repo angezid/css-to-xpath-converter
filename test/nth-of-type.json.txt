@@ -1,5 +1,5 @@
 
-name
+reportName
 
 Passed: 147
 p:nth-of-type(n) 42 === 42 //p
@@ -149,80 +149,3 @@ p:nth-of-type(-4n+1) 5 === 5 //p[position() <= 1 and (count(preceding-sibling::p
 p:nth-of-type(-4n+2) 5 === 5 //p[position() <= 2 and (count(preceding-sibling::p) - 1) mod 4 = 0]
 p:nth-of-type(-4n+3) 5 === 5 //p[position() <= 3 and (count(preceding-sibling::p) - 2) mod 4 = 0]
 p:nth-of-type(-4n+4) 4 === 4 //p[position() <= 4 and (count(preceding-sibling::p) - 3) mod 4 = 0]
-
-Coverter errors: 75
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-0n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-1n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-2n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-3n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n+0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-0) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-1) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-2) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-3) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches
-p:nth-of-type(-4n-4) converter error: Pseudo selector ':nth-of-type' with these parameters yield no matches

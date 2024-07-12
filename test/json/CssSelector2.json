@@ -1,4 +1,7 @@
 {
+  "paths": [
+    "test.html"
+  ],
   "selectors": [
     "div",
     "div p",

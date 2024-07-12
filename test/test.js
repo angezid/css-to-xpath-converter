@@ -10,79 +10,86 @@ const convertToXPath = require('../src/converter.js');
 const htmlDir = './test/html';
 const jsonDir = './test/json';
 
+const personal = false;
+//const personal = true; 
+
 performTest();
 //performTestDebug();
 
 async function performTest() {
 	try {
-		//const opt = { executablePath : 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' };
-		const opt = {};
-		let browser;
-		browser = await pt.launch(opt);
+		const opt = personal ? { executablePath : 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' } : {};
+		let browser = await pt.launch(opt);
 
 		const coverage = {};
 		let array;
-		const htmls = await readdir(htmlDir);
+		const jsonFiles = await readdir(jsonDir);
 		let success = true;
 
-		for (const file of htmls) {
-			const name = file.replace(/\.html$/, '.json');
-			console.log('testing ' + name);
+		for (const jsonName of jsonFiles) {
+			//if (jsonName.startsWith('not-nth')) continue;
 
-			//if (name !== 'CssW3CSelector.json') continue;
-			//if ( !name.startsWith('nth-')) continue;
-
-			const str = await readFile(jsonDir + '/' + name, 'utf8');
+			const str = await readFile(jsonDir + '/' + jsonName, 'utf8');
 			const json = JSON.parse(str);
-
-			const url = 'file:///' + __dirname + '/html/' + file;
-			const page = await loadFixtures(browser, url);
-			array = [];
-
-			for (let i = 0; i < json.selectors.length; i++) {
-				const selector = json.selectors[i],
-					css = entitize(selector);
-				let cssElems, xpathElems, xpath, obj;
-
-				try { obj = convertToXPath(selector); } catch (e) { array.push({ 'error' : true, 'text' : `${css}`, message : e.message }); }
-				if ( !obj) continue;
-
-				xpath = entitize(obj.xpath);
-
-				try { cssElems = await page.$$(selector); } catch (e) { array.push({ 'notValid' : 'css', 'text' : `${css}` }); }
-				try { xpathElems = await page.$x(obj.xpath); } catch (e) { array.push({ 'notValid' : 'xpath', 'css' : `${css}`, 'text' : `${xpath}`  }); }
-
-				if ( !cssElems || !xpathElems) continue;
-
-				if (cssElems.length === xpathElems.length) {
-					if (cssElems.length === 0) {
-						array.push({ 'noMatch' : true, 'css' : `${css}`, 'xpath' : `${xpath}` });
-
-					} else {
-						let passed = true;
-
-						for (let i = 0; i < cssElems.length; i++) {
-							const equal = await page.evaluate((e1, e2) => e1 === e2, cssElems[i], xpathElems[i]);
-							if ( !equal) {
-								passed = success = false;
+			
+			for (let k = 0; k < json.paths.length; k++) {
+				const htmlName = json.paths[k].replace(/\.json$/, '.html'), 
+					name = htmlName.replace(/\.html$/, '');
+				
+				console.log('testing ' + jsonName + ' with ' + htmlName);
+				
+				const url = 'file:///' + __dirname + '/html/' + htmlName;
+				const page = await loadFixtures(browser, url);
+				array = [];
+	
+				for (let i = 0; i < json.selectors.length; i++) {
+					const selector = json.selectors[i],
+						css = entitize(selector);
+					let cssElems, xpathElems, xpath, obj;
+	
+					try { obj = convertToXPath(selector); } catch (e) { array.push({ 'error' : true, 'text' : `${css}`, message : e.message }); }
+					if ( !obj) continue;
+	
+					xpath = entitize(obj.xpath);
+	
+					try { cssElems = await page.$$(selector); } catch (e) { array.push({ 'notValid' : 'css', 'text' : `${css}` }); }
+					try { xpathElems = await page.$x(obj.xpath); } catch (e) { array.push({ 'notValid' : 'xpath', 'css' : `${css}`, 'text' : `${xpath}`  }); }
+	
+					if ( !cssElems || !xpathElems) continue;
+	
+					if (cssElems.length === xpathElems.length) {
+						if (cssElems.length === 0) {
+							array.push({ 'noMatch' : true, 'css' : `${css}`, 'xpath' : `${xpath}` });
+	
+						} else {
+							let passed = true;
+	
+							for (let i = 0; i < cssElems.length; i++) {
+								const equal = await page.evaluate((e1, e2) => e1 === e2, cssElems[i], xpathElems[i]);
+								if ( !equal) {
+									passed = success = false;
+								}
+							}
+	
+							if (passed) {
+								array.push({ 'success' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
+	
+							} else {
+								array.push({ 'failed' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
 							}
 						}
-
-						if (passed) {
-							array.push({ 'success' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
-
-						} else {
-							array.push({ 'failed' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
-						}
+	
+					} else {
+						array.push({ 'notEquals' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'cssCount' : cssElems.length, 'xpathCount' : xpathElems.length });
+						success = false;
 					}
-
-				} else {
-					array.push({ 'notEquals' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'cssCount' : cssElems.length, 'xpathCount' : xpathElems.length });
-					success = false;
 				}
+				
+				const reportName = jsonName.startsWith(name) ? jsonName : jsonName.replace(/\.json$/, '') + '_' + htmlName;
+				
+				coverage[reportName] = array;
+				reportCoverage({ reportName : array }, reportName);
 			}
-			coverage[name] = array;
-			reportCoverage({ name : array }, name);
 		}
 
 		await browser.close();
@@ -95,6 +102,7 @@ async function performTest() {
 		} else {
 			console.log('All tests are passed');
 		}
+		
 	} catch (e) {
 		throw Error(e);
 	}
@@ -152,7 +160,7 @@ function reportCoverage(coverage, name) {
 				error.push(`<p>${item.text} <b>converter warning</b></p>\n`);
 
 			} else if (item.error) {
-				error.push(`<p>${item.text} <b>converter error:</b> ${item.message}</p>\n`);
+				error.push(`<p>${item.text} <b>converter error:</b> ${item.message}</p>\n\n`);
 
 			} else if (item.notEquals) {
 				match.push(`<p>${item.css} <b>${item.cssCount} !== ${item.xpathCount}</b> ${item.xpath}</p>\n`);
@@ -175,7 +183,7 @@ function reportCoverage(coverage, name) {
 	nav += '</ul></nav>\n';
 	html += nav + result + '</body></html>';
 
-	if ( !name) writeFile('test/test-coverage.html', html);
+	if (personal) writeFile('test/test-coverage.html', html);
 
 	text = result.trim().replace(/<h\d[^<>]*>/g, '\n').replace(/<\/?[^<>]+>/g, '').replace(/(?:&nbsp;)+/g, '  ');
 	text = deEntitize(text);
