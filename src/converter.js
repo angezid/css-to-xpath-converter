@@ -79,7 +79,7 @@
 		return { xpath, css : normalized, warning };
 	}
 
-	function parseNested(selector, axis = "", owner = null, predicate = false) {
+	function parseNested(selector, axis = "", owner = null, predicate) {
 		stack.push(code);
 
 		const result = parse(selector, axis, owner, true, predicate);
@@ -95,7 +95,7 @@
 		return xpath;
 	}
 
-	function parse(selector, axis, owner, nested = false, predicate = false) {
+	function parse(selector, axis, owner, nested = false, predicate) {
 		if ( !selector) {
 			argumentException("selector is empty or white space");
 		}
@@ -372,7 +372,8 @@
 
 				} else {
 					xpath = addOwner(owner, xpath, predicate);
-					xpath = processPseudoSelector(pseudoName, argument, xpath, predicate);
+					if (pseudoName.startsWith("nth-")) xpath = processNth(pseudoName, argument, xpath, predicate);
+					else xpath = processPseudoSelector(pseudoName, argument, xpath);
 				}
 
 				state = State.Text;
@@ -603,7 +604,7 @@
 		}
 	}
 
-	function processPseudoSelector(name, arg, xpath, predicate) {
+	function processPseudoSelector(name, arg, xpath) {
 		let result, owner, str2;
 
 		switch (name) {
@@ -660,13 +661,6 @@
 				//xpath += addRange("[name(preceding-sibling::", owner, ") != name() and name(following-sibling::", owner, ") != name()]");
 				break;
 
-			case "nth-child" :
-			case "nth-last-child" :
-			case "nth-of-type" :
-			case "nth-last-of-type" :
-				xpath = processNth(name, arg, xpath, predicate);
-				break;
-
 			case "text" :
 				xpath += "[@type='text']";
 				break;
@@ -692,13 +686,12 @@
 			case "not" :
 				const axis = isOwnerUniversalSelector(xpath) ? "self::" : "";
 				combined += xpath;
-				//xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()"), ")]");
-				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()", true), ")]");
+				xpath += addRange("[not(", parseNested(normalizeArg(name, arg, false), axis, "self::node()", { type : 'not' }), ")]");
 				break;
 
 			case "is" :
 				combined += xpath;
-				result = parseNested(normalizeArg(name, arg, false), "self::", "self::node()", true);
+				result = parseNested(normalizeArg(name, arg, false), "self::", "self::node()", { type : 'is' });
 				xpath += addRange("[", result, "]");
 				break;
 
@@ -813,12 +806,49 @@
 				xpath = addNthXpath(name, arg, xpath, 'following', owner, { type: 'nth-last-of', last : true }, predicate);
 				return xpath;
 
+			default :
+				parseException(pseudo + name + "' is not implemented");
+		}
+		return xpath;
+	}
+
+	function processNth(name, arg, xpath, predicate) {
+		if ( !arg) argumentException("argument is empty or white space");
+		arg = arg.replace(/\s+/g, '');
+
+		if (/^(?:-?0n?|-n(?:[+-]0|-\d+)?|(?:0|-\d+)n(?:-\d+)?|(?:0|-\d+)n\+0)$/.test(arg.replace(/^\+/, ''))) {
+			warning += pseudo + name + '\' with these parameters yield no matches';
+			argumentException(warning);
+		}
+
+		let owner;
+		switch (name) {
+			case "nth-child" :
+				xpath = addNthXpath(name, arg, xpath, 'preceding', '*', { child : 'nth' }, predicate);
+				return xpath;
+
+			case "nth-last-child" :
+				xpath = addNthXpath(name, arg, xpath, 'following', '*', { child: 'nth-last', last : true }, predicate);
+				return xpath;
+
+			case "nth-of-type" :
+				owner = getOwner(xpath, name);
+				xpath = addNthXpath(name, arg, xpath, 'preceding', owner, { type: 'nth-of' }, predicate);
+				return xpath;
+
+			case "nth-last-of-type" :
+				owner = getOwner(xpath, name);
+				xpath = addNthXpath(name, arg, xpath, 'following', owner, { type: 'nth-last-of', last : true }, predicate);
+				return xpath;
+
 			default : break;
 		}
 		return xpath;
 	}
 
 	function addNthXpath(name, arg, xpath, sibling, owner, pseudo, predicate) {
+		let str = '';
+
 		if (isNumber(arg)) {
 			return xpath += addRange("[(count(", sibling, "-sibling::", owner, ") + 1) = ", arg, "]");
 		}
@@ -830,9 +860,7 @@
 				return xpath += addRange("[(count(", sibling, "-sibling::", owner, ") + 1) mod 2 = 0]");
 
 			default :
-				let str = '';
 				const obj = pseudo.last ? parseFnNotationOfLast(arg) : parseFnNotation(arg);
-
 
 				if (obj.valueA) {
 					const num = getNumber(obj.valueB);
@@ -845,26 +873,22 @@
 					} else {
 						if (obj.type === 'pos') str += addRange("[position()", obj.comparison, obj.posValue, "]");
 						else if (obj.type === 'both') str += addRange("[position()", obj.comparison, obj.posValue, " and (count(", sibling, "-sibling::", owner, ")", num, ") mod ", obj.valueA, " = 0]");
-
-						if (str.length > 0 && pseudo.child) {
-							return addChild(name, str, xpath);
-						}
 					}
 
 				} else {
-					// console.log(pseudo.child, obj.type, obj.valueA, pseudo.last, predicate, (str.length > 0 && pseudo.child));
 					if (predicate) {
 						str += addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
+
 					} else {
 						str += addRange("[position()", obj.comparison, obj.posValue, "]");
 					}
-
-					if (str.length > 0 && pseudo.child) {
-						return addChild(name, str, xpath);
-					}
 				}
-				return xpath += str;
 		}
+
+		if ( !predicate && str.length > 0 && pseudo.child) {
+			return addChild(name, str, xpath);
+		}
+		return xpath += str;
 	}
 
 	function addChild(name, str, xpath) {
@@ -896,11 +920,9 @@
 				comparison = valueA === 0 ? " = " : minus ? " <= " : " >= ",
 				absA = Math.abs(valueA);
 
-			let posValue = valueB;
-
 			let type = 'x';
-			if (comparison === " = ") type = 'pos';
-			else if (posValue > 0) {
+			if (valueA === 0) type = 'pos';
+			else if (valueB > 0) {
 				if (absA > 1) type = 'both';
 				else type = 'pos';
 
@@ -908,7 +930,7 @@
 				type = 'mod';
 			}
 
-			return { valueA : absA, valueB, posValue, comparison, type };
+			return { valueA : absA, valueB, posValue : valueB, comparison, type };
 		}
 		regexException(0, "parseFnNotation", nthEquationReg, argument);
 	}
@@ -919,8 +941,8 @@
 			const minus = isPresent(rm[1]) && rm[1] === '-',
 				valueA = GetValue(rm[1], rm[2], 1),
 				valueB = GetValue(rm[3], rm[4], 0),
-				comparison = valueA === 0 ? " = " : minus ? " >= " : " <= ",
-				absA = Math.abs(valueA);
+				absA = Math.abs(valueA),
+				comparison = absA === 0 ? " = " : minus ? " >= " : " <= ";
 
 			let num = valueB,
 				posValue = "last()";
@@ -930,14 +952,16 @@
 			}
 
 			let type = 'x';
-			if (comparison === " = ") type = 'pos';
+			if (absA === 0) type = 'pos';
 			else if (valueB > 0) {
 				if (absA > 1) type = 'both';
-				else if ( !(comparison === " <= " && posValue === "last()")) type = 'pos';
+				else if (absA !== 0 && posValue === "last()") type = 'pos';
+				else type = 'pos';
 
 			} else if (absA > 1) {
 				type = 'mod';
 			}
+			//console.log(valueA, absA, valueB, posValue, comparison, type );
 
 			return { valueA : absA, valueB, posValue, comparison, type };
 		}

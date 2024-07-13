@@ -11,7 +11,7 @@ const htmlDir = './test/html';
 const jsonDir = './test/json';
 
 const personal = false;
-//const personal = true; 
+//const personal = true;
 
 performTest();
 //performTestDebug();
@@ -27,66 +27,69 @@ async function performTest() {
 		let success = true;
 
 		for (const jsonName of jsonFiles) {
+			if ( jsonName.startsWith('not-nth-last-')) continue;
+			//if ( !jsonName.startsWith('nth-last-')) continue;
+			//if ( !jsonName.startsWith('nth-')) continue;
 			//if (jsonName.startsWith('not-nth')) continue;
 
 			const str = await readFile(jsonDir + '/' + jsonName, 'utf8');
 			const json = JSON.parse(str);
-			
+
 			for (let k = 0; k < json.paths.length; k++) {
-				const htmlName = json.paths[k].replace(/\.json$/, '.html'), 
+				const htmlName = json.paths[k].replace(/\.json$/, '.html'),
 					name = htmlName.replace(/\.html$/, '');
-				
+
 				console.log('testing ' + jsonName + ' with ' + htmlName);
-				
+
 				const url = 'file:///' + __dirname + '/html/' + htmlName;
 				const page = await loadFixtures(browser, url);
 				array = [];
-	
+
 				for (let i = 0; i < json.selectors.length; i++) {
 					const selector = json.selectors[i],
 						css = entitize(selector);
 					let cssElems, xpathElems, xpath, obj;
-	
+
 					try { obj = convertToXPath(selector); } catch (e) { array.push({ 'error' : true, 'text' : `${css}`, message : e.message }); }
 					if ( !obj) continue;
-	
+
 					xpath = entitize(obj.xpath);
-	
+
 					try { cssElems = await page.$$(selector); } catch (e) { array.push({ 'notValid' : 'css', 'text' : `${css}` }); }
 					try { xpathElems = await page.$x(obj.xpath); } catch (e) { array.push({ 'notValid' : 'xpath', 'css' : `${css}`, 'text' : `${xpath}`  }); }
-	
+
 					if ( !cssElems || !xpathElems) continue;
-	
+
 					if (cssElems.length === xpathElems.length) {
 						if (cssElems.length === 0) {
 							array.push({ 'noMatch' : true, 'css' : `${css}`, 'xpath' : `${xpath}` });
-	
+
 						} else {
 							let passed = true;
-	
+
 							for (let i = 0; i < cssElems.length; i++) {
 								const equal = await page.evaluate((e1, e2) => e1 === e2, cssElems[i], xpathElems[i]);
 								if ( !equal) {
 									passed = success = false;
 								}
 							}
-	
+
 							if (passed) {
 								array.push({ 'success' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
-	
+
 							} else {
 								array.push({ 'failed' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
 							}
 						}
-	
+
 					} else {
 						array.push({ 'notEquals' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'cssCount' : cssElems.length, 'xpathCount' : xpathElems.length });
 						success = false;
 					}
 				}
-				
+
 				const reportName = jsonName.startsWith(name) ? jsonName : jsonName.replace(/\.json$/, '') + '_' + htmlName;
-				
+
 				coverage[reportName] = array;
 				reportCoverage({ reportName : array }, reportName);
 			}
@@ -102,7 +105,7 @@ async function performTest() {
 		} else {
 			console.log('All tests are passed');
 		}
-		
+
 	} catch (e) {
 		throw Error(e);
 	}
@@ -121,7 +124,7 @@ async function loadFixtures(browser, url) {
 }
 
 function reportCoverage(coverage, name) {
-	let nav = '<nav><ul>\n',
+	let nav = '<aside><nav><ul>\n',
 		result = '',
 		text = '',
 		html = `<!DOCTYPE html>
@@ -129,13 +132,23 @@ function reportCoverage(coverage, name) {
 <head>
 	<meta charset='utf-8'>
 	<title>Test coverage</title>
-	<style>p { margin: 6px 20px; } b { margin: 0 15px; }</style>
+	<style>
+		main{width:84%;margin-left:20px;} aside{width:15%;position:fixed;right:20px;} nav{height:100vh;overflow-y:auto;}
+		ul{margin:0 0 6px 20px;padding:0;} ul li{list-style-type:none;padding:3px 0;margin:0;}
+		section p{margin:6px 20px;} section p b{margin:0 15px;}
+	</style>
 </head>
-<body>`;
+<body>
+`;
+	const info = '<h3>Info:</h3>\n<p>All tests are run in Puppeteer.</p><p>Tests <b>Passed</b> mean that the elements selected by CSS selector are <b>reference equal</b> (not just only by count) to the elements selected by the generated XPath.</p>';
+
+	let summaries = '';
+	let passedNum = 0, failedNum = 0, errorNum = 0, notValidNum = 0, noMatchNum = 0, matchNum = 0, warningNum = 0;
 
 	for (let key of Object.keys(coverage)) {
 		const array = coverage[key],
 			id = key.replace(/\W+/g, '_').toLowerCase();
+
 		let passed = [], failed = [], error = [], notValid = [], noMatch = [], match = [], warning = [];
 
 		array.forEach((item) => {
@@ -167,25 +180,79 @@ function reportCoverage(coverage, name) {
 			}
 		});
 
-		let str = '';
+		let obj, str = '', summary = '', resultNav = '';
 
-		if (passed.length) str += '<h3>Passed: <b>' + passed.length + '</b></h3>\n' + passed.join('');
-		if (failed.length) str += '<h3>Failed: <b>' + failed.length + '</b></h3>\n' + failed.join('');
-		if (notValid.length) str += '<h3>Not valid: <b>' + notValid.length + '</b></h3>\n' + notValid.join('');
-		if (match.length) str += '<h3>Have different match count: <b>' + match.length + '</b></h3>\n' + match.join('');
-		if (noMatch.length) str += '<h3>Have no matches: <b>' + noMatch.length + '</b></h3>\n' + noMatch.join('');
-		if (error.length) str += '<h3>Coverter errors: <b>' + error.length + '</b></h3>\n' + error.join('');
-		//if (warning.length) str += '<h3>Coverter warnings: <b>' + warning.length + '</b></h3>\n' + warning.join('');
+		if (passed.length) {
+			passedNum += passed.length;
+			obj = add(key, 'Passed', passed);
+			str += obj.str;
+			summary += obj.summary;
+			resultNav += obj.nav;
+		}
+		if (failed.length) {
+			failedNum += failed.length;
+			obj = add(key, 'Failed', failed);
+			str += obj.str;
+			summary += obj.summary;
+			resultNav += obj.nav;
+		}
+		if (notValid.length) {
+			notValidNum += notValid.length;
+			obj = add(key, 'Not valid', notValid);
+			str += obj.str;
+			summary += obj.summary;
+			resultNav += obj.nav;
+		}
+		if (match.length) {
+			matchNum += match.length;
+			obj = add(key, 'Have different match count', match);
+			str += obj.str;
+			summary += obj.summary;
+			resultNav += obj.nav;
+		}
+		if (noMatch.length) {
+			noMatchNum += noMatch.length;
+			obj = add(key, 'Have no matches', noMatch);
+			str += obj.str;
+			summary += obj.summary;
+			resultNav += obj.nav;
+		}
+		if (error.length) {
+			errorNum += error.length;
+			obj = add(key, 'Coverter errors', error);
+			str += obj.str;
+			summary += obj.summary;
+			resultNav += obj.nav;
+		}
 
-		result += `\n<h2 id="${id}">${key}</h2>\n` + (str || '<p>Has no tests</p>\n');
+		result += `<section>\n<h2 id="${id}">${key}</h2>\n` + '<h3>Results:</h3>\n' + summary + (str || '<p>Has no tests</p>\n') +'</section>';
 		nav += `<li><a href="#${id}">${key}</a></li>\n`;
+		if (resultNav) {
+			nav += `<ul>${resultNav}</ul>\n`;
+		}
 	}
-	nav += '</ul></nav>\n';
-	html += nav + result + '</body></html>';
 
-	if (personal) writeFile('test/test-coverage.html', html);
+	function add(key, title, array) {
+		const id= key + '_' + title.replace(/\W+/g, '_').toLowerCase();
+		const str = `<h3 id="${id}">${title}: <b>${array.length}</b></h3>\n` + array.join('');
+		const summary = `<p><a href="#${id}">${title}: <b>${array.length}</b></a></p>\n`;
+		const nav = `<li><a href="#${id}">${title}</a></li>\n`;
+		return { str, summary, nav };
+	}
 
-	text = result.trim().replace(/<h\d[^<>]*>/g, '\n').replace(/<\/?[^<>]+>/g, '').replace(/(?:&nbsp;)+/g, '  ');
+	if (passedNum) summaries += '<p>Passed: <b>' + passedNum + '</b></p>\n';
+	if (failedNum) summaries += '<p>Failed: <b>' + failedNum + '</b></p>\n';
+	if (notValidNum) summaries += '<p>Not valid: <b>' + notValidNum + '</b></p>\n';
+	if (matchNum) summaries += '<p>Have different match count: <b>' + matchNum + '</b></p>\n';
+	if (noMatchNum) summaries += '<p>Have no matches: <b>' + noMatchNum + '</b></p>\n';
+	if (errorNum) summaries += '<p>Coverter errors: <b>' + errorNum + '</b></p>\n';
+
+	nav += '</ul></nav></aside>\n';
+	html += nav +'<main>\n<h1>Test results:</h1>\n' + summaries + info + result + '</main>\n</body></html>';
+
+	if (personal && !name) writeFile('test/test-coverage.html', html);
+
+	text = (summaries + result).trim().replace(/<h\d[^<>]*>/g, '\n').replace(/<\/?[^<>]+>/g, '');
 	text = deEntitize(text);
 
 	writeFile('test/test-coverage.txt', text);
@@ -211,80 +278,3 @@ function deEntitize(text) {
 	});
 	return text;
 }
-
-async function performTestDebug() {
-	try {
-		const browser = await getBrowser({ executablePath : 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' });
-		//const browser = await getBrowser({ product: 'firefox' });
-
-		const htmls = await readdir(htmlDir);
-
-		for (const file of htmls) {
-			//if (file !== 'CssSelector.html') continue;
-			console.log('\ntesting ' + file);
-
-			const str = await readFile(jsonDir + '/' + file.replace(/\.html$/, '.json'), 'utf8');
-			const json = JSON.parse(str);
-
-			const url = 'file:///' + __dirname + '/html/' + file;
-			const page = await loadFixtures(browser, url);
-
-			for (let i = 0; i < json.selectors.length; i++) {
-				const css = json.selectors[i];
-
-				let cssElems, xpathElems, xpath, obj;
-
-				try { obj = convertToXPath(css); } catch (e) { console.log(css, ' to XPath error', e); }
-				if ( !obj) continue;
-
-				xpath = entitize(obj.xpath);
-
-				try { cssElems = await page.$$(css); } catch (e) { console.log(css, ' CSS '); continue; }
-				try { xpathElems = await page.$x(obj.xpath); } catch (e) { console.log(css, xpath, ' XPath '); continue; }
-
-				if (cssElems.length !== xpathElems.length) {
-					console.log(css, cssElems.length, ' length  !== length ', xpathElems.length, xpath);
-
-				} else if (cssElems.length !== 0) {
-					console.log(css, cssElems.length, ' length === length ', xpathElems.length);
-
-					for (let i = 0; i < cssElems.length; i++) {
-						const equals = await page.evaluate((e1, e2) => e1 === e2, cssElems[i], xpathElems[i]);
-						if ( !equals) {
-							console.log(css, '|  !==  |', xpath);
-						}
-					}
-
-				} else {
-					console.log(css, ' length === ', cssElems.length);
-				}
-			}
-		}
-		await browser.close();
-	} catch (e) {
-		throw Error(e);
-	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,5 +1,14 @@
+Passed: 80
+Have no matches: 36
+Coverter errors: 4
+
 
 reportName
+
+Results:
+Passed: 80
+Have no matches: 36
+Coverter errors: 4
 
 Passed: 80
 .t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
@@ -53,9 +62,9 @@ div.stub *:not(foo) 120 === 120 //div[contains(concat(' ', normalize-space(@clas
 address:last-of-type 17 === 17 //address[not(following-sibling::address)]
 div.stub *:not(.foo) 116 === 116 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' foo ')])]
 div.stub *:not(#foo) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id='foo')]
-line:nth-child(3n-1) 19 === 19 //line[(count(preceding-sibling::*) + 2) mod 3 = 0]
+line:nth-child(3n-1) 19 === 19 //*[(count(preceding-sibling::*) + 2) mod 3 = 0]/self::line
 ul li:nth-child(2n+1) 19 === 19 //ul//*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::li
-ol li:nth-child(2n+0) 12 === 12 //ol//li[(count(preceding-sibling::*) + 1) mod 2 = 0]
+ol li:nth-child(2n+0) 12 === 12 //ol//*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::li
 address:first-of-type 17 === 17 //address[not(preceding-sibling::address)]
 line:nth-of-type(odd) 30 === 30 //line[(count(preceding-sibling::line) + 1) mod 2 = 1]
 p:not(:nth-of-type(3)) 151 === 151 //p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]
@@ -129,3 +138,4 @@ foo & address, p converter error: State.Text, check=true. Unexpected character '
 dl > *:not(:nth-of-type(3n+1)) converter error: Pseudo-class ':nth-of-type' is required element name to work correctly; '*' is not implemented.
 
 dl > *:not(:nth-last-of-type(3n+1)) converter error: Pseudo-class ':nth-last-of-type' is required element name to work correctly; '*' is not implemented.
+

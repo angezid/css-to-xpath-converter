@@ -1,5 +1,14 @@
+Passed: 41
+Have no matches: 21
+Coverter errors: 3
+
 
 reportName
+
+Results:
+Passed: 41
+Have no matches: 21
+Coverter errors: 3
 
 Passed: 41
 * 89 === 89 //*
@@ -38,7 +47,7 @@ a + span, div > p 10 === 10 //a/following-sibling::*[1]/self::span | //div/p
 span:nth-child(even) 5 === 5 //span[(count(preceding-sibling::*) + 1) mod 2 = 0]
 span:is(.this, .that) 3 === 3 //span[self::node()[contains(concat(' ', normalize-space(@class), ' '), ' this ')] or self::node()[contains(concat(' ', normalize-space(@class), ' '), ' that ')]]
 :is(div, section) > h1 4 === 4 //*[self::div or self::section]/h1
-span:nth-child(10n-1)  1 === 1 //span[(count(preceding-sibling::*) + 2) mod 10 = 0]
+span:nth-child(10n-1)  1 === 1 //*[(count(preceding-sibling::*) + 2) mod 10 = 0]/self::span
 span:nth-child(10n+1)  3 === 3 //*[position() >= 1 and (count(preceding-sibling::*)) mod 10 = 0]/self::span
 span:nth-last-child(2) 1 === 1 //span[(count(following-sibling::*) + 1) = 2]
 section:not(:has(h1, h2, h3, h4, h5, h6)) 1 === 1 //section[not(self::node()[count(.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6) > 0])]
@@ -77,3 +86,4 @@ span:nth-child(10n+-1)  converter error: parseFnNotation function - RegExp faile
 *:nth-child(-n+3 of span.this) converter error: parseFnNotation function - RegExp failed to match the string:
 '-n+3ofspan.this'
 /^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/
+

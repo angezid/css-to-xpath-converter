@@ -1,5 +1,12 @@
+Passed: 56
+Have no matches: 25
+
 
 reportName
+
+Results:
+Passed: 56
+Have no matches: 25
 
 Passed: 56
 * 1781 === 1781 //*
@@ -26,7 +33,7 @@ ul li:nth-of-type(3) 14 === 14 //ul//li[(count(preceding-sibling::li) + 1) = 3]
 ul li:nth-child(even) 42 === 42 //ul//li[(count(preceding-sibling::*) + 1) mod 2 = 0]
 ul li:nth-child(3n+2) 31 === 31 //ul//*[position() >= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]/self::li
 ul li:nth-child(-n+4) 64 === 64 //ul//*[position() <= 4]/self::li
-ul li:nth-child(5n-2) 18 === 18 //ul//li[(count(preceding-sibling::*) + 3) mod 5 = 0]
+ul li:nth-child(5n-2) 18 === 18 //ul//*[(count(preceding-sibling::*) + 3) mod 5 = 0]/self::li
 p:nth-last-child(odd) 151 === 151 //p[(count(following-sibling::*) + 1) mod 2 = 1]
 p:nth-last-of-type(3) 24 === 24 //p[(count(following-sibling::p) + 1) = 3]
 ul li:nth-child(-3n+4) 31 === 31 //ul//*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]/self::li
@@ -49,7 +56,7 @@ ul li:nth-last-of-type(3) 14 === 14 //ul//li[(count(following-sibling::li) + 1) 
 ul li:nth-last-child(even) 42 === 42 //ul//li[(count(following-sibling::*) + 1) mod 2 = 0]
 ul li:nth-last-child(3n+2) 31 === 31 //ul//*[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 3 = 0]/self::li
 ul li:nth-last-child(-n+4) 64 === 64 //ul//*[position() >= (last() - 3)]/self::li
-ul li:nth-last-child(5n-2) 18 === 18 //ul//li[(count(following-sibling::*) + 3) mod 5 = 0]
+ul li:nth-last-child(5n-2) 18 === 18 //ul//*[(count(following-sibling::*) + 3) mod 5 = 0]/self::li
 ul li:nth-last-child(-3n+4) 31 === 31 //ul//*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]/self::li
 ul li:nth-last-of-type(n+3) 53 === 53 //ul//li[position() <= (last() - 2)]
 ul li:nth-last-of-type(n+4) 39 === 39 //ul//li[position() <= (last() - 3)]
