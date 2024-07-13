@@ -5,9 +5,12 @@ h1 { font-size: 1.8em; line-height: 1.2em; color: #666; margin: 20px 0 40px 0; }
 h1 span { color: #018990; font-size: 0.875em; }
 h2 { margin-top: 30px; }
 
+a.github-link { margin: 3px 0 0 0; float: right; }
 a.github-link svg { width: 24px; }
-.links { position: relative; margin: 5px 0; }
+.links { position: relative; margin: 5px 60px 0 10px; }
 .links a { color: #0485BC; padding-left: 20px; }
+
+a.test-results { margin-right: 60px; }
 
 .right { float: right; }
 .hide { display: none; }
