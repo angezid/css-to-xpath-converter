@@ -1,6 +1,6 @@
 
-// tests equality of generated XPathes by C# version and converter.js TODO
-/*const fs = require('fs');
+/*// tests equality of generated XPathes by C# version and converter.js TODO
+const fs = require('fs');
 const chalk = require('chalk');
 const convertToXPath = require('../src/converter.js');
 
@@ -21,19 +21,34 @@ const options = {
 	printError : (message) => console.log(message)
 };
 
-for (let css in css2xpath) {
-	const xpath1 = css2xpath[css];
+run();
 
-	try {
-		let { xpath } = convertToXPath(css, options);
+function run() {
+	const array = [];
+	
+	for (let css in css2xpath) {
+		const xpath1 = css2xpath[css];
+	
+		try {
+			let { xpath } = convertToXPath(css, options);
+	
+			if (xpath.replace(/ +/g, '') !== xpath1.replace(/ +/g, '')) {
+				report(false, css + '|    |' + xpath + '  !==  ' + xpath1);
+				array.push(css + '|    |' + xpath + '  !==  ' + xpath1);
+	
+			} else {
+				report(true, css);
+			}
+		} catch(e) {}
+	}
+	
+	writeFile('test/css2xpath-comparison.txt', array.join('\n\n'));
+}
 
-		if (xpath.replace(/ +/g, '') !== xpath1.replace(/ +/g, '')) {
-			report(false, css + '|    |' + xpath + '  !==  ' + xpath1);
-
-		} else {
-			report(true, css)
-		}
-	} catch(e) {}
+function writeFile(path, text) {
+	fs.writeFile(path, text, 'utf-8', err => {
+		if (err) console.log(err);
+	});
 }
 
 if (count === 0) {

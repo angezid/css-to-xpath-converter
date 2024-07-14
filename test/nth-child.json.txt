@@ -1,12 +1,12 @@
-Passed: 87
+Passed: 89
 
 
 reportName
 
 Results:
-Passed: 87
+Passed: 89
 
-Passed: 87
+Passed: 89
 p:nth-child(1) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 1]
 p:nth-child(2) 3 === 3 //p[(count(preceding-sibling::*) + 1) = 2]
 p:nth-child(3) 5 === 5 //p[(count(preceding-sibling::*) + 1) = 3]
@@ -16,6 +16,7 @@ p:nth-child(1n) 48 === 48 //p
 p:nth-child(2n) 23 === 23 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p
 p:nth-child(3n) 14 === 14 //*[(count(preceding-sibling::*) + 1) mod 3 = 0]/self::p
 p:nth-child(4n) 12 === 12 //*[(count(preceding-sibling::*) + 1) mod 4 = 0]/self::p
+p:nth-child(odd) 25 === 25 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
 p:nth-child(n+0) 48 === 48 //p
 p:nth-child(n-0) 48 === 48 //p
 p:nth-child(n+1) 48 === 48 //*[position() >= 1]/self::p
@@ -26,6 +27,7 @@ p:nth-child(n+3) 40 === 40 //*[position() >= 3]/self::p
 p:nth-child(n-3) 48 === 48 //p
 p:nth-child(n+4) 35 === 35 //*[position() >= 4]/self::p
 p:nth-child(n-4) 48 === 48 //p
+p:nth-child(even) 23 === 23 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
 p:nth-child(0n+1) 5 === 5 //*[position() = 1]/self::p
 p:nth-child(0n+2) 3 === 3 //*[position() = 2]/self::p
 p:nth-child(0n+3) 5 === 5 //*[position() = 3]/self::p

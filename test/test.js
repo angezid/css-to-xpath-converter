@@ -14,7 +14,6 @@ const personal = false;
 //const personal = true;
 
 performTest();
-//performTestDebug();
 
 async function performTest() {
 	try {
@@ -27,10 +26,7 @@ async function performTest() {
 		let success = true;
 
 		for (const jsonName of jsonFiles) {
-			if ( jsonName.startsWith('not-nth-last-')) continue;
-			//if ( !jsonName.startsWith('nth-last-')) continue;
 			//if ( !jsonName.startsWith('nth-')) continue;
-			//if (jsonName.startsWith('not-nth')) continue;
 
 			const str = await readFile(jsonDir + '/' + jsonName, 'utf8');
 			const json = JSON.parse(str);
