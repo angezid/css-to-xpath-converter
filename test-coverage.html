@@ -56,7 +56,7 @@
 </ul></nav></aside>
 <main>
 <h1>Test results:</h1>
-<p>Passed: <b>749</b></p>
+<p>Passed: <b>761</b></p>
 <p>Have no matches: <b>140</b></p>
 <p>Coverter errors: <b>7</b></p>
 <h3>Info:</h3>
@@ -487,9 +487,9 @@
 </section><section>
 <h2 id="not_nth_child_json">not-nth-child.json</h2>
 <h3>Results:</h3>
-<p><a href="#not-nth-child.json_passed">Passed: <b>71</b></a></p>
+<p><a href="#not-nth-child.json_passed">Passed: <b>73</b></a></p>
 <p><a href="#not-nth-child.json_have_no_matches">Have no matches: <b>16</b></a></p>
-<h3 id="not-nth-child.json_passed">Passed: <b>71</b></h3>
+<h3 id="not-nth-child.json_passed">Passed: <b>73</b></h3>
 <p>p:not(:nth-child(1)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) = 1])]</p>
 <p>p:not(:nth-child(2)) <b>45 === 45</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) = 2])]</p>
 <p>p:not(:nth-child(3)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) = 3])]</p>
@@ -497,9 +497,11 @@
 <p>p:not(:nth-child(2n)) <b>25 === 25</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 0])]</p>
 <p>p:not(:nth-child(3n)) <b>34 === 34</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) mod 3 = 0])]</p>
 <p>p:not(:nth-child(4n)) <b>36 === 36</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) mod 4 = 0])]</p>
+<p>p:not(:nth-child(odd)) <b>23 === 23</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 1])]</p>
 <p>p:not(:nth-child(n+2)) <b>5 === 5</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) &gt;= 2])]</p>
 <p>p:not(:nth-child(n+3)) <b>8 === 8</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) &gt;= 3])]</p>
 <p>p:not(:nth-child(n+4)) <b>13 === 13</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) &gt;= 4])]</p>
+<p>p:not(:nth-child(even)) <b>25 === 25</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) mod 2 = 0])]</p>
 <p>p:not(:nth-child(0n+1)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) = 1])]</p>
 <p>p:not(:nth-child(0n+2)) <b>45 === 45</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) = 2])]</p>
 <p>p:not(:nth-child(0n+3)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::*) + 1) = 3])]</p>
@@ -581,9 +583,9 @@
 </section><section>
 <h2 id="not_nth_of_type_json">not-nth-of-type.json</h2>
 <h3>Results:</h3>
-<p><a href="#not-nth-of-type.json_passed">Passed: <b>71</b></a></p>
+<p><a href="#not-nth-of-type.json_passed">Passed: <b>73</b></a></p>
 <p><a href="#not-nth-of-type.json_have_no_matches">Have no matches: <b>16</b></a></p>
-<h3 id="not-nth-of-type.json_passed">Passed: <b>71</b></h3>
+<h3 id="not-nth-of-type.json_passed">Passed: <b>73</b></h3>
 <p>p:not(:nth-of-type(1)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) = 1])]</p>
 <p>p:not(:nth-of-type(2)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) = 2])]</p>
 <p>p:not(:nth-of-type(3)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]</p>
@@ -591,9 +593,11 @@
 <p>p:not(:nth-of-type(2n)) <b>26 === 26</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) mod 2 = 0])]</p>
 <p>p:not(:nth-of-type(3n)) <b>32 === 32</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) mod 3 = 0])]</p>
 <p>p:not(:nth-of-type(4n)) <b>39 === 39</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) mod 4 = 0])]</p>
+<p>p:not(:nth-of-type(odd)) <b>22 === 22</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) mod 2 = 1])]</p>
 <p>p:not(:nth-of-type(n+2)) <b>5 === 5</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) &gt;= 2])]</p>
 <p>p:not(:nth-of-type(n+3)) <b>10 === 10</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) &gt;= 3])]</p>
 <p>p:not(:nth-of-type(n+4)) <b>15 === 15</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) &gt;= 4])]</p>
+<p>p:not(:nth-of-type(even)) <b>26 === 26</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) mod 2 = 0])]</p>
 <p>p:not(:nth-of-type(0n+1)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) = 1])]</p>
 <p>p:not(:nth-of-type(0n+2)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) = 2])]</p>
 <p>p:not(:nth-of-type(0n+3)) <b>43 === 43</b> //p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]</p>
@@ -675,8 +679,8 @@
 </section><section>
 <h2 id="nth_child_json">nth-child.json</h2>
 <h3>Results:</h3>
-<p><a href="#nth-child.json_passed">Passed: <b>87</b></a></p>
-<h3 id="nth-child.json_passed">Passed: <b>87</b></h3>
+<p><a href="#nth-child.json_passed">Passed: <b>89</b></a></p>
+<h3 id="nth-child.json_passed">Passed: <b>89</b></h3>
 <p>p:nth-child(1) <b>5 === 5</b> //p[(count(preceding-sibling::*) + 1) = 1]</p>
 <p>p:nth-child(2) <b>3 === 3</b> //p[(count(preceding-sibling::*) + 1) = 2]</p>
 <p>p:nth-child(3) <b>5 === 5</b> //p[(count(preceding-sibling::*) + 1) = 3]</p>
@@ -686,6 +690,7 @@
 <p>p:nth-child(2n) <b>23 === 23</b> //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p</p>
 <p>p:nth-child(3n) <b>14 === 14</b> //*[(count(preceding-sibling::*) + 1) mod 3 = 0]/self::p</p>
 <p>p:nth-child(4n) <b>12 === 12</b> //*[(count(preceding-sibling::*) + 1) mod 4 = 0]/self::p</p>
+<p>p:nth-child(odd) <b>25 === 25</b> //p[(count(preceding-sibling::*) + 1) mod 2 = 1]</p>
 <p>p:nth-child(n+0) <b>48 === 48</b> //p</p>
 <p>p:nth-child(n-0) <b>48 === 48</b> //p</p>
 <p>p:nth-child(n+1) <b>48 === 48</b> //*[position() &gt;= 1]/self::p</p>
@@ -696,6 +701,7 @@
 <p>p:nth-child(n-3) <b>48 === 48</b> //p</p>
 <p>p:nth-child(n+4) <b>35 === 35</b> //*[position() &gt;= 4]/self::p</p>
 <p>p:nth-child(n-4) <b>48 === 48</b> //p</p>
+<p>p:nth-child(even) <b>23 === 23</b> //p[(count(preceding-sibling::*) + 1) mod 2 = 0]</p>
 <p>p:nth-child(0n+1) <b>5 === 5</b> //*[position() = 1]/self::p</p>
 <p>p:nth-child(0n+2) <b>3 === 3</b> //*[position() = 2]/self::p</p>
 <p>p:nth-child(0n+3) <b>5 === 5</b> //*[position() = 3]/self::p</p>
@@ -767,8 +773,8 @@
 </section><section>
 <h2 id="nth_last_child_json">nth-last-child.json</h2>
 <h3>Results:</h3>
-<p><a href="#nth-last-child.json_passed">Passed: <b>87</b></a></p>
-<h3 id="nth-last-child.json_passed">Passed: <b>87</b></h3>
+<p><a href="#nth-last-child.json_passed">Passed: <b>89</b></a></p>
+<h3 id="nth-last-child.json_passed">Passed: <b>89</b></h3>
 <p>p:nth-last-child(1) <b>3 === 3</b> //p[(count(following-sibling::*) + 1) = 1]</p>
 <p>p:nth-last-child(2) <b>3 === 3</b> //p[(count(following-sibling::*) + 1) = 2]</p>
 <p>p:nth-last-child(3) <b>4 === 4</b> //p[(count(following-sibling::*) + 1) = 3]</p>
@@ -778,6 +784,7 @@
 <p>p:nth-last-child(2n) <b>23 === 23</b> //*[(count(following-sibling::*) + 1) mod 2 = 0]/self::p</p>
 <p>p:nth-last-child(3n) <b>16 === 16</b> //*[(count(following-sibling::*) + 1) mod 3 = 0]/self::p</p>
 <p>p:nth-last-child(4n) <b>11 === 11</b> //*[(count(following-sibling::*) + 1) mod 4 = 0]/self::p</p>
+<p>p:nth-last-child(odd) <b>25 === 25</b> //p[(count(following-sibling::*) + 1) mod 2 = 1]</p>
 <p>p:nth-last-child(n+0) <b>48 === 48</b> //p</p>
 <p>p:nth-last-child(n-0) <b>48 === 48</b> //p</p>
 <p>p:nth-last-child(n+1) <b>48 === 48</b> //*[position() &lt;= last()]/self::p</p>
@@ -788,6 +795,7 @@
 <p>p:nth-last-child(n-3) <b>48 === 48</b> //p</p>
 <p>p:nth-last-child(n+4) <b>38 === 38</b> //*[position() &lt;= (last() - 3)]/self::p</p>
 <p>p:nth-last-child(n-4) <b>48 === 48</b> //p</p>
+<p>p:nth-last-child(even) <b>23 === 23</b> //p[(count(following-sibling::*) + 1) mod 2 = 0]</p>
 <p>p:nth-last-child(0n+1) <b>3 === 3</b> //*[position() = last()]/self::p</p>
 <p>p:nth-last-child(0n+2) <b>3 === 3</b> //*[position() = (last() - 1)]/self::p</p>
 <p>p:nth-last-child(0n+3) <b>4 === 4</b> //*[position() = (last() - 2)]/self::p</p>
@@ -859,8 +867,8 @@
 </section><section>
 <h2 id="nth_last_of_type_json">nth-last-of-type.json</h2>
 <h3>Results:</h3>
-<p><a href="#nth-last-of-type.json_passed">Passed: <b>87</b></a></p>
-<h3 id="nth-last-of-type.json_passed">Passed: <b>87</b></h3>
+<p><a href="#nth-last-of-type.json_passed">Passed: <b>89</b></a></p>
+<h3 id="nth-last-of-type.json_passed">Passed: <b>89</b></h3>
 <p>p:nth-last-of-type(1) <b>5 === 5</b> //p[(count(following-sibling::p) + 1) = 1]</p>
 <p>p:nth-last-of-type(2) <b>5 === 5</b> //p[(count(following-sibling::p) + 1) = 2]</p>
 <p>p:nth-last-of-type(3) <b>5 === 5</b> //p[(count(following-sibling::p) + 1) = 3]</p>
@@ -870,6 +878,7 @@
 <p>p:nth-last-of-type(2n) <b>22 === 22</b> //p[(count(following-sibling::p) + 1) mod 2 = 0]</p>
 <p>p:nth-last-of-type(3n) <b>16 === 16</b> //p[(count(following-sibling::p) + 1) mod 3 = 0]</p>
 <p>p:nth-last-of-type(4n) <b>9 === 9</b> //p[(count(following-sibling::p) + 1) mod 4 = 0]</p>
+<p>p:nth-last-of-type(odd) <b>26 === 26</b> //p[(count(following-sibling::p) + 1) mod 2 = 1]</p>
 <p>p:nth-last-of-type(n+0) <b>48 === 48</b> //p</p>
 <p>p:nth-last-of-type(n-0) <b>48 === 48</b> //p</p>
 <p>p:nth-last-of-type(n+1) <b>48 === 48</b> //p[position() &lt;= last()]</p>
@@ -880,6 +889,7 @@
 <p>p:nth-last-of-type(n-3) <b>48 === 48</b> //p</p>
 <p>p:nth-last-of-type(n+4) <b>33 === 33</b> //p[position() &lt;= (last() - 3)]</p>
 <p>p:nth-last-of-type(n-4) <b>48 === 48</b> //p</p>
+<p>p:nth-last-of-type(even) <b>22 === 22</b> //p[(count(following-sibling::p) + 1) mod 2 = 0]</p>
 <p>p:nth-last-of-type(0n+1) <b>5 === 5</b> //p[position() = last()]</p>
 <p>p:nth-last-of-type(0n+2) <b>5 === 5</b> //p[position() = (last() - 1)]</p>
 <p>p:nth-last-of-type(0n+3) <b>5 === 5</b> //p[position() = (last() - 2)]</p>
@@ -951,8 +961,8 @@
 </section><section>
 <h2 id="nth_of_type_json">nth-of-type.json</h2>
 <h3>Results:</h3>
-<p><a href="#nth-of-type.json_passed">Passed: <b>87</b></a></p>
-<h3 id="nth-of-type.json_passed">Passed: <b>87</b></h3>
+<p><a href="#nth-of-type.json_passed">Passed: <b>89</b></a></p>
+<h3 id="nth-of-type.json_passed">Passed: <b>89</b></h3>
 <p>p:nth-of-type(1) <b>5 === 5</b> //p[(count(preceding-sibling::p) + 1) = 1]</p>
 <p>p:nth-of-type(2) <b>5 === 5</b> //p[(count(preceding-sibling::p) + 1) = 2]</p>
 <p>p:nth-of-type(3) <b>5 === 5</b> //p[(count(preceding-sibling::p) + 1) = 3]</p>
@@ -962,6 +972,7 @@
 <p>p:nth-of-type(2n) <b>22 === 22</b> //p[(count(preceding-sibling::p) + 1) mod 2 = 0]</p>
 <p>p:nth-of-type(3n) <b>16 === 16</b> //p[(count(preceding-sibling::p) + 1) mod 3 = 0]</p>
 <p>p:nth-of-type(4n) <b>9 === 9</b> //p[(count(preceding-sibling::p) + 1) mod 4 = 0]</p>
+<p>p:nth-of-type(odd) <b>26 === 26</b> //p[(count(preceding-sibling::p) + 1) mod 2 = 1]</p>
 <p>p:nth-of-type(n+0) <b>48 === 48</b> //p</p>
 <p>p:nth-of-type(n-0) <b>48 === 48</b> //p</p>
 <p>p:nth-of-type(n+1) <b>48 === 48</b> //p[position() &gt;= 1]</p>
@@ -972,6 +983,7 @@
 <p>p:nth-of-type(n-3) <b>48 === 48</b> //p</p>
 <p>p:nth-of-type(n+4) <b>33 === 33</b> //p[position() &gt;= 4]</p>
 <p>p:nth-of-type(n-4) <b>48 === 48</b> //p</p>
+<p>p:nth-of-type(even) <b>22 === 22</b> //p[(count(preceding-sibling::p) + 1) mod 2 = 0]</p>
 <p>p:nth-of-type(0n+1) <b>5 === 5</b> //p[position() = 1]</p>
 <p>p:nth-of-type(0n+2) <b>5 === 5</b> //p[position() = 2]</p>
 <p>p:nth-of-type(0n+3) <b>5 === 5</b> //p[position() = 3]</p>
