@@ -22,7 +22,7 @@ p:first-child 54 === 54 //p[not(preceding-sibling::*)]
 p:nth-child(n) 324 === 324 //p
 p:nth-child(2n) 158 === 158 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p
 p:nth-child(odd) 166 === 166 //p[(count(preceding-sibling::*) + 1) mod 2 = 1]
-div:not(.example) 51 === 51 //div[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' example ')])]
+div:not(.example) 51 === 51 //div[not(contains(concat(' ', normalize-space(@class), ' '), ' example '))]
 p:nth-child(even) 158 === 158 //p[(count(preceding-sibling::*) + 1) mod 2 = 0]
 p:nth-child(2n+1) 166 === 166 //*[position() >= 1 and (count(preceding-sibling::*)) mod 2 = 0]/self::p
 

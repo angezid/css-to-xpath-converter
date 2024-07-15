@@ -1,12 +1,11 @@
 # css-to-xpath-converter
 
 It's inspired by [css2xpath](https://github.com/css2xpath/css2xpath), but it is too buggy.
+
+This JavaScript version is ported from C# converter, which is intended to work with an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`, but tests in Puppeteer and Crome show that generated XPathes also work in browsers. See [Test results](https://angezid.github.io/css-to-xpath-converter/test-coverage.html).
  
-**Important** currently it is entirely ASCII version.
-
+**Important** the converter doesn't check validity neither of CSS selector nor of resulted XPath. So there may be cases when an application throw an error on parsing the XPath or the XPath isn't work as expected.  
 Although the converter is capture a lot of mistakes, but not all.
-
-This JavaScript version is ported from C# converter, which is intended to work with an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`.  
 
 **Note** that generated XPathes may seem not optimised e.g. CSS selector `p:nth-of-type(3)` is resulted in `//p[(count(preceding-sibling::p) + 1) = 3]` instead of `//p[3]`, but it works with XPath of selector `p:not(:nth-of-type(3))` -> `//p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]` (CSS selector example is taken from AngleSharp tests).
 
@@ -95,7 +94,7 @@ const { xpath, css, warning } = convertToXPath(selector, options);
 * `selector` - the input css selector string
 * `options` - the optional object :
   * `axis` - XPath start axis. See online [converter][converter] axes dropbox tooltips.
-  * `printError` - the collback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor. The error message also is printed in the console.
+  * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor. The error message also is printed in the console.
   
   * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value operations.  
   It extends the default uppercase Latin alphabet. It must be compliant with `lowercaseLetters`.
