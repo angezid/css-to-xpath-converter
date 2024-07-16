@@ -16,24 +16,21 @@
 })(typeof global !== "undefined" ? global : this.window || this.global, function(root) {
 	'use strict';
 
-	//const tagNameReg = /(?:[a-z]+\|)?([a-z][a-z0-9_-]*)/y;
 	const tagNameReg = /(?:[a-zA-Z]+\|)?(?:[a-zA-Z][^ -/:-@[-`{-~]*)/y;
 
 	const idReg = /[^ ='",*@#.()[\]|:+>~!^$]+/y;
 
 	const classReg = /[^ -/:-@[-`{-~]+/y;
 
-	const pseudoClassReg = /([a-z-]+)([(])?/y;
+	const pseudoClassReg = /((?:[a-z]+-)*[a-z]+)([(])?/y;
 
 	const nthEquationReg = /^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/;
 
-	//const attrNameReg = /(?:[a-z]+\|)?[\w]+(?=(?:[~^|$!*]?=)|\])/y;
-	const attrNameReg = /(?:[a-z]+\|)?[^ -/:-@[-`{-~]+(?=(?:[~^|$!*]?=)|\])/y;
+	const attributeReg = /(?:(?:\*|[a-zA-Z]+)\|)?(?:\*|[^ -/:-@[-`{-~]+)/y;
+
+	const attrNameReg = /(?:[a-z]+\|)?[^ -/:-@[-`{-~]+(?=(?:[~^|$!*]?=)|\])/y; // \*| is unnecessary
 
 	const attrValueReg = /(?:"([^"]+)"|'([^']+)'|([^ "'\]]+))(?: +([si]))?(?=\])/y;
-
-	//const attributeReg = /(?:(?:\*|[a-z]+)\|)?(?:\*|[\w-]+)/y;
-	const attributeReg = /(?:(?:\*|[a-z]+)\|)?(?:\*|[^ -/:-@[-`{-~]+)/y;
 
 	const State = Object.freeze({ "Text" : 0, "PseudoSelector" : 1, "AttributeName" : 2, "AttributeValue" : 3 });
 
@@ -132,7 +129,7 @@
 	}
 
 	function postprocess(xpath) {
-		xpath = xpath.replace(/self::node\(\)\[([^\]]+)\]/g, '$1');
+		xpath = xpath.replace(/self::node\(\)\[([^[\]]+)\]/g, '$1');
 		return xpath;
 	}
 
@@ -180,8 +177,8 @@
 							[i, value] = getClassValue(i + 1, classReg, node);
 							attr += value;
 
-							tagNameReg.lastIndex = i + 2;
-							if (nextChar(i, '.') && tagNameReg.test(code)) {
+							classReg.lastIndex = i + 2;
+							if (nextChar(i, '.') && classReg.test(code)) {
 								attr += " ') and ";
 
 							} else break;
@@ -360,7 +357,8 @@
 					case ' ' : break;
 
 					default :
-						[i, attrName] = getAttributeName(i);
+						[i, value] = getAttributeName(i);
+						attrName += value;
 						break;
 				}
 
@@ -503,7 +501,7 @@
 
 		if (rm !== null) {
 			const nd = newNode(parNode, node, axis);
-			nd.add("@", rm[0].replace('|', ':'));
+			nd.add("@", rm[0].replace('|', ':').toLowerCase());
 			return [i + rm[0].length, nd];
 		}
 		regexException(i, 'parseAttribute', attributeReg, code);
@@ -1038,7 +1036,7 @@
 		const rm = tagNameReg.exec(code);
 
 		if (rm !== null) {
-			node.owner = rm[0].toLowerCase();
+			node.owner = rm[0].replace("|", ":").toLowerCase();
 			return i + rm[0].length - 1;
 		}
 		regexException(i, 'getTagName', tagNameReg, code);
@@ -1084,7 +1082,7 @@
 		const rm = attrNameReg.exec(code);
 
 		if (rm !== null) {
-			const name = rm[0].replace("|", ":").toLowerCase();
+			const name = rm[0].toLowerCase();
 			return [i + rm[0].length - 1, name];
 		}
 		regexException(i, 'getAttributeName', attrNameReg, code);

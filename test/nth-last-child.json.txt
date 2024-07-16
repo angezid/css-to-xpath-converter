@@ -1,21 +1,23 @@
-Passed: 89
+Passed: 125
 
 
 reportName
 
 Results:
-Passed: 89
+Passed: 125
 
-Passed: 89
+Passed: 125
 p:nth-last-child(1) 3 === 3 //p[(count(following-sibling::*) + 1) = 1]
 p:nth-last-child(2) 3 === 3 //p[(count(following-sibling::*) + 1) = 2]
 p:nth-last-child(3) 4 === 4 //p[(count(following-sibling::*) + 1) = 3]
 p:nth-last-child(4) 4 === 4 //p[(count(following-sibling::*) + 1) = 4]
+p:nth-last-child(5) 4 === 4 //p[(count(following-sibling::*) + 1) = 5]
 p:nth-last-child(n) 48 === 48 //p
 p:nth-last-child(1n) 48 === 48 //p
 p:nth-last-child(2n) 23 === 23 //*[(count(following-sibling::*) + 1) mod 2 = 0]/self::p
 p:nth-last-child(3n) 16 === 16 //*[(count(following-sibling::*) + 1) mod 3 = 0]/self::p
 p:nth-last-child(4n) 11 === 11 //*[(count(following-sibling::*) + 1) mod 4 = 0]/self::p
+p:nth-last-child(5n) 8 === 8 //*[(count(following-sibling::*) + 1) mod 5 = 0]/self::p
 p:nth-last-child(odd) 25 === 25 //p[(count(following-sibling::*) + 1) mod 2 = 1]
 p:nth-last-child(n+0) 48 === 48 //p
 p:nth-last-child(n-0) 48 === 48 //p
@@ -27,11 +29,14 @@ p:nth-last-child(n+3) 42 === 42 //*[position() <= (last() - 2)]/self::p
 p:nth-last-child(n-3) 48 === 48 //p
 p:nth-last-child(n+4) 38 === 38 //*[position() <= (last() - 3)]/self::p
 p:nth-last-child(n-4) 48 === 48 //p
+p:nth-last-child(n+5) 34 === 34 //*[position() <= (last() - 4)]/self::p
+p:nth-last-child(n-5) 48 === 48 //p
 p:nth-last-child(even) 23 === 23 //p[(count(following-sibling::*) + 1) mod 2 = 0]
 p:nth-last-child(0n+1) 3 === 3 //*[position() = last()]/self::p
 p:nth-last-child(0n+2) 3 === 3 //*[position() = (last() - 1)]/self::p
 p:nth-last-child(0n+3) 4 === 4 //*[position() = (last() - 2)]/self::p
 p:nth-last-child(0n+4) 4 === 4 //*[position() = (last() - 3)]/self::p
+p:nth-last-child(0n+5) 4 === 4 //*[position() = (last() - 4)]/self::p
 p:nth-last-child(1n+0) 48 === 48 //p
 p:nth-last-child(1n-0) 48 === 48 //p
 p:nth-last-child(1n+1) 48 === 48 //*[position() <= last()]/self::p
@@ -42,6 +47,8 @@ p:nth-last-child(1n+3) 42 === 42 //*[position() <= (last() - 2)]/self::p
 p:nth-last-child(1n-3) 48 === 48 //p
 p:nth-last-child(1n+4) 38 === 38 //*[position() <= (last() - 3)]/self::p
 p:nth-last-child(1n-4) 48 === 48 //p
+p:nth-last-child(1n+5) 34 === 34 //*[position() <= (last() - 4)]/self::p
+p:nth-last-child(1n-5) 48 === 48 //p
 p:nth-last-child(2n+0) 23 === 23 //*[(count(following-sibling::*) + 1) mod 2 = 0]/self::p
 p:nth-last-child(2n-0) 23 === 23 //*[(count(following-sibling::*) + 1) mod 2 = 0]/self::p
 p:nth-last-child(2n+1) 25 === 25 //*[position() <= last() and (count(following-sibling::*)) mod 2 = 0]/self::p
@@ -52,6 +59,8 @@ p:nth-last-child(2n+3) 22 === 22 //*[position() <= (last() - 2) and (count(follo
 p:nth-last-child(2n-3) 25 === 25 //*[(count(following-sibling::*) + 4) mod 2 = 0]/self::p
 p:nth-last-child(2n+4) 20 === 20 //*[position() <= (last() - 3) and (count(following-sibling::*) - 3) mod 2 = 0]/self::p
 p:nth-last-child(2n-4) 23 === 23 //*[(count(following-sibling::*) + 5) mod 2 = 0]/self::p
+p:nth-last-child(2n+5) 18 === 18 //*[position() <= (last() - 4) and (count(following-sibling::*) - 4) mod 2 = 0]/self::p
+p:nth-last-child(2n-5) 25 === 25 //*[(count(following-sibling::*) + 6) mod 2 = 0]/self::p
 p:nth-last-child(3n+0) 16 === 16 //*[(count(following-sibling::*) + 1) mod 3 = 0]/self::p
 p:nth-last-child(3n-0) 16 === 16 //*[(count(following-sibling::*) + 1) mod 3 = 0]/self::p
 p:nth-last-child(3n+1) 17 === 17 //*[position() <= last() and (count(following-sibling::*)) mod 3 = 0]/self::p
@@ -62,6 +71,8 @@ p:nth-last-child(3n+3) 16 === 16 //*[position() <= (last() - 2) and (count(follo
 p:nth-last-child(3n-3) 16 === 16 //*[(count(following-sibling::*) + 4) mod 3 = 0]/self::p
 p:nth-last-child(3n+4) 14 === 14 //*[position() <= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]/self::p
 p:nth-last-child(3n-4) 15 === 15 //*[(count(following-sibling::*) + 5) mod 3 = 0]/self::p
+p:nth-last-child(3n+5) 12 === 12 //*[position() <= (last() - 4) and (count(following-sibling::*) - 4) mod 3 = 0]/self::p
+p:nth-last-child(3n-5) 17 === 17 //*[(count(following-sibling::*) + 6) mod 3 = 0]/self::p
 p:nth-last-child(4n+0) 11 === 11 //*[(count(following-sibling::*) + 1) mod 4 = 0]/self::p
 p:nth-last-child(4n-0) 11 === 11 //*[(count(following-sibling::*) + 1) mod 4 = 0]/self::p
 p:nth-last-child(4n+1) 13 === 13 //*[position() <= last() and (count(following-sibling::*)) mod 4 = 0]/self::p
@@ -72,27 +83,52 @@ p:nth-last-child(4n+3) 12 === 12 //*[position() <= (last() - 2) and (count(follo
 p:nth-last-child(4n-3) 13 === 13 //*[(count(following-sibling::*) + 4) mod 4 = 0]/self::p
 p:nth-last-child(4n+4) 11 === 11 //*[position() <= (last() - 3) and (count(following-sibling::*) - 3) mod 4 = 0]/self::p
 p:nth-last-child(4n-4) 11 === 11 //*[(count(following-sibling::*) + 5) mod 4 = 0]/self::p
+p:nth-last-child(4n+5) 10 === 10 //*[position() <= (last() - 4) and (count(following-sibling::*) - 4) mod 4 = 0]/self::p
+p:nth-last-child(4n-5) 12 === 12 //*[(count(following-sibling::*) + 6) mod 4 = 0]/self::p
+p:nth-last-child(5n+0) 8 === 8 //*[(count(following-sibling::*) + 1) mod 5 = 0]/self::p
+p:nth-last-child(5n-0) 8 === 8 //*[(count(following-sibling::*) + 1) mod 5 = 0]/self::p
+p:nth-last-child(5n+1) 9 === 9 //*[position() <= last() and (count(following-sibling::*)) mod 5 = 0]/self::p
+p:nth-last-child(5n-1) 10 === 10 //*[(count(following-sibling::*) + 2) mod 5 = 0]/self::p
+p:nth-last-child(5n+2) 10 === 10 //*[position() <= (last() - 1) and (count(following-sibling::*) - 1) mod 5 = 0]/self::p
+p:nth-last-child(5n-2) 11 === 11 //*[(count(following-sibling::*) + 3) mod 5 = 0]/self::p
+p:nth-last-child(5n+3) 11 === 11 //*[position() <= (last() - 2) and (count(following-sibling::*) - 2) mod 5 = 0]/self::p
+p:nth-last-child(5n-3) 10 === 10 //*[(count(following-sibling::*) + 4) mod 5 = 0]/self::p
+p:nth-last-child(5n+4) 10 === 10 //*[position() <= (last() - 3) and (count(following-sibling::*) - 3) mod 5 = 0]/self::p
+p:nth-last-child(5n-4) 9 === 9 //*[(count(following-sibling::*) + 5) mod 5 = 0]/self::p
+p:nth-last-child(5n+5) 8 === 8 //*[position() <= (last() - 4) and (count(following-sibling::*) - 4) mod 5 = 0]/self::p
+p:nth-last-child(5n-5) 8 === 8 //*[(count(following-sibling::*) + 6) mod 5 = 0]/self::p
 p:nth-last-child(-n+1) 3 === 3 //*[position() >= last()]/self::p
 p:nth-last-child(-n+2) 6 === 6 //*[position() >= (last() - 1)]/self::p
 p:nth-last-child(-n+3) 10 === 10 //*[position() >= (last() - 2)]/self::p
 p:nth-last-child(-n+4) 14 === 14 //*[position() >= (last() - 3)]/self::p
+p:nth-last-child(-n+5) 18 === 18 //*[position() >= (last() - 4)]/self::p
 p:nth-last-child(-0n+1) 3 === 3 //*[position() = last()]/self::p
 p:nth-last-child(-0n+2) 3 === 3 //*[position() = (last() - 1)]/self::p
 p:nth-last-child(-0n+3) 4 === 4 //*[position() = (last() - 2)]/self::p
 p:nth-last-child(-0n+4) 4 === 4 //*[position() = (last() - 3)]/self::p
+p:nth-last-child(-0n+5) 4 === 4 //*[position() = (last() - 4)]/self::p
 p:nth-last-child(-1n+1) 3 === 3 //*[position() >= last()]/self::p
 p:nth-last-child(-1n+2) 6 === 6 //*[position() >= (last() - 1)]/self::p
 p:nth-last-child(-1n+3) 10 === 10 //*[position() >= (last() - 2)]/self::p
 p:nth-last-child(-1n+4) 14 === 14 //*[position() >= (last() - 3)]/self::p
+p:nth-last-child(-1n+5) 18 === 18 //*[position() >= (last() - 4)]/self::p
 p:nth-last-child(-2n+1) 3 === 3 //*[position() >= last() and (count(following-sibling::*)) mod 2 = 0]/self::p
 p:nth-last-child(-2n+2) 3 === 3 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 2 = 0]/self::p
 p:nth-last-child(-2n+3) 7 === 7 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 2 = 0]/self::p
 p:nth-last-child(-2n+4) 7 === 7 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 2 = 0]/self::p
+p:nth-last-child(-2n+5) 11 === 11 //*[position() >= (last() - 4) and (count(following-sibling::*) - 4) mod 2 = 0]/self::p
 p:nth-last-child(-3n+1) 3 === 3 //*[position() >= last() and (count(following-sibling::*)) mod 3 = 0]/self::p
 p:nth-last-child(-3n+2) 3 === 3 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 3 = 0]/self::p
 p:nth-last-child(-3n+3) 4 === 4 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 3 = 0]/self::p
 p:nth-last-child(-3n+4) 7 === 7 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 3 = 0]/self::p
+p:nth-last-child(-3n+5) 7 === 7 //*[position() >= (last() - 4) and (count(following-sibling::*) - 4) mod 3 = 0]/self::p
 p:nth-last-child(-4n+1) 3 === 3 //*[position() >= last() and (count(following-sibling::*)) mod 4 = 0]/self::p
 p:nth-last-child(-4n+2) 3 === 3 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 4 = 0]/self::p
 p:nth-last-child(-4n+3) 4 === 4 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 4 = 0]/self::p
 p:nth-last-child(-4n+4) 4 === 4 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 4 = 0]/self::p
+p:nth-last-child(-4n+5) 7 === 7 //*[position() >= (last() - 4) and (count(following-sibling::*) - 4) mod 4 = 0]/self::p
+p:nth-last-child(-5n+1) 3 === 3 //*[position() >= last() and (count(following-sibling::*)) mod 5 = 0]/self::p
+p:nth-last-child(-5n+2) 3 === 3 //*[position() >= (last() - 1) and (count(following-sibling::*) - 1) mod 5 = 0]/self::p
+p:nth-last-child(-5n+3) 4 === 4 //*[position() >= (last() - 2) and (count(following-sibling::*) - 2) mod 5 = 0]/self::p
+p:nth-last-child(-5n+4) 4 === 4 //*[position() >= (last() - 3) and (count(following-sibling::*) - 3) mod 5 = 0]/self::p
+p:nth-last-child(-5n+5) 4 === 4 //*[position() >= (last() - 4) and (count(following-sibling::*) - 4) mod 5 = 0]/self::p

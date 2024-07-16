@@ -4,7 +4,7 @@ It's inspired by [css2xpath](https://github.com/css2xpath/css2xpath), but it is 
 
 This JavaScript version is ported from C# converter, which is intended to work with an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`, but tests in Puppeteer and Crome show that generated XPathes also work in browsers. See [Test results](https://angezid.github.io/css-to-xpath-converter/test-coverage.html).
  
-**Important** the converter doesn't check validity neither of CSS selector nor of resulted XPath. So there may be cases when an application throw an error on parsing the XPath or the XPath isn't work as expected.  
+**Important:** the converter doesn't check validity neither of CSS selector nor of resulted XPath. So there may be cases when an application throw an error on parsing the XPath or the XPath isn't work as expected.  
 Although the converter is capture a lot of mistakes, but not all.
 
 **Note** that generated XPathes may seem not optimised e.g. CSS selector `p:nth-of-type(3)` is resulted in `//p[(count(preceding-sibling::p) + 1) = 3]` instead of `//p[3]`, but it works with XPath of selector `p:not(:nth-of-type(3))` -> `//p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]` (CSS selector example is taken from AngleSharp tests).
@@ -32,53 +32,53 @@ It allows using these CSS selectors:
 |   "="    |  equals   |     |
 |   "!="    |  not equals   |     |
 |   "^="    |  starts with   |     |
-|   "*="    |  contains within   |     |
-|   "\|="    |  exactly or followed by a hyphen   |     |
-|   "~="    |  contains exactly   |     |
 |   "$="    |  ends with   |     |
+|   "*="    |  contains within   |     |
+|   "~="    |  contains exactly   |     |
+|   "\|="    |  exactly or followed by a hyphen   |     |
 
 ### Pseudo-classes
 |   Selectors    |   Description  |  Remark   |
 |---------|-----------|----------|
 |   ":checked"    |     |     |
-|   ":contains()"    |     |     |
+|   ":contains()"    |  text contains string  |     |
 |   ":disabled"    |     |     |
 |   ":empty"    |     |     |
 |   ":enabled"    |     |     |
-|   ":ends-with()"    |     |     |
-|   ":eq()"    |     |     |
-|   ":first"    |     |     |
+|   ":ends-with()"    |  text ends with string |     |
+|   ":eq()"    |  equal to number  |  same as ":nth()"   |
+|   ":first"    |  first of selected elements  |     |
 |   ":first-child"    |     |     |
 |   ":first-of-type"    |     |     |
-|   ":gt()"    |     |     |
+|   ":gt()"    |  select elements greater than number |     |
 |   ":has()"    |     |     |
 |   ":has-ancestor()"    |     |     |
 |   ":has-parent()"    |     |     |
 |   ":has-sibling()"    |     |     |
-|   ":icontains()"    |     |     |
-|   ":iends-with()"    |     |     |
+|   ":icontains()"    |  text contains string ignore case  |     |
+|   ":iends-with()"    |  text ends with string ignore case  |     |
 |   ":is()"    |     |     |
-|   ":istarts-with()"    |     |     |
-|   ":last"    |     |     |
+|   ":istarts-with()"    |  text starts with string ignore case  |     |
+|   ":last"    |  last of selected elements  |     |
 |   ":last-child"    |     |     |
 |   ":last-of-type"    |     |     |
-|   ":limit()"    |     |     |
-|   ":lt()"    |     |     |
+|   ":limit()"    |  select elements up to number  |     |
+|   ":lt()"    |  select elements lesser than number  |     |
 |   ":not()"    |     |     |
-|   ":nth()"    |     |     |
+|   ":nth()"    |  equal to number   |  same as ":eq()"   |
 |   ":nth-child()"    |     |     |
 |   ":nth-last-child()"    |     |     |
 |   ":nth-of-type()"    |     |     |
 |   ":nth-last-of-type()"    |     |     |
 |   ":only-child"    |     |     |
 |   ":only-of-type"    |     |     |
-|   ":range()"    |     |     |
-|   ":root"    |     |     |
-|   ":skip()"    |     |     |
+|   ":range()"    |  select elements from smaller number to bigger number inclusive  |     |
+|   ":root"    |  html element  |     |
+|   ":skip()"    |  skip elements lesser than number  |     |
 |   ":skip-first"    |     |     |
 |   ":skip-last"    |     |     |
-|   ":starts-with()"    |     |     |
-|   ":target"    |     |     |
+|   ":starts-with()"    |  text starts with string  |     |
+|   ":target"    |  select elements with attribute 'href' starts with '#'   |     |
 |   ":text"    |     |     |
 
 ## Usage:
