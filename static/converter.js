@@ -28,7 +28,7 @@
 
 	const attributeReg = /(?:(?:\*|[a-zA-Z]+)\|)?(?:\*|[^ -/:-@[-`{-~]+)/y;
 
-	const attrNameReg = /(?:[a-z]+\|)?[^ -/:-@[-`{-~]+(?=(?:[~^|$!*]?=)|\])/y; // \*| is unnecessary
+	const attrNameReg = /(?:[a-zA-Z]+\|)?[^ -/:-@[-`{-~]+(?=(?:[~^|$!*]?=)|\])/y; // \*| is unnecessary
 
 	const attrValueReg = /(?:"([^"]+)"|'([^']+)'|([^ "'\]]+))(?: +([si]))?(?=\])/y;
 
@@ -844,64 +844,103 @@
 	}
 
 	function addNthToXpath(name, arg, sibling, owner, last, child, predicate, node) {
-		const not = predicate && predicate.type === 'not';
+		const not = predicate && predicate.type === 'not',
+			usePosition = !last && !not;
 
-		if (not) {
-			if (last) argumentException(pseudo + name + "' as an argument of ':not()' isn't implemented");
-
-			if(/^1?n(?:\+[01]|-\d+)?$/.test(arg)) {
-				warning += pseudo + name + '\' with these arguments in \':not()\' yield no matches';
-			}
+		if (not && /^1?n(?:\+[01]|-\d+)?$/.test(arg)) {
+			warning += pseudo + name + '\' with these arguments in \':not()\' yield no matches';
 		}
 
 		let str = '';
 
 		if (isNumber(arg)) {
-			node.add("[(count(", sibling, "-sibling::", owner, ") + 1) = ", arg, "]");
-			return;
-		}
-		switch (arg) {
-			case "odd" :
-				node.add("[(count(", sibling, "-sibling::", owner, ") + 1) mod 2 = 1]");
-				return;
+			const num = parseInt(arg);
+			str = addPosition(sibling, owner, { posValue : num, count : num - 1, comparison : " = " }, usePosition);
 
-			case "even" :
-				node.add("[(count(", sibling, "-sibling::", owner, ") + 1) mod 2 = 0]");
-				return;
+		} else if (arg === "odd") {
+			str = addModulo(sibling, owner, ' + 1', 2, 1);
 
-			default :
-				const obj = last ? parseFnNotationOfLast(arg) : parseFnNotation(arg);
+		} else if (arg === "even") {
+			str = addModulo(sibling, owner, ' + 1', 2, 0);
 
-				if (obj.valueA) {
-					const num = getNumber(obj.valueB);
+		} else {
+			const obj = parseFnNotation(arg, last);
 
-					if (obj.type === 'mod') str = addRange("[(count(", sibling, "-sibling::", owner, ")", num, ") mod ", obj.valueA, " = 0]");
-					else if (not) {
-						if (obj.type === 'pos') str = addRange("[(count(", sibling, "-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
-						else if (obj.type === 'both') str = addRange("[(count(", sibling, "-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, " and (count(", sibling, "-sibling::", owner, ")", num, ") mod ", obj.valueA, " = 0]");
+			if (obj.valueA) {
+				const num = getNumber(obj.valueB);
 
-					} else {
-						if (obj.type === 'pos') str = addRange("[position()", obj.comparison, obj.posValue, "]");
-						else if (obj.type === 'both') str = addRange("[position()", obj.comparison, obj.posValue, " and (count(", sibling, "-sibling::", owner, ")", num, ") mod ", obj.valueA, " = 0]");
-					}
-
-				} else {
-					if (not) {
-						str = addRange("[(count(preceding-sibling::", owner, ") + 1)", obj.comparison, obj.posValue, "]");
-
-					} else {
-						str = addRange("[position()", obj.comparison, obj.posValue, "]");
-					}
+				if (obj.type === 'mod') str = addModulo(sibling, owner, num, obj.valueA, 0);
+				else if (obj.type === 'pos') str = addPosition(sibling, owner, obj, usePosition);
+				else if (obj.type === 'both') {
+					str = addPosition(sibling, owner, obj, usePosition) + addModulo(sibling, owner, num, obj.valueA, 0);
+					str = str.replace('][', ' and ');
 				}
-				break;
+
+			} else {
+				str = addPosition(sibling, owner, obj, usePosition);
+			}
 		}
 
-		if ( !predicate && child && str.length > 0) {
+		if (usePosition && child && str.length > 0) {
 			node.content.unshift("*" + str + (node.owner != "self::node()" ? "/self::" + node.owner : "/self::*"));
 			node.nthChild = true;
 
 		} else {
 			node.add(str);
+		}
+	}
+
+	function parseFnNotation(arg, last) {
+		const rm = nthEquationReg.exec(arg);    // an+b-1  @"^([+-])?([0-9]+)?n(?:\s*([+-])\s*([0-9]*))?$"
+		if (rm !== null) {
+			const minus = isPresent(rm[1]) && rm[1] === '-',
+				valueA = getValue(rm[1], rm[2], 1),
+				valueB = getValue(rm[3], rm[4], 0),
+				posValue = valueB,
+				absA = Math.abs(valueA);
+
+			let count = valueB - 1,
+				comparison = last ? ' = ' : (absA === 0 ? " = " : minus ? " <= " : " >= "),
+				type = 'none';
+
+			if (last) {
+				if (minus) {
+					if ( !isPresent(rm[2]) || absA >= valueB) comparison = " <= ";
+					else if (absA !== 0 || valueB < 2) {
+						comparison = " < ";
+						count++;
+					}
+
+				} else if (absA !== 0) comparison = " >= ";
+			}
+
+			if (valueA === 0) type = 'pos';
+			else if ( !minus && valueB === 1) {
+				if (absA > 1) type = 'mod';
+
+			} else if (valueB > 0) {
+				if (absA > 1) type = 'both';
+				else type = 'pos';
+
+			} else if (absA > 1) {
+				type = 'mod';
+			}
+
+			return { valueA : absA, valueB, posValue, count, comparison, type };
+		}
+		regexException(0, "parseFnNotation", nthEquationReg, argument);
+	}
+
+	function addModulo(sibling, owner, num, mod, eq) {
+		return addRange("[(count(", sibling, "-sibling::", owner, ")", num, ") mod ", mod, " = ", eq, "]");
+	}
+
+	function addPosition(sibling, owner, obj, usePosition) {
+		if (usePosition) {
+			return addRange("[position()", obj.comparison, obj.posValue, "]");
+
+		} else {
+			return addRange("[count(", sibling, "-sibling::", owner, ")", obj.comparison, obj.count, "]");
 		}
 	}
 
@@ -915,62 +954,6 @@
 		return /^\d+$/.test(arg);
 	}
 
-	function parseFnNotation(argument) {
-		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^([+-])?([0-9]+)?n(?:\s*([+-])\s*([0-9]*))?$"
-		if (rm !== null) {
-			const minus = isPresent(rm[1]) && rm[1] === '-',
-				valueA = getValue(rm[1], rm[2], 1),
-				valueB = getValue(rm[3], rm[4], 0),
-				absA = Math.abs(valueA),
-				comparison = absA === 0 ? " = " : minus ? " <= " : " >= ";
-
-			let type = 'x';
-			if (valueA === 0) type = 'pos';
-			else if (valueB > 0) {
-				if (absA > 1) type = 'both';
-				else type = 'pos';
-
-			} else if (absA > 1) {
-				type = 'mod';
-			}
-
-			return { valueA : absA, valueB, posValue : valueB, comparison, type };
-		}
-		regexException(0, "parseFnNotation", nthEquationReg, argument);
-	}
-
-	function parseFnNotationOfLast(argument) {
-		const rm = nthEquationReg.exec(argument);    // an+b-1  @"^([+-])?([0-9]+)?n(?:\s*([+-])\s*([0-9]*))?$"
-		if (rm !== null) {
-			const minus = isPresent(rm[1]) && rm[1] === '-',
-				valueA = getValue(rm[1], rm[2], 1),
-				valueB = getValue(rm[3], rm[4], 0),
-				absA = Math.abs(valueA),
-				comparison = absA === 0 ? " = " : minus ? " >= " : " <= ";
-
-			let num = valueB,
-				posValue = "last()";
-
-			if (--num > 0) {
-				posValue = '(last() - ' + num + ')';
-			}
-
-			let type = 'x';
-			if (absA === 0) type = 'pos';
-			else if (valueB > 0) {
-				if (absA > 1) type = 'both';
-				else if (absA !== 0 && posValue === "last()") type = 'pos';
-				else type = 'pos';
-
-			} else if (absA > 1) {
-				type = 'mod';
-			}
-
-			return { valueA : absA, valueB, posValue, comparison, type };
-		}
-		regexException(0, "parseFnNotationOfLast", nthEquationReg, argument);
-	}
-
 	function isPresent(arg) {
 		return typeof arg !== 'undefined';
 	}
@@ -981,7 +964,11 @@
 	}
 
 	function addRange() {
-		return [...arguments].join('');
+		let str = '';
+		for (let i = 0; i < arguments.length; i++) {
+			str += arguments[i];
+		}
+		return str; 
 	}
 
 	function normalizeArg(name, argument, isString = true) {
