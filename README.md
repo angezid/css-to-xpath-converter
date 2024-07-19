@@ -7,8 +7,6 @@ This JavaScript version is ported from C# converter, which is intended to work w
 **Important:** the converter doesn't check validity neither of CSS selector nor of resulted XPath. So there may be cases when an application throw an error on parsing the XPath or the XPath isn't work as expected.  
 Although the converter is capture a lot of mistakes, but not all.
 
-**Note** that generated XPathes may seem not optimised e.g. CSS selector `p:nth-of-type(3)` is resulted in `//p[(count(preceding-sibling::p) + 1) = 3]` instead of `//p[3]`, but it works with XPath of selector `p:not(:nth-of-type(3))` -> `//p[not(self::node()[(count(preceding-sibling::p) + 1) = 3])]` (CSS selector example is taken from AngleSharp tests).
-
 See online [css-to-xpath-converter](https://angezid.github.io/css-to-xpath-converter). It contains a lot of examples.
 
 It allows using these CSS selectors:

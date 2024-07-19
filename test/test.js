@@ -129,7 +129,7 @@ function reportCoverage(coverage, name) {
 	<meta charset='utf-8'>
 	<title>Test coverage</title>
 	<style>
-		main{width:84%;margin-left:20px;} aside{width:15%;position:fixed;right:20px;} nav{height:100vh;overflow-y:auto;}
+		main{width:82%;margin-left:20px;} aside{width:17%;position:fixed;right:20px;} nav{height: 98vh;overflow-y:auto;}
 		ul{margin:0 0 6px 20px;padding:0;} ul li{list-style-type:none;padding:3px 0;margin:0;}
 		section p{margin:6px 20px;} section p b{margin:0 15px;}
 	</style>
@@ -232,7 +232,7 @@ function reportCoverage(coverage, name) {
 		const id= key + '_' + title.replace(/\W+/g, '_').toLowerCase();
 		const str = `<h3 id="${id}">${title}: <b>${array.length}</b></h3>\n` + array.join('');
 		const summary = `<p><a href="#${id}">${title}: <b>${array.length}</b></a></p>\n`;
-		const nav = `<li><a href="#${id}">${title}</a></li>\n`;
+		const nav = `<li><a href="#${id}">${title}</a> <b>${array.length}</b></li>\n`;
 		return { str, summary, nav };
 	}
 
@@ -243,8 +243,8 @@ function reportCoverage(coverage, name) {
 	if (noMatchNum) summaries += '<p>Have no matches: <b>' + noMatchNum + '</b></p>\n';
 	if (errorNum) summaries += '<p>Coverter errors: <b>' + errorNum + '</b></p>\n';
 
-	nav += '</ul></nav></aside>\n';
-	html += nav +'<main>\n<h1>Test results:</h1>\n' + summaries + info + result + '</main>\n</body></html>';
+	nav += '</ul><br><br></nav></aside>\n';
+	html += nav +'<main>\n<h1>Test results:</h1>\n' + summaries + info + result + '<br><br></main>\n</body></html>';
 
 	if (personal && !name) writeFile('test/test-coverage.html', html);
 
