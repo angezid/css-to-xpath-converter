@@ -81,7 +81,15 @@ It allows using these CSS selectors:
 
 ## Usage:
 ``` js
-const { xpath, css, warning } = convertToXPath(selector, options);
+const { xpath, css, warning } = toXPath(selector, options);
+```
+As it can throw an Error on parsing CSS selector:
+``` js
+let obj;
+try { obj = toXPath(selector, options); } catch(e) { }
+if (obj) {
+  console.log(obj.xpath);
+}
 ```
 ### Output object properties:
 * `xpath` - the generated XPath string
@@ -91,7 +99,8 @@ const { xpath, css, warning } = convertToXPath(selector, options);
 ### Parameters:
 * `selector` - the input css selector string
 * `options` - the optional object :
-  * `axis` - XPath start axis. See online [converter][converter] axes dropbox tooltips.
+  * `axis` - the XPath start axis. See online [converter][converter] axes dropbox tooltips.
+  * `removeXPathSpaces` - strips unnecessary space characters from the XPath (they are added for readability).
   * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor. The error message also is printed in the console.
   
   * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value operations.  
@@ -104,6 +113,7 @@ const { xpath, css, warning } = convertToXPath(selector, options);
   ``` js
   const options = {
     axis : '//',
+    removeXPathSpaces : false,
     uppercaseLetters : '',
     lowercaseLetters : '',
     printError : (message) => {}

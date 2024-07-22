@@ -51,7 +51,7 @@ span:nth-child(10n-1)  1 === 1 //*[(count(preceding-sibling::*) + 2) mod 10 = 0]
 span:nth-child(10n+1)  3 === 3 //*[(count(preceding-sibling::*)) mod 10 = 0]/self::span
 span:nth-last-child(2) 1 === 1 //span[count(following-sibling::*) = 1]
 section:not(:has(h1, h2, h3, h4, h5, h6)) 1 === 1 //section[not(count(.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6) > 0)]
-section:has(:not(h1, h2, h3, h4, h5, h6)) 2 === 2 //section[count(.//*[not(self::h1 or self::h2 or self::h3 or self::h4 or self::h5 or self::h6)]) > 0]
+section:has(:not(h1, h2, h3, h4, h5, h6)) 2 === 2 //section[count(.//*[not(self::h1 | self::h2 | self::h3 | self::h4 | self::h5 | self::h6)]) > 0]
 
 Have no matches: 21
 #myDiv - 0 - //*[@id='myDiv']

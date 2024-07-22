@@ -280,7 +280,7 @@
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 
-		const { xpath, css, warning } = convertToXPath(selector, options);
+		const { xpath, css, warning } = toXPath(selector, options);
 		xpathEditor.updateCode(browserUse.checked ? '$x("' + xpath + '")' : xpath);
 
 		if (warning) {
@@ -343,7 +343,7 @@
 
 			} else {
 				try {
-					let { xpath } = convertToXPath(item[0], options);
+					let { xpath } = toXPath(item[0], options);
 					xpath = xpath.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
 					sb.push('<tr><td class="name">', (item[1] || ' - '), '</td>');
 					sb.push('<td class="css"><code class="css" data-selector="', item[0], '">', item[0].replace(/ +/g, '&nbsp;'), '</code></td>');
