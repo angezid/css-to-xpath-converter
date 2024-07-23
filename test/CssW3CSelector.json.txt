@@ -15,7 +15,7 @@ Passed: 80
 li,p 222 === 222 //li | //p
 *.t1 24 === 24 //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
 li.t2 2 === 2 //li[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
-li#t2 1 === 1 //li[@id='t2']
+li#t2 1 === 1 //li[@id = 't2']
 *:root 1 === 1 //ancestor-or-self::*[last()]
 address 43 === 43 //address
 p.t1.t2 4 === 4 //p[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
@@ -61,7 +61,7 @@ div.stub *:not(div) 120 === 120 //div[contains(concat(' ', normalize-space(@clas
 div.stub *:not(foo) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(self::foo)]
 address:last-of-type 17 === 17 //address[not(following-sibling::address)]
 div.stub *:not(.foo) 116 === 116 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(contains(concat(' ', normalize-space(@class), ' '), ' foo '))]
-div.stub *:not(#foo) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id='foo')]
+div.stub *:not(#foo) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(@id = 'foo')]
 line:nth-child(3n-1) 19 === 19 //*[(count(preceding-sibling::*) + 2) mod 3 = 0]/self::line
 ul li:nth-child(2n+1) 19 === 19 //ul//*[(count(preceding-sibling::*)) mod 2 = 0]/self::li
 ol li:nth-child(2n+0) 12 === 12 //ol//*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::li
@@ -89,46 +89,46 @@ div.stub *:not([title$='tait']) 120 === 120 //div[contains(concat(' ', normalize
 div.stub *:not([title^='si on']) 120 === 120 //div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*[not(starts-with(@title, 'si on'))]
 table.t2 td:not(:nth-child(3n+1)) 60 === 60 //table[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]//td[not((count(preceding-sibling::*)) mod 3 = 0)]
 table.t1 tr:not(:nth-child(-1n+4)) 8 === 8 //table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//tr[not(count(preceding-sibling::*) <= 3)]
-p:not(#other).class:not(.fail).test#id#id 1 === 1 //p[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='id'][@id='id']
+p:not(#other).class:not(.fail).test#id#id 1 === 1 //p[not(@id = 'other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id = 'id'][@id = 'id']
 main p:only-of-type, main i[name]:only-of-type 1 === 1 //main//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0] | //main//i[@name][count(preceding-sibling::i) = 0 and count(following-sibling::i) = 0]
 
 Have no matches: 36
-#foo - 0 - //*[@id='foo']
+#foo - 0 - //*[@id = 'foo']
 .t1.fail - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' fail ')]
 p:target - 0 - //p[starts-with(@href, '#')]
 div.te.st - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' te ') and contains(concat(' ', normalize-space(@class), ' '), ' st ')]
 .fail div - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' fail ')]//div
-#fail div - 0 - //*[@id='fail']//div
+#fail div - 0 - //*[@id = 'fail']//div
 .fail+div - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' fail ')]/following-sibling::*[1]/self::div
-#test#fail - 0 - //*[@id='test'][@id='fail']
-#fail#test - 0 - //*[@id='fail'][@id='test']
-#pass#pass - 0 - //*[@id='pass'][@id='pass']
+#test#fail - 0 - //*[@id = 'test'][@id = 'fail']
+#fail#test - 0 - //*[@id = 'fail'][@id = 'test']
+#pass#pass - 0 - //*[@id = 'pass'][@id = 'pass']
 [type~=odd] - 0 - //*[contains(concat(' ', normalize-space(@type), ' '), ' odd ')]
-#test1:empty - 0 - //*[@id='test1'][not(*) and not(text())]
-#test2:empty - 0 - //*[@id='test2'][not(*) and not(text())]
+#test1:empty - 0 - //*[@id = 'test1'][not(*) and not(text())]
+#test2:empty - 0 - //*[@id = 'test2'][not(*) and not(text())]
 span[title=a] - 0 - //span[@title = 'a']
 p[title^=foo] - 0 - //p[starts-with(@title, 'foo')]
 p[title$=bar] - 0 - //p[substring(@title, string-length(@title) - (string-length('bar') - 1)) = 'bar']
 p[title*=bar] - 0 - //p[contains(@title, 'bar')]
 [type~=match] - 0 - //*[contains(concat(' ', normalize-space(@type), ' '), ' match ')]
 span[lang|=fr] - 0 - //span[@lang = 'fr' or starts-with(@lang, 'fr-')]
-#two:first-child - 0 - //*[@id='two'][not(preceding-sibling::*)]
-#test:not(:empty) - 0 - //*[@id='test'][not(not(*) and not(text()))]
-#three:last-child - 0 - //*[@id='three'][not(following-sibling::*)]
+#two:first-child - 0 - //*[@id = 'two'][not(preceding-sibling::*)]
+#test:not(:empty) - 0 - //*[@id = 'test'][not(not(*) and not(text()))]
+#three:last-child - 0 - //*[@id = 'three'][not(following-sibling::*)]
 address[title=foo] - 0 - //address[@title = 'foo']
 div.testText div p - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' testText ')]//div//p
 address[title~=foo] - 0 - //address[contains(concat(' ', normalize-space(@title), ' '), ' foo ')]
-#stub~div div+div div - 0 - //*[@id='stub']/following-sibling::div//div/following-sibling::*[1]/self::div//div
+#stub~div div+div div - 0 - //*[@id = 'stub']/following-sibling::div//div/following-sibling::*[1]/self::div//div
 div.testText > div > p - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' testText ')]/div/p
-#Aone#Atwo,#Aone#Athree,#Atwo#Athree - 0 - //*[@id='Aone'][@id='Atwo'] | //*[@id='Aone'][@id='Athree'] | //*[@id='Atwo'][@id='Athree']
-#Bone#Btwo,#Bone#Bthree,#Btwo#Bthree - 0 - //*[@id='Bone'][@id='Btwo'] | //*[@id='Bone'][@id='Bthree'] | //*[@id='Btwo'][@id='Bthree']
-#Cone#Ctwo,#Cone#Cthree,#Ctwo#Cthree - 0 - //*[@id='Cone'][@id='Ctwo'] | //*[@id='Cone'][@id='Cthree'] | //*[@id='Ctwo'][@id='Cthree']
-#Done#Dtwo,#Done#Dthree,#Dtwo#Dthree - 0 - //*[@id='Done'][@id='Dtwo'] | //*[@id='Done'][@id='Dthree'] | //*[@id='Dtwo'][@id='Dthree']
-div:not(#theid).class:not(.fail).test#theid#theid - 0 - //div[not(@id='theid')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='theid'][@id='theid']
-div:not(#other).class:not(.test).test#theid#theid - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' test '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='theid'][@id='theid']
-div:not(#other).notclass:not(.fail).test#theid#theid - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' notclass ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id='theid'][@id='theid']
-div:not(#other).class:not(.fail).nottest#theid#theid - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id='theid'][@id='theid']
-div:not(#other).class:not(.fail).nottest#theid#other - 0 - //div[not(@id='other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id='theid'][@id='other']
+#Aone#Atwo,#Aone#Athree,#Atwo#Athree - 0 - //*[@id = 'Aone'][@id = 'Atwo'] | //*[@id = 'Aone'][@id = 'Athree'] | //*[@id = 'Atwo'][@id = 'Athree']
+#Bone#Btwo,#Bone#Bthree,#Btwo#Bthree - 0 - //*[@id = 'Bone'][@id = 'Btwo'] | //*[@id = 'Bone'][@id = 'Bthree'] | //*[@id = 'Btwo'][@id = 'Bthree']
+#Cone#Ctwo,#Cone#Cthree,#Ctwo#Cthree - 0 - //*[@id = 'Cone'][@id = 'Ctwo'] | //*[@id = 'Cone'][@id = 'Cthree'] | //*[@id = 'Ctwo'][@id = 'Cthree']
+#Done#Dtwo,#Done#Dthree,#Dtwo#Dthree - 0 - //*[@id = 'Done'][@id = 'Dtwo'] | //*[@id = 'Done'][@id = 'Dthree'] | //*[@id = 'Dtwo'][@id = 'Dthree']
+div:not(#theid).class:not(.fail).test#theid#theid - 0 - //div[not(@id = 'theid')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id = 'theid'][@id = 'theid']
+div:not(#other).class:not(.test).test#theid#theid - 0 - //div[not(@id = 'other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' test '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id = 'theid'][@id = 'theid']
+div:not(#other).notclass:not(.fail).test#theid#theid - 0 - //div[not(@id = 'other')][contains(concat(' ', normalize-space(@class), ' '), ' notclass ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' test ')][@id = 'theid'][@id = 'theid']
+div:not(#other).class:not(.fail).nottest#theid#theid - 0 - //div[not(@id = 'other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id = 'theid'][@id = 'theid']
+div:not(#other).class:not(.fail).nottest#theid#other - 0 - //div[not(@id = 'other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id = 'theid'][@id = 'other']
 
 Coverter errors: 4
 p, converter error: Unexpected comma

@@ -28,7 +28,7 @@ p.hiclass,a 4 === 4 //p[contains(concat(' ', normalize-space(@class), ' '), ' hi
 .omg.ohyeah 1 === 1 //*[contains(concat(' ', normalize-space(@class), ' '), ' omg ') and contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
 div .ohyeah 1 === 1 //div//*[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
 div > * > * 9 === 9 //div/*/*
-div:has(> p) 7 === 7 //div[count(p) > 0]
+div:has(> p) 7 === 7 //div[count(child::p) > 0]
 *:last-child 37 === 37 //*[not(following-sibling::*)]
 p:last-child 7 === 7 //p[not(following-sibling::*)]
 *:only-child 25 === 25 //*[not(preceding-sibling::*) and not(following-sibling::*)]
@@ -54,25 +54,25 @@ section:not(:has(h1, h2, h3, h4, h5, h6)) 1 === 1 //section[not(count(.//h1 | ./
 section:has(:not(h1, h2, h3, h4, h5, h6)) 2 === 2 //section[count(.//*[not(self::h1 | self::h2 | self::h3 | self::h4 | self::h5 | self::h6)]) > 0]
 
 Have no matches: 21
-#myDiv - 0 - //*[@id='myDiv']
+#myDiv - 0 - //*[@id = 'myDiv']
 head p - 0 - //head//p
-#myDiv * - 0 - //*[@id='myDiv']//*
-#myDiv>* - 0 - //*[@id='myDiv']/*
-#-a-b-c- - 0 - //*[@id='-a-b-c-']
-div#myDiv - 0 - //div[@id='myDiv']
-#theBody #myDiv - 0 - //*[@id='theBody']//*[@id='myDiv']
-#theBody>#myDiv - 0 - //*[@id='theBody']/*[@id='myDiv']
-#someOtherDiv>* - 0 - //*[@id='someOtherDiv']/*
+#myDiv * - 0 - //*[@id = 'myDiv']//*
+#myDiv>* - 0 - //*[@id = 'myDiv']/*
+#-a-b-c- - 0 - //*[@id = '-a-b-c-']
+div#myDiv - 0 - //div[@id = 'myDiv']
+#theBody #myDiv - 0 - //*[@id = 'theBody']//*[@id = 'myDiv']
+#theBody>#myDiv - 0 - //*[@id = 'theBody']/*[@id = 'myDiv']
+#someOtherDiv>* - 0 - //*[@id = 'someOtherDiv']/*
 input[id='text'] - 0 - //input[@id = 'text']
 input[id='TEXT'] - 0 - //input[@id = 'TEXT']
 input[type='text'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('text', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 input[type='TEXT'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('TEXT', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 span:nth-last-child(3) - 0 - //span[count(following-sibling::*) = 2]
-#theBody #whatwhatwhat - 0 - //*[@id='theBody']//*[@id='whatwhatwhat']
-#theBody>#someOtherDiv - 0 - //*[@id='theBody']/*[@id='someOtherDiv']
+#theBody #whatwhatwhat - 0 - //*[@id = 'theBody']//*[@id = 'whatwhatwhat']
+#theBody>#someOtherDiv - 0 - //*[@id = 'theBody']/*[@id = 'someOtherDiv']
 span.this:nth-child(-n+3) - 0 - //*[position() <= 3]/self::span[contains(concat(' ', normalize-space(@class), ' '), ' this ')]
-#myDiv :nth-last-child(2) - 0 - //*[@id='myDiv']//*[count(following-sibling::*) = 1]
-#whatwhatwhat #someOtherDiv - 0 - //*[@id='whatwhatwhat']//*[@id='someOtherDiv']
+#myDiv :nth-last-child(2) - 0 - //*[@id = 'myDiv']//*[count(following-sibling::*) = 1]
+#whatwhatwhat #someOtherDiv - 0 - //*[@id = 'whatwhatwhat']//*[@id = 'someOtherDiv']
 dd:nth-child(1)>div:nth-child(3)>div:nth-child(1)>a - 0 - //*[position() = 1]/self::dd/*[position() = 3]/self::div/*[position() = 1]/self::div/a
 *[style*='display: none' i],*[style*='display:none' i] - 0 - //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))] | //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 

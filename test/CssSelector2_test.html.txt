@@ -28,13 +28,13 @@ p:nth-child(2n+1) 166 === 166 //*[(count(preceding-sibling::*)) mod 2 = 0]/self:
 
 Have no matches: 11
 .note - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
-#title - 0 - //*[@id='title']
-h1#title - 0 - //h1[@id='title']
-div #title - 0 - //div//*[@id='title']
+#title - 0 - //*[@id = 'title']
+h1#title - 0 - //h1[@id = 'title']
+div #title - 0 - //div//*[@id = 'title']
 div.example - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')]
 ul .tocline2 - 0 - //ul//*[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
 ul.toc li.tocline2 - 0 - //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]//li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
-h1#title + div > p - 0 - //h1[@id='title']/following-sibling::*[1]/self::div/p
+h1#title + div > p - 0 - //h1[@id = 'title']/following-sibling::*[1]/self::div/p
 ul.toc > li.tocline2 - 0 - //ul[contains(concat(' ', normalize-space(@class), ' '), ' toc ')]/li[contains(concat(' ', normalize-space(@class), ' '), ' tocline2 ')]
 div.example, div.note - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' example ')] | //div[contains(concat(' ', normalize-space(@class), ' '), ' note ')]
 div[class^=exa][class$=mple] - 0 - //div[contains(concat(' ', normalize-space(@class), ' '), ' exa')][contains(concat(' ', normalize-space(@class), ' '), 'mple ')]

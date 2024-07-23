@@ -133,7 +133,8 @@
 		if (opt.removeXPathSpaces) {
 			xpath = xpath.replace(/("[^"]+"|'[^']+')|(?<=[,<=>|+-]) +| +(?=[<=>|+-])/g, (m, gr) => gr || '');
 		}
-		xpath = xpath.replace(/self::node\(\)\[([^[\]]+)\]/g, '$1');
+		xpath = xpath.replace(/([([]| or )self::node\(\)\[([^[\]]+)\](?! *\|)/g, '$1$2');
+		//xpath = xpath.replace(/\]\[/g, ' and ');
 		return xpath;
 	}
 
@@ -145,7 +146,7 @@
 		let node = new xNode(parNode);
 		parNode.childNodes.push(node);
 
-		const predicate = isPredicate(nested);
+		const predicate = nested && nested.predicate;
 
 		let attrName = null,
 			attrValue = null,
@@ -198,12 +199,12 @@
 						addOwner(owner, nested, node);
 
 						[i, value] = getClassValue(i + 1, idReg, node);
-						node.add("[@id='", value, "']");
+						node.add("[@id = '", value, "']");
 						check = false;
 						break;
 
 					case '>' :
-						node = newNode(parNode, node,  "", true);
+						node = newNode(parNode, node, nested ? "child::" : "", true);
 						check = true;
 						break;
 
@@ -270,7 +271,7 @@
 						if (i + 1 >= length) parseException('Unexpected comma');
 
 						node.add(predicate ? " or " : " | ");
-						node = newNode(parNode, node, predicate ? "" : axis);
+						node = newNode(parNode, node, nested ? "" : axis);
 						check = true;
 						break;
 
@@ -307,7 +308,7 @@
 
 					default :
 						if (/[a-zA-Z]/.test(ch)) {
-							if (first || predicate) addAxes(axis, node, nested);
+							if (first || nested) addAxes(axis, node, nested);
 							i = getTagName(i, node);
 
 						} else {
@@ -446,6 +447,52 @@
 		return newNode(parNode, node, axis, true);
 	}
 
+	function addAxes(axis, node, nested) {
+		if ( !axis || node.axis || axis === "self::" && !nested) return;
+
+		const text = node.parentNode.toString().trim(),
+			len = text.length;
+
+		if (len == 0 || / (?:or|\|)$/.test(text)) {
+			node.axis = axis;
+
+		} else {
+			const ch = text[len-1];
+
+			if (ch == ':' || ch == '/' || ch == '|') {
+				node.axis = axis;
+			}
+		}
+	}
+
+	function addOwner(owner, nested, node) {
+		if (node.owner) return;
+
+		let result = '';
+		const prev = node.prevNode;
+
+		if ( !prev) {
+			result = owner || "*";
+
+		} else if (/ (?:or|\|)$/.test(prev.toString().trim())) {
+			result = owner || "*";
+
+		} else {
+			const text = node.parentNode.toString().trim();
+
+			if (text.length) {
+				const ch = text[text.length-1];
+
+				if (owner) {
+					if (ch == '|') result = owner;
+					else if (ch === ':') result = "*";
+
+				} else if (ch === ':' || ch === '/' || ch === '|') result = "*";
+			}
+		}
+		node.owner = result;
+	}
+
 	function handleNamespace(i, axis, first, parNode, node) {
 		if (node.owner == "*") {
 			if (nextChar(i, '*')) {
@@ -477,60 +524,15 @@
 		return [i, node];
 	}
 
-	function addAxes(axis, node, nested) {
-		if ( !axis || axis === "self::" && !nested) return;
-
-		const text = node.parentNode.toString().trim(),
-			len = text.length;
-
-		if (len == 0 || isPredicate(nested) && / or$/.test(text)) {
-			node.axis = axis;
-
-		} else {
-			const ch = text[len-1];
-
-			if (ch == ':' || ch == '/' || ch == '|') {
-				node.axis = axis;
-			}
-		}
-	}
-
-	function addOwner(owner, nested, node) {
-		if (node.owner) return;
-
-		let result = '';
-		const prev = node.prevNode;
-
-		if ( !prev) {
-			result = owner || "*";
-
-		} else if (isPredicate(nested)) {
-			if (/ or$/.test(prev.toString().trim())) result = owner;
-
-		} else {
-			const text = node.parentNode.toString().trim();
-
-			if (text.length) {
-				const ch = text[text.length-1];
-
-				if (owner) {
-					if (ch == '|') result = owner;
-					else if (ch === ':') result = "*";
-
-				} else if (ch === ':' || ch === '/' || ch === '|') result = "*";
-			}
-		}
-		node.owner = result;
-	}
-
 	function parseAttribute(i, axis, nested, parNode, node) {
 		const text = node.parentNode.toString().trim();
 
 		if (text.length === 0) {
 			if (nested) axis = "";
 
-		} else if (isPredicate(nested)) {
-			if (/ or$/.test(text)) axis = "";
+		//} else if (nested) {
+		} else if (/ (?:or|\|)$/.test(text)) {
+			axis = "";
 
 		} else {
 			const ch = text[text.length - 1];
@@ -547,10 +549,6 @@
 			return [i + rm[0].length, nd];
 		}
 		regexException(i, 'parseAttribute', attributeReg, code);
-	}
-
-	function isPredicate(obj) {
-		return obj && obj.type === 'predicate';
 	}
 
 	function processAttribute(attrName, attrValue, operation, modifier, node) {
@@ -763,12 +761,12 @@
 			case "not" :
 				const axis = node.owner == "*" ? "self::" : "";
 				nd = node.clone();
-				node.add("[not(", parseNested(nd, arg, axis, "self::node()", { type : 'fn', name : 'not' }), ")]");
+				node.add("[not(", parseNested(nd, arg, axis, "self::node()", { name : 'not' }), ")]");
 				break;
 
 			case "is" :
 				nd = node.clone();
-				node.add("[", parseNested(nd, arg, "self::", "self::node()", { type : 'predicate' }), "]");
+				node.add("[", parseNested(nd, arg, "self::", "self::node()", { predicate : true }), "]");
 				break;
 
 			case "has" :
