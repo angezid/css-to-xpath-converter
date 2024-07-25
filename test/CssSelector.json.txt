@@ -70,7 +70,7 @@ input[type='TEXT'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 
 span:nth-last-child(3) - 0 - //span[count(following-sibling::*) = 2]
 #theBody #whatwhatwhat - 0 - //*[@id = 'theBody']//*[@id = 'whatwhatwhat']
 #theBody>#someOtherDiv - 0 - //*[@id = 'theBody']/*[@id = 'someOtherDiv']
-span.this:nth-child(-n+3) - 0 - //*[position() <= 3]/self::span[contains(concat(' ', normalize-space(@class), ' '), ' this ')]
+span.this:nth-child(-n+3) - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' this ') and position() <= 3]/self::span
 #myDiv :nth-last-child(2) - 0 - //*[@id = 'myDiv']//*[count(following-sibling::*) = 1]
 #whatwhatwhat #someOtherDiv - 0 - //*[@id = 'whatwhatwhat']//*[@id = 'someOtherDiv']
 dd:nth-child(1)>div:nth-child(3)>div:nth-child(1)>a - 0 - //*[position() = 1]/self::dd/*[position() = 3]/self::div/*[position() = 1]/self::div/a

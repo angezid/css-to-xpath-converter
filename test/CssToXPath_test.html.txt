@@ -69,13 +69,13 @@ div:has(p, ul), div[id='header'] 51 === 51 //div[count(.//p | .//ul) > 0] | //di
 
 Have no matches: 26
 div:empty - 0 - //div[not(*) and not(text())]
-body[lang|=EN] - 0 - //body[@lang = 'EN' or starts-with(@lang, 'EN-')]
+body[lang|=EN] - 0 - //body[(@lang = 'EN' or starts-with(@lang, 'EN-'))]
 ul:first-child>li:not(.c1,.c2,.c6,.c7) - 0 - //ul[not(preceding-sibling::*)]/li[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c1 ')] | self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c2 ')] | self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c6 ')] | self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c7 ')])]
-body[lang|=En i] - 0 - //body[translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-'))]
+body[lang|=En i] - 0 - //body[(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-')))]
 ul>li[title$='One'] - 0 - //ul/li[substring(@title, string-length(@title) - (string-length('One') - 1)) = 'One']
 p[title^='ΑβγδΕ' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('ΑβγδΕ', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 p[title^='áβγδε' i] - 0 - //p[starts-with(translate(@title, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('áβγδε', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
-div[id]:has(h1, h2) - 0 - //div[@id][count(.//h1 | .//h2) > 0]
+div[id]:has(h1, h2) - 0 - //div[@id and count(.//h1 | .//h2) > 0]
 ul>li[title^='Item'] - 0 - //ul/li[starts-with(@title, 'Item')]
 ul>li[title*='Item'] - 0 - //ul/li[contains(@title, 'Item')]
 main > div[id=lists] - 0 - //main/div[@id = 'lists']
