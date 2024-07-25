@@ -31,7 +31,7 @@ p:nth-of-type(odd) 10 === 10 //p[(count(preceding-sibling::p) + 1) mod 2 = 1]
 div[id]:has(h1, h2) 2 === 2 //div[@id and count(.//h1 | .//h2) > 0]
 p:nth-last-child(3) 4 === 4 //p[count(following-sibling::*) = 2]
 p:nth-of-type(even) 5 === 5 //p[(count(preceding-sibling::p) + 1) mod 2 = 0]
-a:is([name], [href]) 2 === 2 //a[@name or @href]
+a:is([name], [href]) 2 === 2 //a[(@name or @href)]
 ul li:nth-child(odd) 22 === 22 //ul//*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::li
 ul li:nth-child(n+3) 27 === 27 //ul//*[position() >= 3]/self::li
 ul li:nth-child(n+4) 22 === 22 //ul//*[position() >= 4]/self::li
@@ -56,7 +56,7 @@ ul li:nth-of-type(-n+4) 24 === 24 //ul//li[count(preceding-sibling::li) <= 3]
 p:nth-last-of-type(odd) 10 === 10 //p[(count(following-sibling::p) + 1) mod 2 = 1]
 article p:first-of-type 5 === 5 //article//p[not(preceding-sibling::p)]
 article em:last-of-type 3 === 3 //article//em[not(following-sibling::em)]
-:is(ol,ul) :is(ol,ul) ol 1 === 1 //*[self::ol or self::ul]//*[self::ol or self::ul]//ol
+:is(ol,ul) :is(ol,ul) ol 1 === 1 //*[(self::ol or self::ul)]//*[(self::ol or self::ul)]//ol
 ul li:nth-of-type(-3n+4) 12 === 12 //ul//li[count(preceding-sibling::li) <= 3 and (count(preceding-sibling::li) - 3) mod 3 = 0]
 p:nth-last-of-type(even) 5 === 5 //p[(count(following-sibling::p) + 1) mod 2 = 0]
 article div:only-of-type 2 === 2 //article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]

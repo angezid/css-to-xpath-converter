@@ -17,7 +17,7 @@ else console.log(error);
 ```
 
 ### Output object properties:
-* `xpath` - the generated XPath string or null if an error occur on parsing CSS selector
+* `xpath` - the generated XPath string or undefined if an error occur on parsing CSS selector
 * `css` - the normalized CSS selector string (stripped from unnecessary white spaces, comments)
 * `warning` - warning message or empty string
 * `error` - error message or empty string
@@ -27,7 +27,7 @@ else console.log(error);
 * `options` - the optional object :
   * `axis` - the XPath start axis. See online [converter][converter] axes dropbox tooltips.
   * `removeXPathSpaces` - strips unnecessary space characters from the XPath (they are added for readability).
-  * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor. The error message also is printed in the console.
+  * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor.
   
   * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value operations.  
   It extends the default uppercase Latin alphabet. It must be compliant with `lowercaseLetters`.

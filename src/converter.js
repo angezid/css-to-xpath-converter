@@ -46,7 +46,6 @@
 		this.separator = '';
 		this.owner = '';
 		this.isClone = false;
-		this.nthChild = null;
 		this.prevNode = null;
 		this.parentNode = node;
 		this.childNodes = [];
@@ -69,7 +68,7 @@
 
 		this.toString = function(text = "") {
 			if ( !this.isClone) {
-				text = this.separator + this.axis + (this.nthChild ? '' : this.owner);
+				text = this.separator + this.axis + this.owner;
 
 				if (this.content.length) {
 					text += this.content.join('');
@@ -95,6 +94,7 @@
 		}, options);
 
 		warning = '';
+		error = '';
 		stack = [];
 		const node = new xNode();
 		let xpath;
@@ -117,6 +117,7 @@
 			xpath = postprocess(xpath);
 
 		} catch (e) {
+			//console.log(e);
 			return { xpath, css : normalized, warning, error : e.message };
 		}
 
@@ -566,7 +567,7 @@
 			lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
 
 		if (attrName === "class") {
-			processClass(attrName, attrValue, operation, ignoreCase, node);
+			processClass(attrValue, operation, ignoreCase, node);
 			return;
 		}
 
@@ -638,8 +639,8 @@
 		}
 	}
 
-	function processClass(attrName, attrValue, operation, ignoreCase, node) {
-		attrName = ignoreCase ? toLowerCase("@class", false) : "@class";
+	function processClass(attrValue, operation, ignoreCase, node) {
+		const attrName = ignoreCase ? toLowerCase("@class", false) : "@class";
 		let attributeValue = attrValue.trim();
 
 		switch (operation) {
@@ -770,12 +771,15 @@
 			case "not" :
 				const axis = node.owner == "*" ? "self::" : "";
 				nd = node.clone();
-			node.add("[not(", parseNested(nd, arg, axis, "self::node()", { name : 'not' }), ")]");
+				node.add("[not(", parseNested(nd, arg, axis, "self::node()", { name : 'not' }), ")]");
 				break;
 
 			case "is" :
 				nd = node.clone();
-			node.add("[", parseNested(nd, arg, "self::", "self::node()", { predicate : true }), "]");
+				result = parseNested(nd, arg, "self::", "self::node()", { predicate : true });
+				
+				if (hasOr(result)) node.add("[(", result, ")]"); // in the case of joining predicates by ' and ' in postprocess()
+				else node.add("[", result, "]");
 				break;
 
 			case "has" :
@@ -1138,6 +1142,15 @@
 			return [i + rm[0].length - 1, value, rm[4]];
 		}
 		regexException(i, "getAttributeValue", attrValueReg, code);
+	}
+	
+	function hasOr(text) {
+		const regex = /(?:[^ '"]+|"[^"]*"|'[^']*'|( or ))/g;
+		let rm;
+		while ((rm = regex.exec(text)) !== null) {
+			if (rm[1]) return true; 
+		}
+		return false; 
 	}
 
 	// Normalizes white spaces of the CSS selector by removing unnecessarily ones;
