@@ -9,99 +9,25 @@ Although the converter is capture a lot of mistakes, but not all.
 
 See online [css-to-xpath-converter](https://angezid.github.io/css-to-xpath-converter). It contains a lot of examples.
 
-It allows using these CSS selectors:
-
-### Combinators
-|   Selectors    |   Description  |  Remark   |
-|---------|-----------|----------|
-|   "+"    |     |     |
-|   ">"    |     |     |
-|   "~"    |     |     |
-|   "^"    |  first child   |     |
-|   "!"    |  ancestors   |     |
-|   "!^"    |  last child   |     |
-|   "!+"    |  adjacent preceding sibling   |     |
-|   "!>"    |  parent   |     |
-|   "!~"    |  preceding sibling   |     |
-
-### Attribute selectors
-|   Selectors    |   Description  |  Remark   |
-|---------|-----------|----------|
-|   "="    |  equals   |     |
-|   "!="    |  not equals   |     |
-|   "^="    |  starts with   |     |
-|   "$="    |  ends with   |     |
-|   "*="    |  contains within   |     |
-|   "~="    |  contains exactly   |     |
-|   "\|="    |  exactly or followed by a hyphen   |     |
-
-### Pseudo-classes
-|   Selectors    |   Description  |  Remark   |
-|---------|-----------|----------|
-|   ":checked"    |     |     |
-|   ":contains()"    |  text contains string  |     |
-|   ":disabled"    |     |     |
-|   ":empty"    |     |     |
-|   ":enabled"    |     |     |
-|   ":ends-with()"    |  text ends with string |     |
-|   ":eq()"    |  equal to number  |  same as ":nth()"   |
-|   ":first"    |  first of selected elements  |     |
-|   ":first-child"    |     |     |
-|   ":first-of-type"    |     |     |
-|   ":gt()"    |  select elements greater than number |     |
-|   ":has()"    |     |     |
-|   ":has-ancestor()"    |     |     |
-|   ":has-parent()"    |     |     |
-|   ":has-sibling()"    |     |     |
-|   ":icontains()"    |  text contains string ignore case  |     |
-|   ":iends-with()"    |  text ends with string ignore case  |     |
-|   ":is()"    |     |     |
-|   ":istarts-with()"    |  text starts with string ignore case  |     |
-|   ":last"    |  last of selected elements  |     |
-|   ":last-child"    |     |     |
-|   ":last-of-type"    |     |     |
-|   ":limit()"    |  select elements up to number  |     |
-|   ":lt()"    |  select elements lesser than number  |     |
-|   ":not()"    |     |     |
-|   ":nth()"    |  equal to number   |  same as ":eq()"   |
-|   ":nth-child()"    |     |     |
-|   ":nth-last-child()"    |     |     |
-|   ":nth-of-type()"    |     |     |
-|   ":nth-last-of-type()"    |     |     |
-|   ":only-child"    |     |     |
-|   ":only-of-type"    |     |     |
-|   ":range()"    |  select elements from smaller number to bigger number inclusive  |     |
-|   ":root"    |  html element  |     |
-|   ":skip()"    |  skip elements lesser than number  |     |
-|   ":skip-first"    |     |     |
-|   ":skip-last"    |     |     |
-|   ":starts-with()"    |  text starts with string  |     |
-|   ":target"    |  select elements with attribute 'href' starts with '#'   |     |
-|   ":text"    |     |     |
-
 ## Usage:
 ``` js
-const { xpath, css, warning } = toXPath(selector, options);
+const { xpath, css, warning, error } = toXPath(selector, options);
+if (xpath) console.log(xpath);
+else console.log(error);
 ```
-As it can throw an Error on parsing CSS selector:
-``` js
-let obj;
-try { obj = toXPath(selector, options); } catch(e) { }
-if (obj) {
-  console.log(obj.xpath);
-}
-```
+
 ### Output object properties:
-* `xpath` - the generated XPath string
-* `css` - the normalized css selector string (stripped from unnecessary white spaces, comments)
+* `xpath` - the generated XPath string or undefined if an error occur on parsing CSS selector
+* `css` - the normalized CSS selector string (stripped from unnecessary white spaces, comments)
 * `warning` - warning message or empty string
+* `error` - error message or empty string
 
 ### Parameters:
 * `selector` - the input css selector string
 * `options` - the optional object :
   * `axis` - the XPath start axis. See online [converter][converter] axes dropbox tooltips.
   * `removeXPathSpaces` - strips unnecessary space characters from the XPath (they are added for readability).
-  * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor. The error message also is printed in the console.
+  * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor.
   
   * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value operations.  
   It extends the default uppercase Latin alphabet. It must be compliant with `lowercaseLetters`.

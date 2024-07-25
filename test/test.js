@@ -5,7 +5,7 @@ const fs = require('fs');
 const { readdir } = require('fs/promises');
 const { readFile } = require('fs/promises');
 const pt = require('puppeteer');
-const convertToXPath = require('../src/converter.js');
+const toXPath = require('../src/converter.js');
 
 const htmlDir = './test/html';
 const jsonDir = './test/json';
@@ -45,10 +45,13 @@ async function performTest() {
 				for (let i = 0; i < json.selectors.length; i++) {
 					const selector = json.selectors[i],
 						css = entitize(selector);
-					let cssElems, xpathElems, xpath, obj;
+					let cssElems, xpathElems, xpath;
 
-					try { obj = convertToXPath(selector); } catch (e) { array.push({ 'error' : true, 'text' : `${css}`, message : e.message }); }
-					if ( !obj) continue;
+					const obj = toXPath(selector);
+					if ( !obj.xpath) {
+						array.push({ 'error' : true, 'text' : `${css}`, message : obj.error });
+						continue;
+					}
 
 					xpath = entitize(obj.xpath);
 

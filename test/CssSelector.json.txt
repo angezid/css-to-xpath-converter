@@ -45,8 +45,8 @@ div > p.ohyeah 1 === 1 //div/p[contains(concat(' ', normalize-space(@class), ' '
 a + span, div > p 10 === 10 //a/following-sibling::*[1]/self::span | //div/p
 :nth-last-child(2) 12 === 12 //*[count(following-sibling::*) = 1]
 span:nth-child(even) 5 === 5 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::span
-span:is(.this, .that) 3 === 3 //span[contains(concat(' ', normalize-space(@class), ' '), ' this ') or contains(concat(' ', normalize-space(@class), ' '), ' that ')]
-:is(div, section) > h1 4 === 4 //*[self::div or self::section]/h1
+span:is(.this, .that) 3 === 3 //span[(contains(concat(' ', normalize-space(@class), ' '), ' this ') or contains(concat(' ', normalize-space(@class), ' '), ' that '))]
+:is(div, section) > h1 4 === 4 //*[(self::div or self::section)]/h1
 span:nth-child(10n-1)  1 === 1 //*[(count(preceding-sibling::*) + 2) mod 10 = 0]/self::span
 span:nth-child(10n+1)  3 === 3 //*[(count(preceding-sibling::*)) mod 10 = 0]/self::span
 span:nth-last-child(2) 1 === 1 //span[count(following-sibling::*) = 1]
@@ -70,16 +70,16 @@ input[type='TEXT'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 
 span:nth-last-child(3) - 0 - //span[count(following-sibling::*) = 2]
 #theBody #whatwhatwhat - 0 - //*[@id = 'theBody']//*[@id = 'whatwhatwhat']
 #theBody>#someOtherDiv - 0 - //*[@id = 'theBody']/*[@id = 'someOtherDiv']
-span.this:nth-child(-n+3) - 0 - //*[position() <= 3]/self::span[contains(concat(' ', normalize-space(@class), ' '), ' this ')]
+span.this:nth-child(-n+3) - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' this ') and position() <= 3]/self::span
 #myDiv :nth-last-child(2) - 0 - //*[@id = 'myDiv']//*[count(following-sibling::*) = 1]
 #whatwhatwhat #someOtherDiv - 0 - //*[@id = 'whatwhatwhat']//*[@id = 'someOtherDiv']
 dd:nth-child(1)>div:nth-child(3)>div:nth-child(1)>a - 0 - //*[position() = 1]/self::dd/*[position() = 3]/self::div/*[position() = 1]/self::div/a
 *[style*='display: none' i],*[style*='display:none' i] - 0 - //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))] | //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 
 Coverter errors: 3
-:scope > p converter error: Pseudo selector ':scope' is not implemented
+:scope > p converter error: Pseudo-class ':scope' is not implemented
 
-span:nth-child(10n+-1)  converter error: argument is not defined
+span:nth-child(10n+-1)  converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '10n+-1'
 
-*:nth-child(-n+3 of span.this) converter error: argument is not defined
+*:nth-child(-n+3 of span.this) converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '-n+3ofspan.this'
 
