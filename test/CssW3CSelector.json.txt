@@ -131,7 +131,7 @@ div:not(#other).class:not(.fail).nottest#theid#theid - 0 - //div[not(@id = 'othe
 div:not(#other).class:not(.fail).nottest#theid#other - 0 - //div[not(@id = 'other')][contains(concat(' ', normalize-space(@class), ' '), ' class ')][not(contains(concat(' ', normalize-space(@class), ' '), ' fail '))][contains(concat(' ', normalize-space(@class), ' '), ' nottest ')][@id = 'theid'][@id = 'other']
 
 Coverter errors: 4
-p, converter error: Unexpected comma
+p, converter error: parser State.Text. Unexpected character ',' in the substring - ,
 
 foo & address, p converter error: parser State.Text, check=true. Unexpected character '&' in the substring - & address,p
 

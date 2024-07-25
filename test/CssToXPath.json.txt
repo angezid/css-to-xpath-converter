@@ -24,7 +24,7 @@ div:first-child 5 === 5 //div[not(preceding-sibling::*)]
 body[lang|=En i] 1 === 1 //body[translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-'))]
 div>*:only-child 3 === 3 //div/*[not(preceding-sibling::*) and not(following-sibling::*)]
 p:nth-child(odd) 8 === 8 //*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::p
-p:nth-of-type(3) 2 === 2 //p[position() = 3]
+p:nth-of-type(3) 2 === 2 //p[count(preceding-sibling::p) = 2]
 p:nth-child(even) 7 === 7 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::p
 ul li:nth-child(3) 5 === 5 //ul//*[position() = 3]/self::li
 p:nth-of-type(odd) 10 === 10 //p[(count(preceding-sibling::p) + 1) mod 2 = 1]
@@ -35,7 +35,7 @@ a:is([name], [href]) 2 === 2 //a[@name or @href]
 ul li:nth-child(odd) 22 === 22 //ul//*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::li
 ul li:nth-child(n+3) 27 === 27 //ul//*[position() >= 3]/self::li
 ul li:nth-child(n+4) 22 === 22 //ul//*[position() >= 4]/self::li
-ul li:nth-of-type(3) 5 === 5 //ul//li[position() = 3]
+ul li:nth-of-type(3) 5 === 5 //ul//li[count(preceding-sibling::li) = 2]
 ul li:nth-child(even) 19 === 19 //ul//*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::li
 ul li:nth-child(3n+2) 13 === 13 //ul//*[position() >= 2 and (count(preceding-sibling::*) - 1) mod 3 = 0]/self::li
 ul li:nth-child(-n+4) 24 === 24 //ul//*[position() <= 4]/self::li
@@ -45,19 +45,19 @@ p:nth-last-of-type(3) 2 === 2 //p[count(following-sibling::p) = 2]
 ul li:nth-child(-3n+4) 12 === 12 //ul//*[position() <= 4 and (count(preceding-sibling::*) - 3) mod 3 = 0]/self::li
 p:nth-last-child(even) 6 === 6 //p[(count(following-sibling::*) + 1) mod 2 = 0]
 ul li:nth-of-type(odd) 22 === 22 //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 1]
-ul li:nth-of-type(n+3) 27 === 27 //ul//li[position() >= 3]
-ul li:nth-of-type(n+4) 22 === 22 //ul//li[position() >= 4]
+ul li:nth-of-type(n+3) 27 === 27 //ul//li[count(preceding-sibling::li) >= 2]
+ul li:nth-of-type(n+4) 22 === 22 //ul//li[count(preceding-sibling::li) >= 3]
 article p:only-of-type 4 === 4 //article//p[count(preceding-sibling::p) = 0 and count(following-sibling::p) = 0]
 ul li:nth-last-child(3) 5 === 5 //ul//li[count(following-sibling::*) = 2]
 ul li:nth-of-type(even) 19 === 19 //ul//li[(count(preceding-sibling::li) + 1) mod 2 = 0]
-ul li:nth-of-type(3n+2) 13 === 13 //ul//li[position() >= 2 and (count(preceding-sibling::li) - 1) mod 3 = 0]
+ul li:nth-of-type(3n+2) 13 === 13 //ul//li[count(preceding-sibling::li) >= 1 and (count(preceding-sibling::li) - 1) mod 3 = 0]
 ul li:nth-of-type(3n-2) 17 === 17 //ul//li[(count(preceding-sibling::li) + 3) mod 3 = 0]
-ul li:nth-of-type(-n+4) 24 === 24 //ul//li[position() <= 4]
+ul li:nth-of-type(-n+4) 24 === 24 //ul//li[count(preceding-sibling::li) <= 3]
 p:nth-last-of-type(odd) 10 === 10 //p[(count(following-sibling::p) + 1) mod 2 = 1]
 article p:first-of-type 5 === 5 //article//p[not(preceding-sibling::p)]
 article em:last-of-type 3 === 3 //article//em[not(following-sibling::em)]
 :is(ol,ul) :is(ol,ul) ol 1 === 1 //*[self::ol or self::ul]//*[self::ol or self::ul]//ol
-ul li:nth-of-type(-3n+4) 12 === 12 //ul//li[position() <= 4 and (count(preceding-sibling::li) - 3) mod 3 = 0]
+ul li:nth-of-type(-3n+4) 12 === 12 //ul//li[count(preceding-sibling::li) <= 3 and (count(preceding-sibling::li) - 3) mod 3 = 0]
 p:nth-last-of-type(even) 5 === 5 //p[(count(following-sibling::p) + 1) mod 2 = 0]
 article div:only-of-type 2 === 2 //article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]
 ul li:nth-last-child(odd) 22 === 22 //ul//li[(count(following-sibling::*) + 1) mod 2 = 1]

@@ -77,9 +77,9 @@ dd:nth-child(1)>div:nth-child(3)>div:nth-child(1)>a - 0 - //*[position() = 1]/se
 *[style*='display: none' i],*[style*='display:none' i] - 0 - //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))] | //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 
 Coverter errors: 3
-:scope > p converter error: Pseudo selector ':scope' is not implemented
+:scope > p converter error: Pseudo-class ':scope' is not implemented
 
-span:nth-child(10n+-1)  converter error: argument is not defined
+span:nth-child(10n+-1)  converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '10n+-1'
 
-*:nth-child(-n+3 of span.this) converter error: argument is not defined
+*:nth-child(-n+3 of span.this) converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '-n+3ofspan.this'
 

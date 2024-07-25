@@ -15,19 +15,19 @@
 	const selectors = [
 		["$$Combinators", ""],
 		["ul > li", "child"],
-		["li !> ul", "parent"],
+		["li !> ul", "parent", "0"],
 		["div + p", "adjacent following sibling"],
-		["div !+ p", "adjacent preceding sibling"],
+		["div !+ p", "adjacent preceding sibling", "0"],
 		["div ^ p", "first child"],
-		["div !^ p", "last child"],
+		["div !^ p", "last child", "0"],
 		["div ~ p", "following sibling"],
-		["div !~ p", "preceding sibling"],
-		["div ! p", "ancestors"],
+		["div !~ p", "preceding sibling", "0"],
+		["div ! p", "ancestors", "0"],
 
 		["$$Class attribute", ""],
 		["div.content", "contains class"],
 		["div[class='content']", "contains exactly"],
-		["div[class='content' i]", "ignore case"],
+		["div[class='content' i]", "ignore case", "1 2"],
 		["div[class^='cont']", "starts with"],
 		["div[class$='tent']", "ends with"],
 		["div[class~='content']", "contains exactly"],
@@ -35,69 +35,90 @@
 		["div[class|='content']", "exactly or followed by a hyphen"],
 
 		["$$Attributes", ""],
+		["section[title='Item']", "equal"],
+		["section[title!='Item']", "not equals"],
 		["section[title^='Item']", "starts with"],
 		["section[title$='one']", "ends with"],
 		["section[title*='item']", "contains within"],
 		["div[lang|=EN]", "exactly or followed by a hyphen"],
-		["a[xlink|href]", "select attribute with namespace"],
 
 		["$$Attributes ignore case", "https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors"],
-		["section[title='one' i]", ""],
-		["section[title^='item' i]", ""],
-		["section[title$='one' i]", ""],
-		["section[title~='two' i]", ""],
-		["section[title*='twenty' i]", ""],
-		["div[lang|=En i]", ""],
+		["section[title='one' i]", "", "1 2"],
+		["section[title^='item' i]", "", "1 2"],
+		["section[title$='one' i]", "", "1 2"],
+		["section[title~='two' i]", "", "1 2"],
+		["section[title*='twenty' i]", "", "1 2"],
+		["div[lang|=En i]", "", "1 2"],
 
 		["$$Pseudo-classes", ""],
 		["div:not(.c1, .c2)", ""],
 		["div:has(h1, h2)", ""],
+		["div:has(.c1)", ""],
 		["a:is([name],[href])", ""],
 		[":is(ol, ul) :is(ol, ul) ol", ""],
-		["div:has-sibling(p)", ""],
-		["div:has-parent(main)", ""],
-		["div:has-ancestor(main)", ""],
-		["ul>li:range(2, 5)", ""],
-		["div:contains('Test')", ""],
-		["div:icontains('content')", ""],
-		["div:starts-with(Test)", ""],
-		["div:istarts-with('TEST')", ""],
-		["p:ends-with('test')", ""],
-		["p:iends-with('TEST')", ""],
+		["div:has-sibling(p)", "", "0"],
+		["div:has-parent(main)", "", "0"],
+		["div:has-ancestor(main)", "", "0"],
+		["li:range(2, 5)", "from n1 to n2 inclusive", "0"],
+		["div:contains('Test')", "contains text", "0"],
+		["div:icontains('content')", "", "0 2"],
+		["div:starts-with(Test)", "", "0"],
+		["div:istarts-with('TEST')", "", "0 2"],
+		["p:ends-with('test')", "", "0"],
+		["p:iends-with('TEST')", "", "0 2"],
+		["ul>li:first", "the first element", "0"],
+		["ul>li:last", "the last element", "0"],
+		["li:nth(5)", "element equal to n", "0"],
+		["li:eq(4)", "element equal to n", "0"],
+		["li:gt(4)", "elements greater than n", "0"],
+		["li:lt(4)", "elements lesser than n", "0"],
+		["li:skip(4)", "skip elements lesser than n", "0"],
+		["li:skip-first", "skips the first element", "0"],
+		["li:skip-last", "skips the last element", "0"],
+		["li:limit(5)", "from 1 to n inclusive", "0"],
 		["div:empty", ""],
-		["ul>li:first", ""],
-		["ul>li:last", ""],
-		["div:first-child", ""],
-		["div:last-child", ""],
-		["div>*:only-child", ""],
-		["li:gt(4)", ""],
-		["li:lt(4)", ""],
-		["li:eq(4)", ""],
-		["li:skip(4)", ""],
-		["li:skip-first", ""],
-		["li:skip-last", ""],
-		["li:limit(5)", ""],
-		[":root", ""],
+		[":checked", ""],
+		[":enabled", ""],
+		[":disabled", ""],
+		[":target", ""],
+		[":text", ""],
 
-		["$$Pseudo-classes 'nth'", ""],
-		["li:nth(5)", ""],
+		["$$'-child'", ""],
+		["li:first-child", ""],
+		["li:last-child", ""],
+		["p:only-child", ""],
+
+		["$$'nth-child'", ""],
 		["li:nth-child(3)", ""],
 		["li:nth-child(odd)", ""],
 		["li:nth-child(even)", ""],
 		["li:nth-child(3n+2)", ""],
+
+		["$$'nth-last-child'", ""],
+		["li:nth-last-child(3)", ""],
+		["li:nth-last-child(odd)", ""],
+		["li:nth-last-child(even)", ""],
 		["p:nth-last-child(3n+2)", ""],
 		["p:nth-last-child(-3n+2)", ""],
 
-		["$$Pseudo-classes 'of-type'", ""],
+		["$$'-of-type'", "", "Not works with universal selector '*'"],
 		["div p:first-of-type", ""],
-		["div>em:last-of-type", ""],
+		["div>p:last-of-type", ""],
 		["div p:only-of-type", ""],
+
+		["$$':nth-of-type'", "", "Not works with universal selector '*'"],
 		["li:nth-of-type(3)", ""],
 		["li:nth-of-type(odd)", ""],
 		["li:nth-of-type(even)", ""],
 		["li:nth-of-type(3n+2)", ""],
 		["li:nth-of-type(-3n+2)", ""],
+
+		["$$':nth-last-of-type'", "", "Not works with universal selector '*'"],
+		["li:nth-last-of-type(3)", ""],
+		["li:nth-last-of-type(odd)", ""],
+		["li:nth-last-of-type(even)", ""],
 		["p:nth-last-of-type(3n+2)", ""],
+		["p:nth-last-of-type(-3n+2)", ""],
 
 		["$$Spaces, comments", ""],
 		["ul   >   li:  not (  .c1  )", ""],
@@ -105,6 +126,19 @@
 		[`!> ul:first /*direct parent*/
 	!^   li      /*last child*/
 	!+   li  /*previous siblings*/`, ""],
+
+		["$$namespaces", "Not works in browsers", ""],
+		["|*", "all elements without a namespace"],
+		["*|*", "all elements"],
+		["ns|*", "all elements in namespace ns"],
+		["ns|p", ""],
+		["div ns|p", ""],
+		["div |*", ""],
+		["div *|*", ""],
+		["div ns|*", ""],
+		["div ns|p", ""],
+		["*:not(ns|p)", ""],
+		["a[xlink|href='...']", "attributes with namespace"],
 	];
 
 	const settings = {
@@ -280,8 +314,10 @@
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 
-		const { xpath, css, warning } = toXPath(selector, options);
-		xpathEditor.updateCode(browserUse.checked ? '$x("' + xpath + '")' : xpath);
+		const { xpath, css, warning, error } = toXPath(selector, options);
+		if (xpath) {
+			xpathEditor.updateCode(browserUse.checked ? '$x("' + xpath + '")' : xpath);
+		}
 
 		if (warning) {
 			warningBox.innerHTML = warning.trim();
@@ -332,6 +368,7 @@
 	}
 
 	function setExamples() {
+		const hrefs = ['<a href="#info-1">[1]</a> ', '<a href="#info-2">[2]</a> ', '<a href="#info-3">[3]</a> '];
 		const section = document.getElementById('example');
 		const sb = [];
 		sb.push('<table><thead><tr><td>Description</td><td>CSS</td><td>XPath</td></tr></thead><tbody>');
@@ -339,19 +376,19 @@
 		selectors.forEach(item => {
 			if (/^\$\$/.test(item[0])) {
 				const title = item[0].substring(2);
-				sb.push('<tr class="group"><td id="', title.replace(/\W+/g, '_').toLowerCase(), '">', title, '</td><td></td><td></td></tr>');
+				sb.push('<tr class="group"><td id="', title.replace(/\W+/g, '_').toLowerCase(), '">', title, '</td><td>' + (item[1] || '')+ '</td><td><span class="example-info">' + (item[2] || '')+ '</span></td></tr>');
 
 			} else {
-				try {
-					let { xpath } = toXPath(item[0], options);
+				let href = item[2] ? item[2].split(' ').map(n => hrefs[n]).join('') : '';
+				
+				let { xpath, css, warning, error } = toXPath(item[0], options);
+				if (xpath) {
 					xpath = xpath.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
-					sb.push('<tr><td class="name">', (item[1] || ' - '), '</td>');
+					sb.push('<tr><td class="name">', href, (item[1] || ' - '), '</td>');
 					sb.push('<td class="css"><code class="css" data-selector="', item[0], '">', item[0].replace(/ +/g, '&nbsp;'), '</code></td>');
 					sb.push('<td><code class="xpath">', xpath, '</code></td></tr>');
-
-				} catch (e) {
-					console.log(item[0], e);
 				}
+				if (error) console.log(item[0], error);
 			}
 		});
 		sb.push('</tbody></table>');
