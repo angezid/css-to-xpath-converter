@@ -318,6 +318,7 @@
 
 		options.axis = axis;
 		options.browserUse = browserUse.checked;
+		options.useClassName = false;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 
