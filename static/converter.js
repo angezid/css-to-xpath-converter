@@ -30,7 +30,7 @@
 
 	const attrNameReg = /(?:[a-zA-Z]+\|)?[^ -,.\/:-@[-^`{-~]+(?=(?:[~^|$!*]?=)|\])/y;    // \*| is unnecessary
 
-	const attrValueReg = /(?:"([^"]+)"|'([^']+)'|([^ "'\]]+))(?: +([si]))?(?=\])/y;
+	const attrValueReg = /(?:"([^"]+)"|'([^']+)'|([^ "'\]]+))(?: +([siSI]))?(?=\])/y;
 
 	const State = Object.freeze({ "Text" : 0, "PseudoClass" : 1, "AttributeName" : 2, "AttributeValue" : 3 });
 
@@ -39,7 +39,7 @@
 	const pseudo = "Pseudo-class ':";
 	const navWarning = "\nSystem.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.";
 
-	let opt, warning, error, uppercase, lowercase, stack, code, length;
+	let opt, warning, error, uppercase, lowercase, stack, code, position, length;
 
 	function xNode(node) {
 		this.axis = '';
@@ -86,11 +86,12 @@
 		opt = Object.assign({}, {
 			axis : '//',
 			browserUse : false,    // to suppress XPathNavigator warning message
-			normalizeClassSpaces : true,    // do not use this property
+			useClassName : false,
 			removeXPathSpaces : false,
 			uppercaseLetters : '',
 			lowercaseLetters : '',
 			printError : () => {},
+			debug : false
 		}, options);
 
 		warning = '';
@@ -117,7 +118,13 @@
 			xpath = postprocess(xpath);
 
 		} catch (e) {
-			//console.log(e);
+			if (e.parser) {
+				if (opt.debug) {
+					console.log(e.message, e.code, e.column);
+				}
+			} else {
+				console.log(e);
+			}
 			return { xpath, css : normalized, warning, error : e.message };
 		}
 
@@ -174,6 +181,7 @@
 		}
 
 		while (++i < length) {
+			position = i;
 			ch = code[i];
 
 			if (state === State.Text) {
@@ -184,10 +192,10 @@
 				switch (ch) {
 					case '.' :
 						if (first) addAxes(axis, node);
-						addOwner(owner, nested, node);
+						addOwner(owner, node);
 						let attr = '[';
 						do {
-							attr += opt.normalizeClassSpaces ? "contains(concat(' ', normalize-space(@class), ' '), ' " : "contains(@class, ' ";
+							attr += "contains(concat(' ', normalize-space(@class), ' '), ' ";
 							[i, value] = getClassValue(i + 1, classReg, node);
 							attr += value;
 
@@ -203,9 +211,9 @@
 
 					case '#' :
 						if (first) addAxes(axis, node);
-						addOwner(owner, nested, node);
+						addOwner(owner, node);
 						[i, value] = getClassValue(i + 1, idReg, node);
-						node.add("[@id = '", value, "']");
+						node.add("[@id='", value, "']");
 						check = false;
 						break;
 
@@ -215,8 +223,7 @@
 						break;
 
 					case '+' :
-						node = addNode(parNode, node, "following-sibling::");
-						node = addNode(parNode, node, "self::", "[1]", "*");
+						node = addTwoNodes(parNode, node, "following-sibling::", "*", "[1]", "self::");
 						check = true;
 						break;
 
@@ -226,20 +233,17 @@
 						break;
 
 					case '^' :    // first child
-						node = addNode(parNode, node, "child::");
-						node = addNode(parNode, node, "self::", "[1]", "*");
+						node = addTwoNodes(parNode, node, "child::", "*", "[1]", "self::");
 						check = true;
 						break;
 
 					case '!' :
 						if (nextChar(i, '^')) {    // last child
-							node = addNode(parNode, node, "child::");
-							node = addNode(parNode, node, "self::", "[last()]", "*");
+							node = addTwoNodes(parNode, node, "child::", "*", "[last()]", "self::");
 							i++;
 
 						} else if (nextChar(i, '+')) {    // adjacent preceding sibling
-							node = addNode(parNode, node, "preceding-sibling::");
-							node = addNode(parNode, node, "self::", "[1]", "*");
+							node = addTwoNodes(parNode, node, "preceding-sibling::", "*", "[1]", "self::");
 							i++;
 
 						} else if (nextChar(i, '>')) {    // direct parent
@@ -258,7 +262,7 @@
 
 					case '[' :
 						if (first) addAxes(axis, node);
-						addOwner(owner, nested, node);
+						addOwner(owner, node);
 						attrName = '';
 						attrValue = null;
 						modifier = null;
@@ -268,7 +272,7 @@
 
 					case ':' :
 						if (first) addAxes(axis, node);
-						addOwner(owner, nested, node);
+						addOwner(owner, node);
 						if (nextChar(i, ':')) i++;
 						state = State.PseudoClass;
 						break;
@@ -356,7 +360,7 @@
 						break;
 
 					case ']' :
-						if ( !attrName) nullException("attrName");
+						if ( !attrName) parseException("attrName is null or empty.'");
 
 						node.add("[@" + attrName + "]");
 						state = State.Text;
@@ -374,7 +378,7 @@
 			} else if (state === State.AttributeValue) {
 				switch (ch) {
 					case ']' :
-						if ( !attrValue) nullException("attrValue");
+						if ( !attrValue) parseException("attrValue is null or empty.'");
 
 						processAttribute(attrName, attrValue, operation, modifier, node);
 
@@ -404,11 +408,11 @@
 				[i, pseudoName, argument] = getPseudoClass(i);
 
 				if (pseudoName === "root") {
-					node.axis = node.owner = node.separator = '';
-					node.add("//ancestor-or-self::*[last()]");
+					node.owner = node.separator = '';
+					node = addNode(parNode, node, "", "", "ancestor-or-self::", "*", "[last()]");
 
 				} else {
-					addOwner(owner, nested, node);
+					addOwner(owner, node);
 					if (pseudoName.startsWith("nth-")) node = processNth(pseudoName, argument, nested, parNode, node);
 					else processPseudoClass(pseudoName, argument, node);
 				}
@@ -446,12 +450,22 @@
 		return nd;
 	}
 
-	function addNode(parNode, node, axis, content, owner) {
+	function addNode(parNode, node, owner, content, axis2, owner2, content2) {
 		if (owner) node.owner = owner;
-
 		if (content) node.add(content);
 
-		return newNode(parNode, node, axis, true);
+		const nd = newNode(parNode, node, axis2, true);
+		if (owner2) nd.owner = owner2;
+		if (content2) nd.add(content2);
+		return nd;
+	}
+
+	function addTwoNodes(parNode, node, axis, owner, content, axis2) {
+		const nd = newNode(parNode, node, axis, true);
+		nd.owner = owner;
+		nd.add(content);
+
+		return newNode(parNode, nd, axis2, true);
 	}
 
 	function addAxes(axis, node, nested) {
@@ -472,7 +486,7 @@
 		}
 	}
 
-	function addOwner(owner, nested, node) {
+	function addOwner(owner, node) {
 		if (node.owner) return;
 
 		let result = '';
@@ -525,7 +539,8 @@
 				i++;
 
 			} else if (i + 1 < length && /[a-zA-Z]/.test(code[i + 1])) {
-				let nd = addNode(parNode, node, "self::", "", "*");
+				let nd = newNode(parNode, node, "self::", true);
+				nd.owner = "*";
 				return [i, nd];
 
 			} else {
@@ -559,17 +574,17 @@
 			nd.add("@", rm[0].replace('|', ':').toLowerCase());
 			return [i + rm[0].length, nd];
 		}
-		regexException(i, 'parseAttribute', attributeReg, code);
+		regexException(i, 'parseAttribute', attributeReg);
 	}
 
 	function processAttribute(attrName, attrValue, operation, modifier, node) {
-		const ignoreCase = modifier === "i" || attrName === 'type' && getOwner(node) == "input",
-			lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
+		const ignoreCase = modifier === "i" || attrName === 'type' && getOwner(node) == "input";
 
-		if (attrName === "class") {
+		if ( !opt.useClassName && attrName === "class") {
 			processClass(attrValue, operation, ignoreCase, node);
 			return;
 		}
+		const lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
 
 		switch (operation) {
 			case "=" :
@@ -577,16 +592,16 @@
 					node.add("[", lowerCaseValue, " = ", toLowerCase(attrValue), "]");
 
 				} else {
-					node.add("[@", attrName, " = '", attrValue, "']");
+					node.add("[@", attrName, "='", attrValue, "']");
 				}
 				break;
 
 			case "!=" :
 				if (ignoreCase) {    // not have or not equals
-					node.add("[(not(@", attrName, ") or ", lowerCaseValue, " != ", toLowerCase(attrValue), ")]");
+					node.add("[(not(@", attrName, ") or ", lowerCaseValue, "!=", toLowerCase(attrValue), ")]");
 
 				} else {
-					node.add("[(not(@", attrName, ") or @", attrName, " != '", attrValue, "')]");
+					node.add("[(not(@", attrName, ") or @", attrName, "!='", attrValue, "')]");
 				}
 				break;
 
@@ -683,12 +698,7 @@
 	}
 
 	function getClass(attrName, attributeValue) {
-		if (opt.normalizeClassSpaces) {
-			return `contains(concat(' ', normalize-space(${attrName}), ' '), ${attributeValue})`;
-
-		} else {
-			return `contains(${attrName}, ${attributeValue})`;
-		}
+		return `contains(concat(' ', normalize-space(${attrName}), ' '), ${attributeValue})`;
 	}
 
 	function processPseudoClass(name, arg, node) {
@@ -777,7 +787,7 @@
 			case "is" :
 				nd = node.clone();
 				result = parseNested(nd, arg, "self::", "self::node()", { predicate : true });
-				
+
 				if (hasOr(result)) node.add("[(", result, ")]"); // in the case of joining predicates by ' and ' in postprocess()
 				else node.add("[", result, "]");
 				break;
@@ -912,10 +922,8 @@
 		}
 
 		if (usePosition && child && str) {
-			const owner = node.owner;
-			node = addNode(parNode, node, "", str, "*");
-			node = addNode(parNode, node, "self::");
-			node.owner = owner != "self::node()" ? owner : "*";
+			const owner = node.owner != "self::node()" ? node.owner : "*";
+			node = addNode(parNode, node, "*", str, "self::", owner);
 
 		} else {
 			node.add(str);
@@ -970,7 +978,7 @@
 
 			if (last) {
 				if (minus) {
-					if (typeof rm[2] === 'undefined' || absA >= valueB) comparison = " <= ";
+					if ( !isPresent(rm[2]) || absA >= valueB) comparison = " <= ";
 					else if (absA !== 0 || valueB < 2) {
 						comparison = " < ";
 						count++;
@@ -1017,7 +1025,7 @@
 
 	function getValue(sign, num, defaultVal) {
 		const minus = sign && sign === '-' ? '-' : '';
-		return typeof num !== 'undefined' ? +(minus + num) : defaultVal;
+		return isPresent(num) ? +(minus + num) : defaultVal;
 	}
 
 	function normalizeArg(name, argument, isString = true) {
@@ -1079,7 +1087,7 @@
 
 			return i + rm[0].length - 1;
 		}
-		regexException(i, 'getTagName', tagNameReg, code);
+		regexException(i, 'getTagName', tagNameReg);
 	}
 
 	function getClassValue(i, reg, node) {
@@ -1089,7 +1097,7 @@
 		if (rm !== null) {
 			return [i + rm[0].length - 1, rm[0]];
 		}
-		regexException(i, 'getClassValue', reg, code);
+		regexException(i, 'getClassValue', reg);
 	}
 
 	function getPseudoClass(i) {
@@ -1099,7 +1107,7 @@
 		if (rm !== null) {
 			const name = rm[1];
 
-			if (typeof rm[2] !== 'undefined') {
+			if (isPresent(rm[2])) {
 				const obj = getBracesContent(i + rm[0].length - 1, code, '(', ')');
 				if (obj) {
 					return [obj.index, name, obj.content];
@@ -1107,7 +1115,7 @@
 			}
 			return [i + rm[0].length - 1, name, ''];
 		}
-		regexException(i, 'getPseudoClass', pseudoClassReg, code);
+		regexException(i, 'getPseudoClass', pseudoClassReg);
 	}
 
 	function getOwner(node, name) {
@@ -1125,7 +1133,7 @@
 			const name = rm[0].toLowerCase();
 			return [i + rm[0].length - 1, name];
 		}
-		regexException(i, 'getAttributeName', attrNameReg, code);
+		regexException(i, 'getAttributeName', attrNameReg);
 	}
 
 	function getAttributeValue(i) {
@@ -1133,24 +1141,30 @@
 		const rm = attrValueReg.exec(code);
 
 		if (rm !== null) {
-			let value;
+			let value, modifier;
 
-			if (typeof rm[1] !== 'undefined') value = rm[1];
-			else if (typeof rm[2] !== 'undefined') value = rm[2];
+			if (isPresent(rm[1])) value = rm[1];
+			else if (isPresent(rm[2])) value = rm[2];
 			else value = rm[3];
 
-			return [i + rm[0].length - 1, value, rm[4]];
+			if (isPresent(rm[4])) modifier = rm[4].toLowerCase()
+
+			return [i + rm[0].length - 1, value, modifier];
 		}
-		regexException(i, "getAttributeValue", attrValueReg, code);
+		regexException(i, "getAttributeValue", attrValueReg);
 	}
-	
+
+	function isPresent(arg) {
+		return typeof arg !== 'undefined';
+	}
+
 	function hasOr(text) {
 		const regex = /(?:[^ '"]+|"[^"]*"|'[^']*'|( or ))/g;
 		let rm;
 		while ((rm = regex.exec(text)) !== null) {
-			if (rm[1]) return true; 
+			if (rm[1]) return true;
 		}
-		return false; 
+		return false;
 	}
 
 	// Normalizes white spaces of the CSS selector by removing unnecessarily ones;
@@ -1193,7 +1207,10 @@
 					sb.push(code.substring(i, k + 1));
 					i = k;
 
-				} else sb.push(ch);
+				//} else sb.push(ch);
+				} else {
+					characterException(i, ch, "function normalizeWhiteSpaces()", code);
+				}
 
 				addSpace = true;
 				prev_ch = ch;
@@ -1227,7 +1244,7 @@
 
 			} else if (ch === '"' || ch === '\'') {
 				while (++i < text.length && text[i] !== ch);
-
+				
 				if (i >= text.length) characterException(i, ch, "function getBracesContent()", text);
 
 			} else {
@@ -1255,7 +1272,7 @@
 	}
 
 	function isNullOrWhiteSpace(arg) {
-		return typeof arg === 'undefined' || arg === null || arg.trim() === '';
+		return !isPresent(arg) || arg === null || arg.trim() === '';
 	}
 
 	function addWarning(text) {
@@ -1270,34 +1287,55 @@
 		}
 	}
 
-	function nullException(message) {
-		const text = message + ' is null or empty.';
-		printError(text);
-		throw new Error(text);
-	}
-
 	function parseException(message) {
 		printError(message);
-		throw new Error(message);
+		throw new ParserError(code, (position + 1), message);
 	}
 
 	function argumentException(message) {
 		printError(message);
-		throw new Error(message);
+		throw new ParserError(code, "?", message);
 	}
 
 	function characterException(i, ch, message, code) {
-		const text = "parser " + message + ". Unexpected character '<b>" + ch + "</b>'\nposition <b>" + (i + 1) + "</b>\nstring - '<b>" + code + "</b>'";
+		const text = message + ". Unexpected character '<b>" + ch + "</b>'\nposition <b>" + (i + 1) + "</b>\nstring - '<b>" + code + "</b>'";
 		printError(text);
-		message = "parser " + message + ". Unexpected character '" + ch + "' in the substring - " + code.substring(i);
-		throw new Error(message);
+		message = message + ". Unexpected character '" + ch + "'";
+		throw new ParserError(code, (i + 1), message);
 	}
 
-	function regexException(i, message, reg, code) {
-		const text = "Place - <b>function " + message + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + code.substring(i) + "</b>'\nRegExp - '<b>" + reg + "</b>'";
+	function regexException(i, fn, reg) {
+		const text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + code.substring(i) + "</b>'\nRegExp - '<b>" + reg + "</b>'";
 		printError(text);
-		message = "function " + message + "() - RegExp '" + reg + "' failed to match the string '" + code.substring(i) + "'";
-		throw new Error(message);
+		const message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + code.substring(i) + "'";
+		throw new ParserError(code, (i + 1), message);
+	}
+
+	function ParserError(code, column, message, fileName, lineNumber) {
+		var instance = new Error(message, fileName, lineNumber);
+		instance.parser = true;
+		instance.column = column;
+		instance.code = code;
+		Object.setPrototypeOf(instance, Object.getPrototypeOf(this));
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(instance, ParserError);
+		}
+		return instance;
+	}
+
+	ParserError.prototype = Object.create(Error.prototype, {
+		constructor: {
+			value: Error,
+			enumerable: false,
+			writable: true,
+			configurable: true
+		}
+	});
+
+	if (Object.setPrototypeOf){
+		Object.setPrototypeOf(ParserError, Error);
+	} else {
+		ParserError.__proto__ = Error;
 	}
 
 	return toXPath;

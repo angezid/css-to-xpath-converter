@@ -23,32 +23,35 @@
 		["div ~ p", "following sibling"],
 		["div !~ p", "preceding sibling", "0"],
 		["div ! p", "ancestors", "0"],
-
-		["$$Class attribute", ""],
+		
+		["$$Class, id", ""],
 		["div.content", "contains class"],
-		["div[class='content']", "contains exactly"],
-		["div[class='content' i]", "ignore case", "1 2"],
-		["div[class^='cont']", "starts with"],
-		["div[class$='tent']", "ends with"],
-		["div[class~='content']", "contains exactly"],
-		["div[class*='ten']", "contains within"],
-		["div[class|='content']", "exactly or followed by a hyphen"],
+		["div#main", ""],
+
+		["$$Class attribute non-standard", "Non-standard XPath behavior", "It dealing with an individual class instead of whole className"],
+		["div[class='content']", "contains class", "", "N"],
+		["div[class='content' i]", "contains class ignore case", "1 2 3", "N"],
+		["div[class^='cont']", "class starts with", "", "N"],
+		["div[class$='tent']", "class ends with", "", "N"],
+		["div[class~='content']", "contains class", "", "N"],
+		["div[class*='ten']", "contains class containing substring", "", "N"],
+		["div[class|='content']", "contains exactly or followed by a hyphen", "", "N"],
 
 		["$$Attributes", ""],
 		["section[title='Item']", "equal"],
-		["section[title!='Item']", "not equals"],
+		["section[title!='Item']", "not equals", "1"],
 		["section[title^='Item']", "starts with"],
 		["section[title$='one']", "ends with"],
 		["section[title*='item']", "contains within"],
 		["div[lang|=EN]", "exactly or followed by a hyphen"],
 
-		["$$Attributes ignore case", "https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors"],
-		["section[title='one' i]", "", "1 2"],
-		["section[title^='item' i]", "", "1 2"],
-		["section[title$='one' i]", "", "1 2"],
-		["section[title~='two' i]", "", "1 2"],
-		["section[title*='twenty' i]", "", "1 2"],
-		["div[lang|=En i]", "", "1 2"],
+		["$$Attributes ignore case", ""],
+		["section[title='one' i]", "", "1 2 3"],
+		["section[title^='item' i]", "", "1 2 3"],
+		["section[title$='one' i]", "", "1 2 3"],
+		["section[title~='two' i]", "", "1 2 3"],
+		["section[title*='twenty' i]", "", "1 2 3"],
+		["div[lang|=En i]", "", "1 2 3"],
 
 		["$$Pseudo-classes", ""],
 		["div:not(.c1, .c2)", ""],
@@ -61,11 +64,11 @@
 		["div:has-ancestor(main)", "", "0"],
 		["li:range(2, 5)", "from n1 to n2 inclusive", "0"],
 		["div:contains('Test')", "contains text", "0"],
-		["div:icontains('content')", "", "0 2"],
+		["div:icontains('content')", "", "0 3"],
 		["div:starts-with(Test)", "", "0"],
-		["div:istarts-with('TEST')", "", "0 2"],
+		["div:istarts-with('TEST')", "", "0 3"],
 		["p:ends-with('test')", "", "0"],
-		["p:iends-with('TEST')", "", "0 2"],
+		["p:iends-with('TEST')", "", "0 3"],
 		["ul>li:first", "the first element", "0"],
 		["ul>li:last", "the last element", "0"],
 		["li:nth(5)", "element equal to n", "0"],
@@ -121,8 +124,8 @@
 		["p:nth-last-of-type(-3n+2)", ""],
 
 		["$$Spaces, comments", ""],
-		["ul   >   li:  not (  .c1  )", ""],
-		["li:  nth-child  (  -3n  +  4  )   ", ""],
+		["ul   >   li:not (  .c1  )", ""],
+		["li:nth-child  (  -3n  +  4  )   ", ""],
 		[`!> ul:first /*direct parent*/
 	!^   li      /*last child*/
 	!+   li  /*previous siblings*/`, ""],
@@ -139,10 +142,20 @@
 		["div ns|p", ""],
 		["*:not(ns|p)", ""],
 		["a[xlink|href='...']", "attributes with namespace"],
+		
+		["$$Class attribute standard","Standard XPath behavior", "It dealing with whole className, except for '~='"],
+		["div[class='content']", "className is equal"],
+		["div[class='content' i]", "className is equal ignore case", "1 2"],
+		["div[class^='cont']", "className starts with"],
+		["div[class$='tent']", "className ends with"],
+		["div[class~='content']", "contains class; the same as div.content"],
+		["div[class*='ten']", "className contains within"],
+		["div[class|='content']", "className is equal or followed by a hyphen"],
 	];
 
 	const settings = {
 		selectors : [],
+		useClassName : false,
 		lowercase : '',
 		uppercase : '',
 
@@ -191,7 +204,6 @@
 		warningBox = document.getElementById('warning-box'),
 		copy = document.getElementById('copy-code'),
 		convertButton = document.getElementById('convert'),
-		fastHtml = document.getElementById('fast-html'),
 		clearButton = document.getElementById('clear'),
 		savedSelectors = document.getElementById('saved-selectors'),
 		cssEditor = CodeJar(input, null, { tab : '  '	}),
@@ -199,6 +211,7 @@
 
 	const options = {
 		axis : '//',
+		useClassName : false,
 		uppercaseLetters : '',
 		lowercaseLetters : '',
 		printError : (message) => results.innerHTML = '<span class="errors">' + message + '</span>'
@@ -247,11 +260,6 @@
 		});
 
 		browserUse.addEventListener('click', function() {
-			convert();
-		});
-
-		fastHtml.addEventListener('click', function() {
-			setExamples();
 			convert();
 		});
 
@@ -309,7 +317,6 @@
 		const axis = axesSelector.value;
 
 		options.axis = axis;
-		options.normalizeClassSpaces = !fastHtml.checked;
 		options.browserUse = browserUse.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
@@ -324,7 +331,7 @@
 			warningBox.className = '';
 		}
 
-		if (notSave) return;
+		if ( !css || notSave) return;
 
 		addSelector(css, axis);
 		updateSelectors(true);
@@ -368,7 +375,7 @@
 	}
 
 	function setExamples() {
-		const hrefs = ['<a href="#info-1">[1]</a> ', '<a href="#info-2">[2]</a> ', '<a href="#info-3">[3]</a> '];
+		const hrefs = ['<a href="#info-1">[1]</a> ', '<a href="#info-2">[2]</a> ', '<a href="#info-3">[3]</a> ', '<a href="#info-4">[4]</a> '];
 		const section = document.getElementById('example');
 		const sb = [];
 		sb.push('<table><thead><tr><td>Description</td><td>CSS</td><td>XPath</td></tr></thead><tbody>');
@@ -377,9 +384,11 @@
 			if (/^\$\$/.test(item[0])) {
 				const title = item[0].substring(2);
 				sb.push('<tr class="group"><td id="', title.replace(/\W+/g, '_').toLowerCase(), '">', title, '</td><td>' + (item[1] || '')+ '</td><td><span class="example-info">' + (item[2] || '')+ '</span></td></tr>');
-
+				
 			} else {
 				let href = item[2] ? item[2].split(' ').map(n => hrefs[n]).join('') : '';
+				
+				options.useClassName = typeof item[3] === 'undefined'
 				
 				let { xpath, css, warning, error } = toXPath(item[0], options);
 				if (xpath) {
