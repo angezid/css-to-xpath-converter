@@ -9,6 +9,82 @@ Although the converter is capture a lot of mistakes, but not all.
 
 See online [css-to-xpath-converter](https://angezid.github.io/css-to-xpath-converter). It contains a lot of examples.
 
+<details>
+<summary><b>It allows using these CSS selectors:</b></summary>
+<h3>Combinators</h3>
+
+|   Selectors    |   Description  |  Remark   |
+|---------|-----------|----------|
+|   "+"    |     |     |
+|   ">"    |     |     |
+|   "~"    |     |     |
+|   "^"    |  first child   |     |
+|   "!"    |  ancestors   |     |
+|   "!^"    |  last child   |     |
+|   "!+"    |  adjacent preceding sibling   |     |
+|   "!>"    |  parent   |     |
+|   "!~"    |  preceding sibling   |     |
+
+<h3>Attribute selectors</h3>
+
+|   Selectors    |   Description  |  Remark   |
+|---------|-----------|----------|
+|   "="    |  equals   |     |
+|   "!="    |  not equals   |     |
+|   "^="    |  starts with   |     |
+|   "$="    |  ends with   |     |
+|   "*="    |  contains within   |     |
+|   "~="    |  contains exactly   |     |
+|   "|="    |  exactly or followed by a hyphen   |     |
+|   [attr operator value i]   |  to perform case-insensitive value comparison  |  i or I  |
+
+<h3>Pseudoclasses</h3>
+
+|   Selectors    |   Description  |  Remark   |
+|---------|-----------|----------|
+|   ":checked"    |     |     |
+|   ":contains()"    |  text contains string  |     |
+|   ":disabled"    |     |     |
+|   ":empty"    |     |     |
+|   ":enabled"    |     |     |
+|   ":ends-with()"    |  text ends with string |     |
+|   ":eq()"    |  equal to number  |  same as ":nth()"   |
+|   ":first"    |  first of selected elements  |     |
+|   ":first-child"    |     |     |
+|   ":first-of-type"    |     |     |
+|   ":gt()"    |  select elements greater than number |     |
+|   ":has()"    |     |     |
+|   ":has-ancestor()"    |     |     |
+|   ":has-parent()"    |     |     |
+|   ":has-sibling()"    |     |     |
+|   ":icontains()"    |  text contains string ignore case  |     |
+|   ":iends-with()"    |  text ends with string ignore case  |     |
+|   ":is()"    |     |     |
+|   ":istarts-with()"    |  text starts with string ignore case  |     |
+|   ":last"    |  last of selected elements  |     |
+|   ":last-child"    |     |     |
+|   ":last-of-type"    |     |     |
+|   ":limit()"    |  select elements up to number  |     |
+|   ":lt()"    |  select elements lesser than number  |     |
+|   ":not()"    |     |     |
+|   ":nth()"    |  equal to number   |  same as ":eq()"   |
+|   ":nth-child()"    |     |     |
+|   ":nth-last-child()"    |     |     |
+|   ":nth-of-type()"    |     |     |
+|   ":nth-last-of-type()"    |     |     |
+|   ":only-child"    |     |     |
+|   ":only-of-type"    |     |     |
+|   ":range()"    |  select elements from smaller number to bigger number inclusive  |     |
+|   ":root"    |  html element  |     |
+|   ":skip()"    |  skip elements lesser than number  |     |
+|   ":skip-first"    |     |     |
+|   ":skip-last"    |     |     |
+|   ":starts-with()"    |  text starts with string  |     |
+|   ":target"    |  select elements with attribute 'href' starts with '#'   |     |
+|   ":text"    |     |     |
+
+</details>
+
 ## Usage:
 ``` js
 const { xpath, css, warning, error } = toXPath(selector, options);
@@ -26,8 +102,10 @@ else console.log(error);
 * `selector` - the input css selector string
 * `options` - the optional object :
   * `axis` - the XPath start axis. See online [converter][converter] axes dropbox tooltips.
+  * `useClassName` - this option change the XPath generation of attribute selector '[class operation value]'. See [Class attribute non-standard](https://angezid.github.io/css-to-xpath-converter/index.html#class_attribute_non_standard) and [Class attribute standard](https://angezid.github.io/css-to-xpath-converter/index.html#class_attribute_standard). Non-standard approach is more flexible because it is dealing with individual classes instead of a whole className.
   * `removeXPathSpaces` - strips unnecessary space characters from the XPath (they are added for readability).
   * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor.
+  * `debug` - log an error message to the console (as the converter catches all errors internally, no error will be log to the console unless debug option is enable).
   
   * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value operations.  
   It extends the default uppercase Latin alphabet. It must be compliant with `lowercaseLetters`.
@@ -39,10 +117,12 @@ else console.log(error);
   ``` js
   const options = {
     axis : '//',
+    useClassName : false,
     removeXPathSpaces : false,
     uppercaseLetters : '',
     lowercaseLetters : '',
     printError : (message) => {}
+    debug : false
   };
   ```
 

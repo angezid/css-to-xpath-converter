@@ -13,7 +13,7 @@ a.github-link svg { width: 24px; }
 a.test-results { margin-right: 60px; }
 
 .right { float: right; }
-.hide { display: none; }
+.hide { display: none !important; }
 
 #article { margin: auto; padding: 0 20px 50px 10px; max-width: 1000px; background-color: #e8e8e8; }
 #demo { margin-top: 100px; }
@@ -55,7 +55,7 @@ tr.group { background-color: #ececec; }
 table thead { background: #ddd; }
 table td { border: 1px solid #bbb; color: #000; padding: 5px 10px; overflow: visible; vertical-align: middle; }
 table td.css { max-width: 250px; }
-td.name { font-size: 0.75em; color: #000; }
+td.name { font-size: 0.75em; color: #000; width: 150px; }
 
 code { color: #000; background-color: #fafafa; margin: 0; padding: 0; line-height: 1.3; }
 code.css { width: 100%; font-size: 0.875em; color: #007AAE; display: inline-block; }

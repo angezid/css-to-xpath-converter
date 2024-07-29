@@ -1,26 +1,31 @@
-Passed: 41
-Have no matches: 21
+Passed: 51
+Have no matches: 13
 Coverter errors: 3
 
 
 reportName
 
 Results:
-Passed: 41
-Have no matches: 21
+Passed: 51
+Have no matches: 13
 Coverter errors: 3
 
-Passed: 41
+Passed: 51
 * 89 === 89 //*
 body 1 === 1 //body
 p > * 3 === 3 //p/*
+#myDiv 1 === 1 //*[@id='myDiv']
 *:empty 21 === 21 //*[not(*) and not(text())]
 div p a 1 === 1 //div//p//a
 div > p 9 === 9 //div/p
 div[id] 2 === 2 //div[@id]
+#myDiv * 5 === 5 //*[@id='myDiv']//*
+#myDiv>* 2 === 2 //*[@id='myDiv']/*
 .checkit 2 === 2 //*[contains(concat(' ', normalize-space(@class), ' '), ' checkit ')]
 p.ohyeah 1 === 1 //p[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
 a + span 1 === 1 //a/following-sibling::*[1]/self::span
+#-a-b-c- 1 === 1 //*[@id='-a-b-c-']
+div#myDiv 1 === 1 //div[@id='myDiv']
 div:has(p) 9 === 9 //div[count(.//p) > 0]
 p:has(+ p) 2 === 2 //p[count(following-sibling::*[1]/self::p) > 0]
 div ~ form 1 === 1 //div/following-sibling::form
@@ -33,6 +38,7 @@ div:has(> p) 7 === 7 //div[count(child::p) > 0]
 p:last-child 7 === 7 //p[not(following-sibling::*)]
 *:only-child 25 === 25 //*[not(preceding-sibling::*) and not(following-sibling::*)]
 p:only-child 4 === 4 //p[not(preceding-sibling::*) and not(following-sibling::*)]
+*[class$=it] 2 === 2 //*[substring(@class, string-length(@class) - (string-length('it') - 1)) = 'it']
 *:first-child 37 === 37 //*[not(preceding-sibling::*)]
 p:first-child 6 === 6 //p[not(preceding-sibling::*)]
 :nth-child(2) 12 === 12 //*[position() = 2]/self::*
@@ -40,46 +46,42 @@ div:has(p + p) 3 === 3 //div[count(.//p/following-sibling::*[1]/self::p) > 0]
 *:nth-child(2) 12 === 12 //*[position() = 2]/self::*
 p:nth-child(2) 4 === 4 //*[position() = 2]/self::p
 div > p.ohyeah 1 === 1 //div/p[contains(concat(' ', normalize-space(@class), ' '), ' ohyeah ')]
-*[class^=check] 2 === 2 //*[contains(concat(' ', normalize-space(@class), ' '), ' check')]
+*[class*=heck] 2 === 2 //*[contains(@class, 'heck')]
+*[class^=check] 2 === 2 //*[starts-with(@class, 'check')]
 *:nth-child(-n+3) 54 === 54 //*[position() <= 3]/self::*
 a + span, div > p 10 === 10 //a/following-sibling::*[1]/self::span | //div/p
 :nth-last-child(2) 12 === 12 //*[count(following-sibling::*) = 1]
+input[type='text'] 1 === 1 //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('text', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+input[type='TEXT'] 1 === 1 //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('TEXT', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 span:nth-child(even) 5 === 5 //*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::span
 span:is(.this, .that) 3 === 3 //span[(contains(concat(' ', normalize-space(@class), ' '), ' this ') or contains(concat(' ', normalize-space(@class), ' '), ' that '))]
 :is(div, section) > h1 4 === 4 //*[(self::div or self::section)]/h1
 span:nth-child(10n-1)  1 === 1 //*[(count(preceding-sibling::*) + 2) mod 10 = 0]/self::span
 span:nth-child(10n+1)  3 === 3 //*[(count(preceding-sibling::*)) mod 10 = 0]/self::span
 span:nth-last-child(2) 1 === 1 //span[count(following-sibling::*) = 1]
+#myDiv :nth-last-child(2) 2 === 2 //*[@id='myDiv']//*[count(following-sibling::*) = 1]
 section:not(:has(h1, h2, h3, h4, h5, h6)) 1 === 1 //section[not(count(.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6) > 0)]
 section:has(:not(h1, h2, h3, h4, h5, h6)) 2 === 2 //section[count(.//*[not(self::h1 | self::h2 | self::h3 | self::h4 | self::h5 | self::h6)]) > 0]
 
-Have no matches: 21
-#myDiv - 0 - //*[@id = 'myDiv']
+Have no matches: 13
 head p - 0 - //head//p
-#myDiv * - 0 - //*[@id = 'myDiv']//*
-#myDiv>* - 0 - //*[@id = 'myDiv']/*
-#-a-b-c- - 0 - //*[@id = '-a-b-c-']
-div#myDiv - 0 - //div[@id = 'myDiv']
-#theBody #myDiv - 0 - //*[@id = 'theBody']//*[@id = 'myDiv']
-#theBody>#myDiv - 0 - //*[@id = 'theBody']/*[@id = 'myDiv']
-#someOtherDiv>* - 0 - //*[@id = 'someOtherDiv']/*
-input[id='text'] - 0 - //input[@id = 'text']
-input[id='TEXT'] - 0 - //input[@id = 'TEXT']
-input[type='text'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('text', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
-input[type='TEXT'] - 0 - //input[translate(@type, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('TEXT', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
+#theBody #myDiv - 0 - //*[@id='theBody']//*[@id='myDiv']
+#theBody>#myDiv - 0 - //*[@id='theBody']/*[@id='myDiv']
+#someOtherDiv>* - 0 - //*[@id='someOtherDiv']/*
+input[id='text'] - 0 - //input[@id='text']
+input[id='TEXT'] - 0 - //input[@id='TEXT']
 span:nth-last-child(3) - 0 - //span[count(following-sibling::*) = 2]
-#theBody #whatwhatwhat - 0 - //*[@id = 'theBody']//*[@id = 'whatwhatwhat']
-#theBody>#someOtherDiv - 0 - //*[@id = 'theBody']/*[@id = 'someOtherDiv']
+#theBody #whatwhatwhat - 0 - //*[@id='theBody']//*[@id='whatwhatwhat']
+#theBody>#someOtherDiv - 0 - //*[@id='theBody']/*[@id='someOtherDiv']
 span.this:nth-child(-n+3) - 0 - //*[contains(concat(' ', normalize-space(@class), ' '), ' this ') and position() <= 3]/self::span
-#myDiv :nth-last-child(2) - 0 - //*[@id = 'myDiv']//*[count(following-sibling::*) = 1]
-#whatwhatwhat #someOtherDiv - 0 - //*[@id = 'whatwhatwhat']//*[@id = 'someOtherDiv']
+#whatwhatwhat #someOtherDiv - 0 - //*[@id='whatwhatwhat']//*[@id='someOtherDiv']
 dd:nth-child(1)>div:nth-child(3)>div:nth-child(1)>a - 0 - //*[position() = 1]/self::dd/*[position() = 3]/self::div/*[position() = 1]/self::div/a
 *[style*='display: none' i],*[style*='display:none' i] - 0 - //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display: none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))] | //*[contains(translate(@style, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), translate('display:none', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'))]
 
 Coverter errors: 3
 :scope > p converter error: Pseudo-class ':scope' is not implemented
 
-span:nth-child(10n+-1)  converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '10n+-1'
+span:nth-child(10n+-1)  converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string 'span:nth-child(10n+-1)'
 
-*:nth-child(-n+3 of span.this) converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '-n+3ofspan.this'
+*:nth-child(-n+3 of span.this) converter error: function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '*:nth-child(-n+3 of span.this)'
 

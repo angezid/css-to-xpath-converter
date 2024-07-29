@@ -47,7 +47,7 @@ async function performTest() {
 						css = entitize(selector);
 					let cssElems, xpathElems, xpath;
 
-					const obj = toXPath(selector);
+					const obj = toXPath(selector, { useClassName : true });
 					if ( !obj.xpath) {
 						array.push({ 'error' : true, 'text' : `${css}`, message : obj.error });
 						continue;
