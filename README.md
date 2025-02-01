@@ -1,5 +1,7 @@
 # css-to-xpath-converter
 
+The converter uses an extended set of CSS selectors that allows generate more elaborate XPathes.
+
 It's inspired by [css2xpath](https://github.com/css2xpath/css2xpath), but it is too buggy.
 
 This JavaScript version is ported from C# converter, which is intended to work with an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`, but tests in Puppeteer and Crome show that generated XPathes also work in browsers. See [Test results](https://angezid.github.io/css-to-xpath-converter/test-coverage.html).
@@ -105,7 +107,7 @@ else console.log(error);
   * `useClassName` - this option change the XPath generation of attribute selector '[class operation value]'. See [Class attribute non-standard](https://angezid.github.io/css-to-xpath-converter/index.html#class_attribute_non_standard) and [Class attribute standard](https://angezid.github.io/css-to-xpath-converter/index.html#class_attribute_standard). Non-standard approach is more flexible because it is dealing with individual classes instead of a whole className.
   * `removeXPathSpaces` - strips unnecessary space characters from the XPath (they are added for readability).
   * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor.
-  * `debug` - log an error message to the console (as the converter catches all errors internally, no error will be log to the console unless debug option is enable).
+  * `debug` - log the converter errors to the console (the converter catches its errors internally).
   
   * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value operations.  
   It extends the default uppercase Latin alphabet. It must be compliant with `lowercaseLetters`.

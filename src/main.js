@@ -30,6 +30,7 @@
 
 		["$$Class attribute non-standard", "Non-standard XPath behavior", "It dealing with an individual class instead of whole className"],
 		["div[class='content']", "contains class", "", "N"],
+		["div[class!='content']", "not contains class", "", "N"],
 		["div[class='content' i]", "contains class ignore case", "1 2 3", "N"],
 		["div[class^='cont']", "class starts with", "", "N"],
 		["div[class$='tent']", "class ends with", "", "N"],
@@ -210,7 +211,7 @@
 		xpathEditor = CodeJar(results, null, { tab : '  ' });
 
 	const options = {
-		axis : '//',
+		axis : './/',
 		useClassName : false,
 		uppercaseLetters : '',
 		lowercaseLetters : '',
@@ -317,6 +318,7 @@
 		const axis = axesSelector.value;
 
 		options.axis = axis;
+		options.useClassName = false;
 		options.browserUse = browserUse.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();

@@ -17,7 +17,9 @@ performTest();
 
 async function performTest() {
 	try {
-		const opt = personal ? { executablePath : 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' } : {};
+		const opt = personal ?
+		  { executablePath : 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' } : 
+		  { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
 		let browser = await pt.launch(opt);
 
 		const coverage = {};
@@ -109,12 +111,6 @@ async function performTest() {
 	} catch (e) {
 		throw Error(e);
 	}
-}
-
-async function getBrowser(opt) {
-	let browser;
-	try { browser = await pt.launch(opt); } catch (e) { return Promise.reject('Unable to launch the browser'); }
-	return browser;
 }
 
 async function loadFixtures(browser, url) {

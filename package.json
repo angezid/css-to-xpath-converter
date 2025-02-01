@@ -13,7 +13,7 @@
     "name": "angezid",
     "url": "https://github.com/angezid"
   },
-  "description": "Advanced CSS to XPath converter",
+  "description": "Advanced CSS to XPath converter. It uses an extended set of CSS selectors that allows generate more elaborate XPathes.",
   "main": "dist/converter.js",
   "repository": "angezid/css-to-xpath-converter",
   "bugs": {
@@ -27,8 +27,8 @@
     "test": "npm run browser-test"
   },
   "devDependencies": {
-    "puppeteer": "^22.11.2",
-    "puppeteer-core": "^22.11.2",
+    "puppeteer": "^24.1.1",
+    "puppeteer-core": "^24.1.1",
     "chalk": "^4.0.0"
   }
 }
