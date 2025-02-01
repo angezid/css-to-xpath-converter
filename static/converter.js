@@ -84,7 +84,7 @@
 
 	function toXPath(selector, options) {
 		opt = Object.assign({}, {
-			axis : '//',
+			axis : './/',
 			browserUse : false,    // to suppress XPathNavigator warning message
 			useClassName : false,
 			removeXPathSpaces : false,
