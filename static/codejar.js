@@ -338,11 +338,13 @@ function CodeJar(editor, highlighter, opt = {}) {
 		} else {
 			const ch = afterCursor().charAt(0),
 				code = beforeCursor(),
-				reg = /[ \t\n]/;
-			if (opened && code[code.length - 1] !== '\\' && (close.includes(ch) || reg.test(ch))) {
+				beforeChar = code[code.length - 1],
+				array = ['', ' ', '\t', '\n'];
+
+			if (opened && beforeChar !== '\\' && (close.includes(ch) || array.includes(ch))) {
 				enclose(event, open, close);
 
-			} else if ( !/\S$/.test(code) && reg.test(ch)) {
+			} else if (beforeChar === open[close.indexOf(ch)] || !/[^\s([{]$/.test(code) && array.includes(ch)) {
 				enclose(event, quotes, quotes);
 			}
 		}
@@ -408,29 +410,34 @@ function CodeJar(editor, highlighter, opt = {}) {
 		const pos = save(),
 			tabLen = options.tab.length,
 			lines = getSelection().toString().split('\n');
-		let len = 0, end;
+		let len = 0,
+			start = pos.start,
+			end = pos.end;
 
-		if (shiftKey) {
-			for (let i = 0; i < lines.length; i++) {
+		for (let i = 0; i < lines.length; i++) {
+			if (shiftKey) {
 				const rm = /^[ \t]+/.exec(lines[i]);
 				if (rm !== null) {
 					const length = Math.min(rm[0].length, tabLen);
 					lines[i] = lines[i].slice(length);
 					len += length;
 				}
-			}
 
-		} else {
-			for (let i = 0; i < lines.length; i++) {
-				if (lines[i].trim() === '') continue;
+			} else {
+				if ( !lines[i].trim()) continue;
 				lines[i] = options.tab + lines[i];
 				len += tabLen;
 			}
 		}
 
+		if (pos.dir === '->') {
+			end = shiftKey ? pos.end - len : pos.end + len;
+		} else {
+			start = shiftKey ? pos.start - len : pos.start + len;
+		}
+
 		insert(lines.join('\n'));
-		end = shiftKey ? pos.end - len : pos.end + len;
-		setSelection(pos.start, end, pos.dir);
+		setSelection(start, end, pos.dir);
 	}
 	function handleDrop(event) {
 		const data = event.dataTransfer;
@@ -479,13 +486,6 @@ function CodeJar(editor, highlighter, opt = {}) {
 
 		pos.start = right ? start : pos.start;
 		pos.end = right ? pos.end : start;
-		select(pos);
-
-		const text = getSelection().toString(),
-			normalized = normalizeSpaces(text);
-
-		insert(normalized);
-		pos.end += (normalized.length - text.length);
 		select(pos);
 	}
 	function normalizeSpaces(text) {

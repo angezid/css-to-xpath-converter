@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0" />
-<title>CSS to XPath converter</title>
+<title>CSS to XPath converter/playground</title>
 <link href="static/main.css" rel="stylesheet">
 </head>
 
@@ -12,12 +12,21 @@
 <main>
 <div class="buttons"><div id="up-btn" class="up-btn"></div><div id="down-btn" class="down-btn"></div></div>
 <article id="article">
-	
+
 		<a class="github-link no-icon" href="https://github.com/angezid/css-to-xpath-converter" aria-label="github" target="_blank" rel="noopener" data-v-e71e869c="" data-v-16cf740a=""><svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>GitHub</title><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"></path></svg></a>
 		<div class="links right">
 			<a class="test-results" href="test-coverage.html" target="_blank" rel="noreferrer">Test results</a>
 		</div>
-	<h1>CSS <span>to</span> XPath</h1>
+	<h1>CSS <span>to</span> XPath <span class="small">converter / playground</span></h1>
+
+	<div class="description">
+		<div class="content">
+			<p>The converter uses an extended set of CSS selectors that allows generate more elaborate XPathes.<br>
+			Also, it implements non-standard class attribute behavior which has more practical uses than standard one.<br>
+			You can also test the validity of XPath/CSS selector and what elements they are actually selecting.</p>
+			<p>XPath version 1.0.</p>
+		</div>
+	</div>
 
 	<div id="demo">
 		<div class="row tool-panel">
@@ -40,13 +49,14 @@
 					<option value="preceding-sibling::" title="Selects all preceding child nodes of the context node">preceding-sibling::</option>
 					<option value="following::" title="Selects the nodes that follow the context node, other than its descendants">following::</option>
 					<option value="following-sibling::" title="Selects all following child nodes of the context node">following-sibling::</option>
+					<option class="hide" value="attribute::" title="Selects attribute(s) of the context node">attribute::</option>
 				</select>
 				<label class="label-axis" for="axis">axis</label>
 			</div>
 
 			<div class="col">
 				<input type="checkbox" id="browser-use">
-				<label class="label-browser" for="browser-use" title="For using an XPath in browsers">browser</label>
+				<label class="label-browser" for="browser-use" title="For using an XPath in browser's console">browser</label>
 			</div>
 
 			<div id="col">
@@ -72,27 +82,56 @@
 			</details>
 		</div>
 
-		<div class="results"><span id="copy-code"></span><div id="result-box"></div></div>
+		<div class="results"><span id="copy-code"></span><div id="xpath-box"></div></div>
 
-		<div class="warning"><pre id="warning-box"></pre></div>
+		<div class="message"><pre id="message-box"></pre></div>
+
+		<details class="html"><summary title="To test XPath">HTML editor</summary>
+			<div class="row html-panel">
+				<div class="col">
+					<button id="run-xpath" title="Run XPath">XPath</button>
+					<button id="run-css" title="Run CSS">CSS</button>
+				</div>
+				<div id="col">
+					<select id="html-list">
+						<option value="?" title="HTML list">?</option>
+					</select>
+					<label class="label-html-list" for="html-list">HTML</label>
+				</div>
+				<div id="col">
+					<button id="clear-html">X</button>
+				</div>
+			</div>
+			<div class="html"><div id="html-box"></div></div>
+		</details>
 	</div>
 
-	<div id="example-section">
+	<div class="example-section">
 		<h2>Examples</h2>
-		<div id="example">
+		<div id="examples">
 		</div>
 		<p id="info-1">[1] The CSS selector is not valid in browsers.</p>
 		<p id="info-2">[2] The CSS selector can work in some browsers.</p>
 		<p id="info-3">[3] See <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors">https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors</a> how to use case-insensitive 'i' (or 'I') modifier.</p>
 		<p id="info-4">[4] (XPath) For using with non-English languages, require filling 'Letter editors' with necessary alphabet (it's added to the default Latin alphabet).</p>
 	</div>
+	<div class="example-section">
+		<details class="table"><summary title="">Standard class attribute behavior</summary>
+			<div id="attribute-table">
+			</div>
+		</details>
+	</div>
+
 </article>
 
 <footer><div class="info">
-<span>CSS to XPath converter</span>
+<span>CSS to XPath converter / playground</span>
 </div></footer>
+</main>
 
+<script src="static/data.js"></script>
 <script src="static/codejar.js"></script>
+<script src="static/mark.min.js"></script>
 <script src="static/converter.js"></script>
 <script src="static/main.js"></script>
 

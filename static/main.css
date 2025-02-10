@@ -2,7 +2,8 @@
 
 body { font: 16px/135% Arial, sans-serif; color: #000; font-style: normal; font-weight: normal; background: #e8e8e8; overflow: auto; overflow-y: scroll; }
 h1 { font-size: 1.8em; line-height: 1.2em; color: #666; margin: 20px 0 40px 0; }
-h1 span { color: #018990; font-size: 0.875em; }
+h1 span { color: #018990; font-weight: normal; font-size: 0.875em; }
+h1 .small { color: #000; font-size: 0.625em; }
 h2 { margin-top: 30px; }
 
 a.github-link { margin: 3px 0 0 0; float: right; }
@@ -19,20 +20,20 @@ a.test-results { margin-right: 60px; }
 #demo { margin-top: 100px; }
 
 .row { display: flex; flex-wrap: wrap; justify-content: space-between; }
-.col {  box-sizing: border-box; flex-grow: 0; flex-shrink: 0; }
+.col { box-sizing: border-box; flex-grow: 0; flex-shrink: 0; }
 
 #convert { font-size: 0.875em; padding: 2px 30px; margin: 0 0 20px 0; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
 #convert:hover { background: #c0c0c0; }
-#clear { padding: 2px 8px; margin: 0 0 20px 20px; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
+#clear , #clear-html { padding: 2px 8px; margin: 0 0 20px 20px; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
 #clear:hover { background: #c0c0c0; }
 #axis { padding: 1px 5px; margin: 00 0 20px 0; cursor: pointer; }
 
-#browser-use, #fast-html { margin: 5px 0 20px 0; cursor: pointer; }
+#browser-use { margin: 5px 0 20px 0; cursor: pointer; }
 
 .label-saved, .label-axis, .label-browser, .label-library { padding: 10px; margin: 11px 0 0 0; }
 .label-browser, .label-library { cursor: pointer; }
 
-#saved-selectors { padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 20px 0; padding: 1px 5px; max-width: 250px; cursor: pointer; }
+#saved-selectors { padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 20px 0; max-width: 250px; cursor: pointer; }
 
 footer { width: 100%; height: 40px; margin: 40px 20px 20px 0; font-size: 0.8125em; border-top: #ccc 1px solid; }
 footer div.info { float: right; padding: 20px 40px 0 0; }
@@ -45,7 +46,7 @@ div.up-btn:hover, div.down-btn:hover { border: #44bbaa 1px solid; opacity: 1; }
 div.up-btn:hover { background: url(img/up2.png); background-size: 1.5em; }
 div.down-btn:hover { background: url(img/down2.png); background-size: 1.5em; }
 
-details>summary { width: 15em; cursor: pointer; }
+details>summary { width: 7em; cursor: pointer; }
 option[title] { background: #f8f8f8; }
 
 table { border-collapse: collapse; border-spacing: 0; margin: 5px 0 20px 0; background-color: #fafafa; }
@@ -59,9 +60,11 @@ td.name { font-size: 0.75em; color: #000; width: 150px; }
 
 code { color: #000; background-color: #fafafa; margin: 0; padding: 0; line-height: 1.3; }
 code.css { width: 100%; font-size: 0.875em; color: #007AAE; display: inline-block; }
+code.css:hover { text-decoration: underline; cursor: pointer; }
+code.css.visited { color: red; }
 code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block; }
 
-#input-box, #result-box {
+#input-box, #xpath-box {
 	font-family: Consolas, monospace;
 	font-size: 1em;
 	color: #007aae;
@@ -72,7 +75,7 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 	font-size: 14px;
 	font-weight: 400;
 	width: 98%;
-	min-height: 100px;
+	min-height: 50px;
 	max-height: 200px;
 	letter-spacing: normal;
 	line-height: 20px;
@@ -80,8 +83,19 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 	padding: 10px;
 }
 
-#result-box { color: #000; }
-#warning-box { color: #f00; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; }
+#xpath-box { color: #000; }
+#message-box { color: #f00; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; }
+
+#html-box { color: #000; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; max-height: 400px; overflow-y: scroll; }
+.row.html-panel { margin: -20px 0 0 150px; }
+#run-xpath, #run-css { font-size: 0.875em; padding: 1px 15px; background: #d0d0d0; border: #a8a8a8 1px solid; border-radius: 4px; cursor: pointer; }
+#run-xpath { float: left; margin: 0 0 10px 0; }
+#run-css { float: left; margin: 0 0 10px 30px; }
+
+.label-html-list { float: right; margin: 0 0 10px 10px; } 
+#html-list { float: left; padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 10px 0; max-width: 250px; cursor: pointer; }
+#clear-html { float: right; padding: 1px 8px; margin: 0 0 10px 0; }
+
 
 #copy-code { position: relative; float: right; padding: 12px; margin: 12px 12px -38px 12px; background: url(img/copy.png) center center no-repeat; opacity: 0.5; cursor: pointer; }
 #copy-code:hover { opacity: 1; }
@@ -91,7 +105,7 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 #uppercase { margin-top: 10px; }
 #to-lowercase, #to-uppercase { position: relative; height: 20px; left: 10px; bottom: 10px; cursor: pointer; }
 
-code.css:hover { text-decoration: underline; cursor: pointer; }
+.table>summary { width: 300px; }
 
 .errors { color: #d85100; }
 .errors b { color: #444; }
@@ -102,20 +116,20 @@ code.css:hover { text-decoration: underline; cursor: pointer; }
 
 @media screen and (max-width: 800px) {
 	code.xpath, .example-info { display: none; }
+	#html-list { margin-left: 10px; width: 50px; }
 }
 
 @media only screen and (max-width: 600px) {
 	#convert { padding: 2px 10px; }
 	#axis { margin-left: 10px; }
-	#fast-html { margin-left: 10px; }
+	#run-css { margin-left: 10px; }
+	.row.html-panel { margin-left: 120px; }
 }
 
 @media only screen and (max-width: 500px) {
 	#convert { padding: 2px 10px; }
 	#axis { margin-left: 10px; width: 50px; }
-	#fast-html { margin-left: 10px; }
 }
-
 
 
 
