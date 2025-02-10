@@ -1,0 +1,20 @@
+
+const defaultHtmls = {
+    "name":  "defaultHTMLs",
+    "page": {
+        "content": "<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\" />\n    <link rel=\"icon\" type=\"image/png\" href=\"static/favicon.png\">\n    <link rel=\"stylesheet\" href=\"static/main.css\">\n    <script src=\"static/main.js\"></script>\n  </head>\n  <body>\n    <header class=\"top-nav\"> </header>\n    <div class=\"search-form\">\n      <form class=\"search\" action=\"../$search.html\" method=\"get\">\n        <input id=\"q\" class=\"field\" type=\"text\" required placeholder=\"Search ...\" />\n        <input class=\"submit\" type=\"submit\" />\n      </form>\n    </div>\n    <div id=\"wrapper\" lang=\"en\">\n      <div class=\"nav-wrap\">\n        <nav class=\"sidebar\">\n          <form class=\"nav-filter\">\n            <span class=\"filter-img\"></span>\n            <input id=\"fq\" class=\"fbox\" type=\"text\" placeholder=\". filter ... \" />\n          </form>\n          <h4></h4>\n          <div class=\"toc\">\n            <ul>\n              <li><a href=\"url1.html\">Item 1</a></li>\n              <li><a href=\"url2.html\">Item 2</a></li>\n              <li><a href=\"url3.html\">Item 3</a></li>\n            </ul>\n          </div>\n        </nav>\n      </div>\n      <div class=\"content-wrap\">\n        <div class=\"content main\">\n          <form class=\"search-bar\"></form>\n          <section title=\"Section one\">\n            <article>\n              <h1>Header</h1>\n              <p class=\"p1\">Paragraph one.</p>\n              <p class=\"p2\">Paragraph two.</p>\n              <p>Test content.</p>\n            </article>\n          </section>\n          <section title=\"Section two\"></section>\n        </div>\n        <footer>\n          <span>Footer</span>\n        </footer>\n      </div>\n    </div>\n  </body>\n</html>"
+	},
+    "table": {
+		"content": "<div>\n  <table class=\"t1\">\n    <tbody><tr>\n      <td>1.1</td>\n      <td>1.2</td>\n      <td>1.3</td>\n    </tr>\n    <tr>\n      <td>2.1</td>\n      <td>2.2</td>\n      <td>2.3</td>\n    </tr>\n    <tr>\n      <td>3.1</td>\n      <td>3.2</td>\n      <td>3.3</td>\n    </tr>\n    <tr>\n      <td>4.1</td>\n      <td>4.2</td>\n      <td>4.3</td>\n    </tr>\n  </tbody></table>\n</div>"
+	},
+	"descriptionList": {
+		"content": "<div>\n  <dl>\n    <dt>First definition term</dt>\n      <dd>First definition</dd>\n    <dt>Second definition term</dt>\n      <dd>Second definition</dd>\n    <dt>Third definition term</dt>\n      <dd>Third definition</dd>\n    <dt>Fourth definition term</dt>\n      <dd>Fourth definition</dd>\n    <dt>Fifth definition term</dt>\n      <dd>Fifth definition</dd>\n    <dt>Sixth definition term</dt>\n      <dd>Sixth definition</dd>\n  </dl>\n</div>"
+	},
+	"unorderedList": {
+		"content": "\n<div>\n  <ul id=\"list\">\n    <li class=\"c1\">1</li>\n    <li class=\"c2\">2</li>\n    <li class=\"c3\">3</li>\n    <li class=\"c4\">4</li>\n    <li class=\"c5\">5</li>\n    <li class=\"c6\">6</li>\n    <li class=\"c7\">7</li>\n  </ul>\n</div>"
+	},
+	"toc": {
+		"content": "<ul>\n  <li>\n    <div class=\"collapsed\"></div>\n    <span>Header</span>\n    <ul style=\"display:none;\">\n      <li><a href=\"#\">Item </a></li>\n      <li><a href=\"#\">Item </a></li>\n      <li><a href=\"#\">Item </a></li>\n      <li>\n        <div class=\"collapsed\"></div>\n        <span>Subheader</span>\n        <ul style=\"display:none;\">\n          <li><a href=\"#\">Item </a></li>\n          <li><a href=\"#\">Item </a></li>\n          <li><a href=\"#\">Item </a></li>\n        </ul>\n      </li>\n    </ul>\n  </li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n</ul>"
+	}
+};
+ 

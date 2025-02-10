@@ -6,15 +6,15 @@
     "xpath",
     "selector",
     "javascript",
-    "converter"
+    "converter",
+    "playground"
   ],
   "license": "MIT",
   "author": {
     "name": "angezid",
     "url": "https://github.com/angezid"
   },
-  "description": "Advanced CSS to XPath converter. It uses an extended set of CSS selectors that allows generate more elaborate XPathes.",
-  "main": "dist/converter.js",
+  "description": "Advanced CSS to XPath converter. It uses an extended set of CSS selectors that allows generate more elaborate XPathes. Has online playground.",
   "repository": "angezid/css-to-xpath-converter",
   "bugs": {
     "url": "https://github.com/angezid/css-to-xpath-converter/issues"
@@ -29,7 +29,8 @@
   "devDependencies": {
     "puppeteer": "^24.1.1",
     "puppeteer-core": "^24.1.1",
-    "chalk": "^4.0.0"
+    "chalk": "^4.0.0",
+    "advanced-mark.js": "^2.6.0"
   }
 }
   
