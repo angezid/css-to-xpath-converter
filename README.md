@@ -1,89 +1,96 @@
 # css-to-xpath-converter
 
-The converter uses an extended set of CSS selectors that allows generate more elaborate XPathes.
+The converter uses an extended set of CSS selectors that allows generate more elaborate XPathes.  
+Also, it implements non-standard class attribute behavior which has more practical uses than standard one.
 
 It's inspired by [css2xpath](https://github.com/css2xpath/css2xpath), but it is too buggy.
 
-This JavaScript version is ported from C# converter, which is intended to work with an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`, but tests in Puppeteer and Crome show that generated XPathes also work in browsers. See [Test results](https://angezid.github.io/css-to-xpath-converter/test-coverage.html).
- 
-**Important:** the converter doesn't check validity neither of CSS selector nor of resulted XPath. So there may be cases when an application throw an error on parsing the XPath or the XPath isn't work as expected.  
-Although the converter is capture a lot of mistakes, but not all.
+The converter has been tested in Puppeteer and Chrome. See [Test results](https://angezid.github.io/css-to-xpath-converter/test-coverage.html).  
+The C# version was tested using an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`.
 
-See online [css-to-xpath-converter](https://angezid.github.io/css-to-xpath-converter). It contains a lot of examples.
+**Important:** the converter itself doesn't check validity neither of CSS selector nor of resulted XPath.  
+Although the converter is capturing a lot of mistakes, but not all.
+
+See online [converter / playground](https://angezid.github.io/css-to-xpath-converter). It contains a lot of examples and you can also test the validity of XPath/CSS selector and what elements they are actually selecting.
 
 <details>
 <summary><b>It allows using these CSS selectors:</b></summary>
 <h3>Combinators</h3>
 
-|   Selectors    |   Description  |  Remark   |
-|---------|-----------|----------|
-|   "+"    |     |     |
-|   ">"    |     |     |
-|   "~"    |     |     |
-|   "^"    |  first child   |     |
-|   "!"    |  ancestors   |     |
-|   "!^"    |  last child   |     |
-|   "!+"    |  adjacent preceding sibling   |     |
-|   "!>"    |  parent   |     |
-|   "!~"    |  preceding sibling   |     |
+
+|   Selectors  |   Description                 |   Remark  |
+|--------------|-------------------------------|-----------|
+|   "+"        |                               |           |
+|   ">"        |                               |           |
+|   "~"        |                               |           |
+|   "^"        |   first child                 |           |
+|   "!"        |   ancestors                   |           |
+|   "!^"       |   last child                  |           |
+|   "!+"       |   adjacent preceding sibling  |           |
+|   "!>"       |   parent                      |           |
+|   "!~"       |   preceding sibling           |           |
 
 <h3>Attribute selectors</h3>
 
-|   Selectors    |   Description  |  Remark   |
-|---------|-----------|----------|
-|   "="    |  equals   |     |
-|   "!="    |  not equals   |     |
-|   "^="    |  starts with   |     |
-|   "$="    |  ends with   |     |
-|   "*="    |  contains within   |     |
-|   "~="    |  contains exactly   |     |
-|   "|="    |  exactly or followed by a hyphen   |     |
-|   [attr operator value i]   |  to perform case-insensitive value comparison  |  i or I  |
+|   Selectors                |   Description                                   |   Remark                           |
+|----------------------------|-------------------------------------------------|------------------------------------|
+|   "="                      |   equals                                        |                                    |
+|   "!="                     |   not equals                                    |                                    |
+|   "^="                     |   starts with                                   |                                    |
+|   "$="                     |   ends with                                     |                                    |
+|   "*="                     |   contains within                               |                                    |
+|   "~="                     |   contains exactly                              |                                    |
+|   "                        |   ="                                            |   exactly or followed by a hyphen  |
+|   [attr operator value i]  |   to perform case-insensitive value comparison  |   i or I                           |
 
 <h3>Pseudoclasses</h3>
 
-|   Selectors    |   Description  |  Remark   |
-|---------|-----------|----------|
-|   ":checked"    |     |     |
-|   ":contains()"    |  text contains string  |     |
-|   ":disabled"    |     |     |
-|   ":empty"    |     |     |
-|   ":enabled"    |     |     |
-|   ":ends-with()"    |  text ends with string |     |
-|   ":eq()"    |  equal to number  |  same as ":nth()"   |
-|   ":first"    |  first of selected elements  |     |
-|   ":first-child"    |     |     |
-|   ":first-of-type"    |     |     |
-|   ":gt()"    |  select elements greater than number |     |
-|   ":has()"    |     |     |
-|   ":has-ancestor()"    |     |     |
-|   ":has-parent()"    |     |     |
-|   ":has-sibling()"    |     |     |
-|   ":icontains()"    |  text contains string ignore case  |     |
-|   ":iends-with()"    |  text ends with string ignore case  |     |
-|   ":is()"    |     |     |
-|   ":istarts-with()"    |  text starts with string ignore case  |     |
-|   ":last"    |  last of selected elements  |     |
-|   ":last-child"    |     |     |
-|   ":last-of-type"    |     |     |
-|   ":limit()"    |  select elements up to number  |     |
-|   ":lt()"    |  select elements lesser than number  |     |
-|   ":not()"    |     |     |
-|   ":nth()"    |  equal to number   |  same as ":eq()"   |
-|   ":nth-child()"    |     |     |
-|   ":nth-last-child()"    |     |     |
-|   ":nth-of-type()"    |     |     |
-|   ":nth-last-of-type()"    |     |     |
-|   ":only-child"    |     |     |
-|   ":only-of-type"    |     |     |
-|   ":range()"    |  select elements from smaller number to bigger number inclusive  |     |
-|   ":root"    |  html element  |     |
-|   ":skip()"    |  skip elements lesser than number  |     |
-|   ":skip-first"    |     |     |
-|   ":skip-last"    |     |     |
-|   ":starts-with()"    |  text starts with string  |     |
-|   ":target"    |  select elements with attribute 'href' starts with '#'   |     |
-|   ":text"    |     |     |
+|   Selectors              |   Description                                            |   Remark            |
+|--------------------------|----------------------------------------------------------|---------------------|
+|   ":after()"             |                                                          |                     |
+|   ":after-sibling()"     |                                                          |                     |
+|   ":before()"            |                                                          |                     |
+|   ":before-sibling()"    |                                                          |                     |
+|   ":checked"             |                                                          |                     |
+|   ":contains()"          |   text contains string                                   |                     |
+|   ":disabled"            |                                                          |                     |
+|   ":empty"               |   select empty elements                                  |                     |
+|   ":enabled"             |                                                          |                     |
+|   ":ends-with()"         |   text ends with string                                  |                     |
+|   ":eq()"                |  select element equal to number                          | same as ":nth()"    |
+|   ":first"               |   select the first element                               |                     |
+|   ":first-child"         |                                                          |                     |
+|   ":first-of-type"       |                                                          |                     |
+|   ":gt()"                |   select elements greater than number                    |                     |
+|   ":has()"               |                                                          |                     |
+|   ":has-ancestor()"      |                                                          |                     |
+|   ":has-parent()"        |                                                          |                     |
+|   ":has-sibling()"       |                                                          |                     |
+|   ":icontains()"         |   text contains string ignore case                       |                     |
+|   ":iends-with()"        |   text ends with string ignore case                      |                     |
+|   ":is()"                |                                                          |                     |
+|   ":istarts-with()"      |   text starts with string ignore case                    |                     |
+|   ":last"                |   select the last element                                |                     |
+|   ":last-child"          |                                                          |                     |
+|   ":last-of-type"        |                                                          |                     |
+|   ":limit()"             |   select specified number of elements                    |                     |
+|   ":lt()"                |   select elements lesser than number                     |                     |
+|   ":not()"               |                                                          | it's more versatile |
+|   ":nth()"               |   select element equal to number                         | same as ":eq()"     |
+|   ":nth-child()"         |                                                          |                     |
+|   ":nth-last-child()"    |                                                          |                     |
+|   ":nth-of-type()"       |                                                          |                     |
+|   ":nth-last-of-type()"  |                                                          |                     |
+|   ":only-child"          |                                                          |                     |
+|   ":only-of-type"        |                                                          |                     |
+|   ":range()"             |   select elements from smaller number to bigger one      |                     |
+|   ":root"                |   html element                                           |                     |
+|   ":skip()"              |   skip elements lesser than number                       |                     |
+|   ":skip-first"          |   skip the first element                                 |                     |
+|   ":skip-last"           |   skip the last element                                  |                     |
+|   ":starts-with()"       |   text starts with string                                |                     |
+|   ":target"              |   select elements with attribute 'href' starts with '#'  |                     |
+|   ":text"                |                                                          |                     |
 
 </details>
 
