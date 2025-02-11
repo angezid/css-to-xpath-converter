@@ -6,37 +6,38 @@ h1 span { color: #018990; font-weight: normal; font-size: 0.875em; }
 h1 .small { color: #000; font-size: 0.625em; }
 h2 { margin-top: 30px; }
 
-a.github-link { margin: 3px 0 0 0; float: right; }
-a.github-link svg { width: 24px; }
-.links { position: relative; margin: 5px 60px 0 10px; }
-.links a { color: #0485BC; padding-left: 20px; }
+#article { margin: auto; padding: 0 20px 50px 10px; max-width: 1000px; background-color: #e8e8e8; }
+#demo { margin-top: 100px; }
 
-a.test-results { margin-right: 60px; }
+footer { width: 100%; height: 40px; margin: 40px 20px 20px 0; font-size: 0.8125em; border-top: #ccc 1px solid; }
+footer div.info { float: right; padding: 20px 40px 0 0; }
 
 .right { float: right; }
 .hide { display: none !important; }
 
-#article { margin: auto; padding: 0 20px 50px 10px; max-width: 1000px; background-color: #e8e8e8; }
-#demo { margin-top: 100px; }
-
 .row { display: flex; flex-wrap: wrap; justify-content: space-between; }
 .col { box-sizing: border-box; flex-grow: 0; flex-shrink: 0; }
 
+.links { height: 20px; margin: 5px 60px 0 10px; }
+.github { margin: 3px 0 0 0; float: right; }
+a.github-link svg { width: 24px; }
+
+.test-link { position: relative; float: right; margin: 3px 0 0 0; }
+.links a { color: #0485BC; padding-left: 20px; }
+
+a.test-results { margin-right: 60px; }
+
 #convert { font-size: 0.875em; padding: 2px 30px; margin: 0 0 20px 0; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
 #convert:hover { background: #c0c0c0; }
-#clear , #clear-html { padding: 2px 8px; margin: 0 0 20px 20px; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
-#clear:hover { background: #c0c0c0; }
+#clear-css, #clear-html { padding: 2px 8px; margin: 0 0 20px 20px; background: #cdcdcd; border: #b0b0b0 1px solid; border-radius: 4px; cursor: pointer; }
+#clear-css:hover, #clear-html:hover { background: #c0c0c0; }
 #axis { padding: 1px 5px; margin: 00 0 20px 0; cursor: pointer; }
 
-#browser-use { margin: 5px 0 20px 0; cursor: pointer; }
+#console-use { margin: 5px 0 20px 0; cursor: pointer; }
+#selector-history { padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 20px 0; max-width: 250px; cursor: pointer; }
 
-.label-saved, .label-axis, .label-browser, .label-library { padding: 10px; margin: 11px 0 0 0; }
-.label-browser, .label-library { cursor: pointer; }
-
-#saved-selectors { padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 20px 0; max-width: 250px; cursor: pointer; }
-
-footer { width: 100%; height: 40px; margin: 40px 20px 20px 0; font-size: 0.8125em; border-top: #ccc 1px solid; }
-footer div.info { float: right; padding: 20px 40px 0 0; }
+.label-saved, .label-axis, .label-console, .label-library { padding: 10px; margin: 11px 0 0 0; }
+.label-console, .label-library { cursor: pointer; }
 
 div.buttons { float: left; position: fixed; margin: 20% 0 0 20px; }
 div.up-btn, div.down-btn { position: absolute; width: 24px; height: 32px; border: transparent 1px solid; border-radius: 3px; opacity: 0.7; cursor: pointer; }
@@ -64,7 +65,7 @@ code.css:hover { text-decoration: underline; cursor: pointer; }
 code.css.visited { color: red; }
 code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block; }
 
-#input-box, #xpath-box {
+#css-box, #xpath-box {
 	font-family: Consolas, monospace;
 	font-size: 1em;
 	color: #007aae;
@@ -74,7 +75,6 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 	border-radius: 3px;
 	font-size: 14px;
 	font-weight: 400;
-	width: 98%;
 	min-height: 50px;
 	max-height: 200px;
 	letter-spacing: normal;
@@ -83,24 +83,24 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 	padding: 10px;
 }
 
-#xpath-box { color: #000; }
+#xpath-box { color: #000; padding-right: 30px; }
 #message-box { color: #f00; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; }
 
 #html-box { color: #000; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; max-height: 400px; overflow-y: scroll; }
-.row.html-panel { margin: -20px 0 0 150px; }
+.row.html-panel { margin: 10px 0 5px 14px; }
 #run-xpath, #run-css { font-size: 0.875em; padding: 1px 15px; background: #d0d0d0; border: #a8a8a8 1px solid; border-radius: 4px; cursor: pointer; }
 #run-xpath { float: left; margin: 0 0 10px 0; }
 #run-css { float: left; margin: 0 0 10px 30px; }
 
-.label-html-list { float: right; margin: 0 0 10px 10px; } 
 #html-list { float: left; padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 10px 0; max-width: 250px; cursor: pointer; }
+.label-html-list { float: left; margin: 0 30px 10px 10px; }
 #clear-html { float: right; padding: 1px 8px; margin: 0 0 10px 0; }
 
-
 #copy-code { position: relative; float: right; padding: 12px; margin: 12px 12px -38px 12px; background: url(img/copy.png) center center no-repeat; opacity: 0.5; cursor: pointer; }
+/*#copy-code { position: relative; float: right; padding: 12px; margin: 0; background: url(img/copy.png) center center no-repeat; opacity: 0.6; cursor: pointer; }*/
 #copy-code:hover { opacity: 1; }
 
-.letters { margin: 20px 0; }
+.letters { margin: 20px 0 10px; }
 #uppercase, #lowercase { font-size: 1em; padding: 5px; width: 80%; height: 20px; background-color: #f8f8f8; border: #ccc 1px solid; }
 #uppercase { margin-top: 10px; }
 #to-lowercase, #to-uppercase { position: relative; height: 20px; left: 10px; bottom: 10px; cursor: pointer; }
@@ -116,20 +116,25 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 
 @media screen and (max-width: 800px) {
 	code.xpath, .example-info { display: none; }
-	#html-list { margin-left: 10px; width: 50px; }
+	.console { display: none; }
 }
 
 @media only screen and (max-width: 600px) {
 	#convert { padding: 2px 10px; }
-	#axis { margin-left: 10px; }
 	#run-css { margin-left: 10px; }
-	.row.html-panel { margin-left: 120px; }
+	#to-lowercase, #to-uppercase { display: none; }
+	#uppercase, #lowercase { width: 100%; }
 }
 
 @media only screen and (max-width: 500px) {
 	#convert { padding: 2px 10px; }
-	#axis { margin-left: 10px; width: 50px; }
+	#html-list { width: 120px; }
 }
+
+@media only screen and (max-width: 430px) {
+	#selector-history { max-width: 160px; }
+}
+
 
 
 

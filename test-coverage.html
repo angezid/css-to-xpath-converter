@@ -197,7 +197,7 @@
 <h3 id="CssToXPath.json_passed">Passed: <b>98</b></h3>
 <p>* <b>133 === 133</b> .//*</p>
 <p>ul <b>6 === 6</b> .//ul</p>
-<p>:root <b>1 === 1</b> .//ancestor-or-self::*[last()]</p>
+<p>:root <b>1 === 1</b> //ancestor-or-self::*[last()]</p>
 <p>div, p <b>43 === 43</b> .//div | .//p</p>
 <p>p:has(b) <b>2 === 2</b> .//p[count(.//b) &gt; 0]</p>
 <p>div:empty <b>1 === 1</b> .//div[not(*) and not(text())]</p>
@@ -208,7 +208,7 @@
 <p>p[class~=p2] <b>4 === 4</b> .//p[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; p2 &#039;)]</p>
 <p>p[class*=p2] <b>8 === 8</b> .//p[contains(@class, &#039;p2&#039;)]</p>
 <p>p[class|=p2] <b>4 === 4</b> .//p[(@class = &#039;p2&#039; or starts-with(@class, &#039;p2-&#039;))]</p>
-<p>body[lang|=EN] <b>1 === 1</b> .//body[(@lang = &#039;EN&#039; or starts-with(@lang, &#039;EN-&#039;))]</p>
+<p>body[lang|=EN] <b>1 === 1</b> .//body[(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;EN&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) or starts-with(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), concat(translate(&#039;EN&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), &#039;-&#039;)))]</p>
 <p>div:last-child <b>6 === 6</b> .//div[not(following-sibling::*)]</p>
 <p>p:not(.c1) <b>21 === 21</b> .//p[not(contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c1 &#039;))]</p>
 <p>ul:first-child&gt;li:not(.c1,.c2,.c6,.c7) <b>4 === 4</b> .//ul[not(preceding-sibling::*)]/li[not(self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c1 &#039;)] | self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c2 &#039;)] | self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c6 &#039;)] | self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c7 &#039;)])]</p>
@@ -311,7 +311,7 @@
 <h3 id="CssToXPath_test.html_passed">Passed: <b>58</b></h3>
 <p>* <b>1781 === 1781</b> .//*</p>
 <p>ul <b>22 === 22</b> .//ul</p>
-<p>:root <b>1 === 1</b> .//ancestor-or-self::*[last()]</p>
+<p>:root <b>1 === 1</b> //ancestor-or-self::*[last()]</p>
 <p>div, p <b>375 === 375</b> .//div | .//p</p>
 <p>p:has(b) <b>2 === 2</b> .//p[count(.//b) &gt; 0]</p>
 <p>div:last-child <b>1 === 1</b> .//div[not(following-sibling::*)]</p>
@@ -376,7 +376,7 @@
 <p>p[class~=p2] <b>- 0 -</b> .//p[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; p2 &#039;)]</p>
 <p>p[class*=p2] <b>- 0 -</b> .//p[contains(@class, &#039;p2&#039;)]</p>
 <p>p[class|=p2] <b>- 0 -</b> .//p[(@class = &#039;p2&#039; or starts-with(@class, &#039;p2-&#039;))]</p>
-<p>body[lang|=EN] <b>- 0 -</b> .//body[(@lang = &#039;EN&#039; or starts-with(@lang, &#039;EN-&#039;))]</p>
+<p>body[lang|=EN] <b>- 0 -</b> .//body[(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;EN&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) or starts-with(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), concat(translate(&#039;EN&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), &#039;-&#039;)))]</p>
 <p>ul:first-child&gt;li:not(.c1,.c2,.c6,.c7) <b>- 0 -</b> .//ul[not(preceding-sibling::*)]/li[not(self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c1 &#039;)] | self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c2 &#039;)] | self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c6 &#039;)] | self::node()[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; c7 &#039;)])]</p>
 <p>body[lang|=En i] <b>- 0 -</b> .//body[(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;En&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) or starts-with(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), concat(translate(&#039;En&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), &#039;-&#039;)))]</p>
 <p>div[class|=&#039;has&#039;] <b>- 0 -</b> .//div[(@class = &#039;has&#039; or starts-with(@class, &#039;has-&#039;))]</p>
@@ -430,7 +430,7 @@
 <p>#foo <b>2 === 2</b> .//*[@id=&#039;foo&#039;]</p>
 <p>li.t2 <b>2 === 2</b> .//li[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t2 &#039;)]</p>
 <p>li#t2 <b>1 === 1</b> .//li[@id=&#039;t2&#039;]</p>
-<p>*:root <b>1 === 1</b> .//ancestor-or-self::*[last()]</p>
+<p>*:root <b>1 === 1</b> //ancestor-or-self::*[last()]</p>
 <p>address <b>43 === 43</b> .//address</p>
 <p>p.t1.t2 <b>4 === 4</b> .//p[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t1 &#039;) and contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t2 &#039;)]</p>
 <p>p:empty <b>3 === 3</b> .//p[not(*) and not(text())]</p>
@@ -443,7 +443,7 @@
 <p>div.stub * <b>120 === 120</b> .//div[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; stub &#039;)]//*</p>
 <p>div.stub v <b>1 === 1</b> .//div[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; stub &#039;)]//v</p>
 <p>p[class~=b] <b>1 === 1</b> .//p[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; b &#039;)]</p>
-<p>p[lang|=en] <b>3 === 3</b> .//p[(@lang = &#039;en&#039; or starts-with(@lang, &#039;en-&#039;))]</p>
+<p>p[lang|=en] <b>3 === 3</b> .//p[(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;en&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) or starts-with(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), concat(translate(&#039;en&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), &#039;-&#039;)))]</p>
 <p>table.t1 td <b>126 === 126</b> .//table[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t1 &#039;)]//td</p>
 <p>.t1:not(.t2) <b>20 === 20</b> .//*[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t1 &#039;) and not(contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t2 &#039;))]</p>
 <p>:not(.t2).t1 <b>20 === 20</b> .//*[not(contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t2 &#039;)) and contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; t1 &#039;)]</p>
@@ -464,7 +464,7 @@
 <p>p *:last-child <b>14 === 14</b> .//p//*[not(following-sibling::*)]</p>
 <p>p:not(:target) <b>164 === 164</b> .//p[not(starts-with(@href, &#039;#&#039;))]</p>
 <p>p *:first-child <b>14 === 14</b> .//p//*[not(preceding-sibling::*)]</p>
-<p>address[lang=fi] <b>1 === 1</b> .//address[@lang=&#039;fi&#039;]</p>
+<p>address[lang=fi] <b>1 === 1</b> .//address[translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;fi&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;)]</p>
 <p>#two:first-child <b>1 === 1</b> .//*[@id=&#039;two&#039; and not(preceding-sibling::*)]</p>
 <p>blockquote+div~p <b>28 === 28</b> .//blockquote/following-sibling::*[1]/self::div/following-sibling::p</p>
 <p>blockquote~div+p <b>6 === 6</b> .//blockquote/following-sibling::div/following-sibling::*[1]/self::p</p>
@@ -528,7 +528,7 @@
 <p>span[title=a] <b>- 0 -</b> .//span[@title=&#039;a&#039;]</p>
 <p>[type~=match] <b>- 0 -</b> .//*[contains(concat(&#039; &#039;, normalize-space(@type), &#039; &#039;), &#039; match &#039;)]</p>
 <p>span[class~=b] <b>- 0 -</b> .//span[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; b &#039;)]</p>
-<p>span[lang|=fr] <b>- 0 -</b> .//span[(@lang = &#039;fr&#039; or starts-with(@lang, &#039;fr-&#039;))]</p>
+<p>span[lang|=fr] <b>- 0 -</b> .//span[(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;fr&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) or starts-with(translate(@lang, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), concat(translate(&#039;fr&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), &#039;-&#039;)))]</p>
 <p>#three:last-child <b>- 0 -</b> .//*[@id=&#039;three&#039; and not(following-sibling::*)]</p>
 <p>div.testText div p <b>- 0 -</b> .//div[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; testText &#039;)]//div//p</p>
 <p>#stub~div div+div div <b>- 0 -</b> .//*[@id=&#039;stub&#039;]/following-sibling::div//div/following-sibling::*[1]/self::div//div</p>
