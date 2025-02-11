@@ -17,7 +17,7 @@ li,p 222 === 222 .//li | .//p
 #foo 2 === 2 .//*[@id='foo']
 li.t2 2 === 2 .//li[contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
 li#t2 1 === 1 .//li[@id='t2']
-*:root 1 === 1 .//ancestor-or-self::*[last()]
+*:root 1 === 1 //ancestor-or-self::*[last()]
 address 43 === 43 .//address
 p.t1.t2 4 === 4 .//p[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and contains(concat(' ', normalize-space(@class), ' '), ' t2 ')]
 p:empty 3 === 3 .//p[not(*) and not(text())]
@@ -30,7 +30,7 @@ div.test * 14 === 14 .//div[contains(concat(' ', normalize-space(@class), ' '), 
 div.stub * 120 === 120 .//div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//*
 div.stub v 1 === 1 .//div[contains(concat(' ', normalize-space(@class), ' '), ' stub ')]//v
 p[class~=b] 1 === 1 .//p[contains(concat(' ', normalize-space(@class), ' '), ' b ')]
-p[lang|=en] 3 === 3 .//p[(@lang = 'en' or starts-with(@lang, 'en-'))]
+p[lang|=en] 3 === 3 .//p[(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('en', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('en', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-')))]
 table.t1 td 126 === 126 .//table[contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]//td
 .t1:not(.t2) 20 === 20 .//*[contains(concat(' ', normalize-space(@class), ' '), ' t1 ') and not(contains(concat(' ', normalize-space(@class), ' '), ' t2 '))]
 :not(.t2).t1 20 === 20 .//*[not(contains(concat(' ', normalize-space(@class), ' '), ' t2 ')) and contains(concat(' ', normalize-space(@class), ' '), ' t1 ')]
@@ -51,7 +51,7 @@ address:empty 3 === 3 .//address[not(*) and not(text())]
 p *:last-child 14 === 14 .//p//*[not(following-sibling::*)]
 p:not(:target) 164 === 164 .//p[not(starts-with(@href, '#'))]
 p *:first-child 14 === 14 .//p//*[not(preceding-sibling::*)]
-address[lang=fi] 1 === 1 .//address[@lang='fi']
+address[lang=fi] 1 === 1 .//address[translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('fi', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz')]
 #two:first-child 1 === 1 .//*[@id='two' and not(preceding-sibling::*)]
 blockquote+div~p 28 === 28 .//blockquote/following-sibling::*[1]/self::div/following-sibling::p
 blockquote~div+p 6 === 6 .//blockquote/following-sibling::div/following-sibling::*[1]/self::p
@@ -116,7 +116,7 @@ div.te.st - 0 - .//div[contains(concat(' ', normalize-space(@class), ' '), ' te 
 span[title=a] - 0 - .//span[@title='a']
 [type~=match] - 0 - .//*[contains(concat(' ', normalize-space(@type), ' '), ' match ')]
 span[class~=b] - 0 - .//span[contains(concat(' ', normalize-space(@class), ' '), ' b ')]
-span[lang|=fr] - 0 - .//span[(@lang = 'fr' or starts-with(@lang, 'fr-'))]
+span[lang|=fr] - 0 - .//span[(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('fr', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('fr', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-')))]
 #three:last-child - 0 - .//*[@id='three' and not(following-sibling::*)]
 div.testText div p - 0 - .//div[contains(concat(' ', normalize-space(@class), ' '), ' testText ')]//div//p
 #stub~div div+div div - 0 - .//*[@id='stub']/following-sibling::div//div/following-sibling::*[1]/self::div//div

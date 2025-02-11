@@ -16,13 +16,13 @@
 		["$$Combinators", ""],
 		["ul > li", "child"],
 		["li !> ul", "parent", "0"],
-		["div + p", "adjacent following sibling"],
+		["h1 + p", "adjacent following sibling"],
 		["div !+ p", "adjacent preceding sibling", "0"],
 		["div ^ p", "first child"],
 		["div !^ p", "last child", "0"],
 		["div ~ p", "following sibling"],
 		["div !~ p", "preceding sibling", "0"],
-		["div ! p", "ancestors", "0"],
+		["p ! div", "ancestors", "0"],
 
 		["$$Class, id", ""],
 		["div.content", "contains class"],
@@ -166,7 +166,7 @@
 		lowercase : '',
 		uppercase : '',
 		html : '',
-		htmlBox : false,
+		showHtmlBox : false,
 
 		save : function() {
 			this.saveValue('selectors', JSON.stringify(settings));
@@ -179,7 +179,7 @@
 				if (json) {
 					this.selectors = json.selectors;
 					this.html = json.html;
-					this.htmlBox = json.htmlBox;
+					this.showHtmlBox = json.showHtmlBox;
 				}
 			}
 		},
@@ -198,49 +198,36 @@
 		}
 	};
 
-	const htmlUtil = {
-
-		initHtmlEditor : function(elem) {
-			const editor = CodeJar(elem, null, { tab : '  ' });
-			editor.onUpdate((code, event) => this.updateTestEditor(code, event));
-			return editor;
-		},
-
-		updateTestEditor : function(code, event) {
-			if (event && (event.type === 'paste' || event.type === 'drop')) {
-				//htmlEditor.textContent = this.sanitizeHtml(code);
-				htmlEditor.textContent = code;
-			}
-			changed = true;
-		}
-	};
-
 	const maxSaveNumber = 30,
-		cssBox = document.getElementById('input-box'),
-		body = document.getElementsByTagName('body')[0],
 		up = document.getElementById('up-btn'),
 		down = document.getElementById('down-btn'),
+
+		cssBox = document.getElementById('css-box'),
+		body = document.getElementsByTagName('body')[0],
+		convertButton = document.getElementById('convert'),
+		clearCSSButton = document.getElementById('clear-css'),
+		axesSelector = document.getElementById('axis'),
+		consoleUse = document.getElementById('console-use'),
+		selectorHistory = document.getElementById('selector-history'),
 
 		lowercase = document.getElementById('lowercase'),
 		toLowercase = document.getElementById('to-lowercase'),
 		uppercase = document.getElementById('uppercase'),
 		toUppercase = document.getElementById('to-uppercase'),
 
-		axesSelector = document.getElementById('axis'),
-		browserUse = document.getElementById('browser-use'),
 		xpathBox = document.getElementById('xpath-box'),
-		messageBox = document.getElementById('message-box'),
 		copy = document.getElementById('copy-code'),
-		convertButton = document.getElementById('convert'),
-		clearButton = document.getElementById('clear'),
-		savedSelectors = document.getElementById('saved-selectors'),
+
+		messageBox = document.getElementById('message-box'),
+
+		detailsHtmlBox = document.querySelector('details.html'),
+		htmlBox = document.getElementById('html-box'),
 		runXPath = document.getElementById('run-xpath'),
 		runCSS = document.getElementById('run-css'),
 		htmlList = document.getElementById('html-list'),
 		clearHtmlButton = document.getElementById('clear-html'),
-		detailsHtmlBox = document.querySelector('details.html'),
-		htmlBox = document.getElementById('html-box'),
-		htmlEditor = htmlUtil.initHtmlEditor(htmlBox),
+
+		htmlEditor = CodeJar(htmlBox, null, { tab : '  ' }),
 		cssEditor = CodeJar(cssBox, null, { tab : '  ' }),
 		xpathEditor = CodeJar(xpathBox, null, { tab : '  ' });
 
@@ -262,19 +249,19 @@
 
 		if (settings.selectors && settings.selectors.length) {
 			updateSelectors();
-			updateSelector(savedSelectors.value);
+			updateSelector(selectorHistory.value);
 		}
 
 		if (settings.html && settings.html.length) {
 			htmlEditor.updateCode(settings.html);
 
-			if (settings.htmlBox) {
+			if (settings.showHtmlBox) {
 				detailsHtmlBox.setAttribute('open', true);
 			}
 		}
 
 		registerEvents();
-		convert(true);
+		//convert(true);
 	}
 
 	initConverter();
@@ -294,7 +281,7 @@
 
 	function updateSelector() {
 		try {
-			const obj = JSON.parse(savedSelectors.value);
+			const obj = JSON.parse(selectorHistory.value);
 			if (obj) {
 				cssEditor.updateCode(obj.selector);
 				axesSelector.value = obj.axis || '//';
@@ -313,10 +300,11 @@
 				htmlBox.focus();
 				htmlEditor.updateCode(obj.content);
 				htmlEditor.recordHistory();
+				htmlBox.blur();
 			}
 		});
 
-		savedSelectors.addEventListener('change', function(e) {
+		selectorHistory.addEventListener('change', function(e) {
 			updateSelector(this.value);
 
 			setTimeout(function() {
@@ -330,7 +318,7 @@
 			}, 100);
 		});
 
-		browserUse.addEventListener('click', function() {
+		consoleUse.addEventListener('click', function() {
 			convert();
 		});
 
@@ -367,7 +355,7 @@
 				bottom = top + screen.height - 150,
 				offset = screen.height / 7;
 
-			if (position < bottom && position > top) {    // within screen
+			if (position < screen.height || position < bottom && position > top) {    // within screen
 				window.scrollTo(0, 10000);
 
 			} else {
@@ -381,17 +369,19 @@
 		});
 
 		detailsHtmlBox.addEventListener('toggle', function() {
-			const attr = this.getAttribute('open');
-			settings.htmlBox = attr !== null;
+			const open = this.hasAttribute('open');
+			settings.showHtmlBox = open;
 			changed = true;
 			clearWarning();
-			if (attr !== null) {
+
+			if (open) {
 				htmlBox.focus();
 				htmlEditor.recordHistory();
-			}
-			
-			if (attr !== null && !htmlBox.textContent.trim()) {
-				htmlBox.textContent = defaultHtmls['page'].content;
+
+				if ( !htmlBox.textContent.trim()) {
+					htmlEditor.updateCode(defaultHtmls['page'].content);
+				}
+				htmlBox.blur();
 			}
 		});
 
@@ -411,19 +401,53 @@
 			highlightCSS();
 		});
 
-		clearButton.addEventListener('click', function() {
-			cssEditor.updateCode('');
-			xpathEditor.updateCode('');
+		clearCSSButton.addEventListener('click', function() {
+			clearCSSEditor();
+			clearXPathEditor(true);
 			clearWarning();
-			cssBox.focus();
 			changed = true;
 		});
 
 		clearHtmlButton.addEventListener('click', function() {
-			htmlEditor.updateCode('');
 			htmlBox.focus();
+			htmlEditor.recordHistory();
+			htmlEditor.updateCode('');
 			changed = true;
 		});
+	}
+
+	function clearCSSEditor(blur) {
+		cssBox.focus();
+		cssEditor.recordHistory();
+		cssEditor.updateCode('');
+		if (blur) cssBox.blur();
+	}
+
+	function updateCSSEditor(text) {
+		cssBox.focus();
+		cssEditor.recordHistory();
+		cssEditor.updateCode(text);
+		cssBox.blur();
+	}
+
+	function clearXPathEditor(blur) {
+		xpathBox.focus();
+		xpathEditor.recordHistory();
+		xpathEditor.updateCode('');
+		if (blur) xpathBox.blur();
+	}
+
+	function updateXPathEditor(text) {
+		xpathBox.focus();
+		xpathEditor.recordHistory();
+		xpathEditor.updateCode(text);
+		xpathBox.blur();
+	}
+
+	function clearWarning() {
+		messageBox.innerHTML = '';
+		messageBox.className = 'hide';
+		new Mark(htmlBox).unmark();
 	}
 
 	function convert(notSave) {
@@ -432,13 +456,13 @@
 		const selector = cssBox.textContent.trim();
 		if ( !selector) return;
 
-		xpathEditor.updateCode('');
+		updateXPathEditor('');
 
 		const axis = axesSelector.value;
 
 		options.axis = axis;
 		options.useClassName = false;
-		options.browserUse = browserUse.checked;
+		options.consoleUse = consoleUse.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 
@@ -449,10 +473,10 @@
 		}
 
 		if (xpath) {
-			xpathEditor.updateCode(browserUse.checked ? '$x("' + xpath + '")' : xpath);
+			updateXPathEditor(consoleUse.checked ? '$x("' + xpath + '")' : xpath);
 		}
 
-		if (detailsHtmlBox.getAttribute('open') !== null && xpath) {
+		if (detailsHtmlBox.hasAttribute('open') && xpath) {
 			highlightXPath(xpath);
 		}
 
@@ -460,7 +484,8 @@
 
 		if ( !css || notSave) return;
 
-		addSelector(css, axis);
+		//addSelector(css, axis);
+		addSelector(selector, axis);
 		updateSelectors(true);
 		return xpath;
 	}
@@ -571,9 +596,7 @@
 
 		const elem = htmlBox.querySelector('mark');
 		if (elem) {
-			//elem.scrollIntoView({ behavior: "smooth", block: "center" });
 			elem.scrollIntoView({ block : "center" });
-			//document.getElementById('demo')?.scrollIntoView({ behavior: "smooth" });
 			document.getElementById('demo')?.scrollIntoView();
 		}
 	}
@@ -620,12 +643,6 @@
 		messageBox.className = '';
 	}
 
-	function clearWarning() {
-		messageBox.innerHTML = '';
-		messageBox.className = 'hide';
-		new Mark(htmlBox).unmark();
-	}
-
 	function addSelector(selector, axis) {
 		selector = selector.replace(/'/g, '&#39;');
 		settings.selectors = settings.selectors.filter(obj => obj.selector && obj.selector !== selector);
@@ -647,7 +664,7 @@
 				if ( !obj.selector) return true;
 				str += "<option value='" + JSON.stringify(obj) + "'>" + obj.selector + '</option>';
 			});
-			savedSelectors.innerHTML = str;
+			selectorHistory.innerHTML = str;
 			settings.save();
 
 		} else if (save) {
@@ -656,7 +673,7 @@
 	}
 
 	function isChanged() {
-		const list = Array.from(savedSelectors.childNodes).filter(node => node.nodeType === 1);
+		const list = Array.from(selectorHistory.childNodes).filter(node => node.nodeType === 1);
 
 		if (settings.selectors.length !== list.length) return true;
 
@@ -669,11 +686,9 @@
 
 		section.querySelectorAll('code.css').forEach((elem) => {
 			elem.addEventListener('click', function(e) {
-				clearButton.click();
+				clearCSSButton.click();
 				const selector = this.getAttribute('data-selector');
-				cssBox.focus();
-				cssEditor.recordHistory();
-				cssEditor.updateCode(selector);
+				updateCSSEditor(selector);
 				this.classList.add("visited");
 				scrollBy(0, -80);
 			});

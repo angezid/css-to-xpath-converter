@@ -11,7 +11,7 @@ Have no matches: 49
 Passed: 58
 * 1781 === 1781 .//*
 ul 22 === 22 .//ul
-:root 1 === 1 .//ancestor-or-self::*[last()]
+:root 1 === 1 //ancestor-or-self::*[last()]
 div, p 375 === 375 .//div | .//p
 p:has(b) 2 === 2 .//p[count(.//b) > 0]
 div:last-child 1 === 1 .//div[not(following-sibling::*)]
@@ -77,7 +77,7 @@ p[class$=p2] - 0 - .//p[substring(@class, string-length(@class) - (string-length
 p[class~=p2] - 0 - .//p[contains(concat(' ', normalize-space(@class), ' '), ' p2 ')]
 p[class*=p2] - 0 - .//p[contains(@class, 'p2')]
 p[class|=p2] - 0 - .//p[(@class = 'p2' or starts-with(@class, 'p2-'))]
-body[lang|=EN] - 0 - .//body[(@lang = 'EN' or starts-with(@lang, 'EN-'))]
+body[lang|=EN] - 0 - .//body[(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('EN', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('EN', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-')))]
 ul:first-child>li:not(.c1,.c2,.c6,.c7) - 0 - .//ul[not(preceding-sibling::*)]/li[not(self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c1 ')] | self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c2 ')] | self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c6 ')] | self::node()[contains(concat(' ', normalize-space(@class), ' '), ' c7 ')])]
 body[lang|=En i] - 0 - .//body[(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') = translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz') or starts-with(translate(@lang, 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), concat(translate('En', 'ABCDEFGHJIKLMNOPQRSTUVWXYZ', 'abcdefghjiklmnopqrstuvwxyz'), '-')))]
 div[class|='has'] - 0 - .//div[(@class = 'has' or starts-with(@class, 'has-'))]

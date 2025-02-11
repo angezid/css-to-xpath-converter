@@ -40,7 +40,7 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 |   "$="                     |   ends with                                     |                                    |
 |   "*="                     |   contains within                               |                                    |
 |   "~="                     |   contains exactly                              |                                    |
-|   "                        |   ="                                            |   exactly or followed by a hyphen  |
+|   "\|="                    |   exactly or followed by a hyphen               |                                    |
 |   [attr operator value i]  |   to perform case-insensitive value comparison  |   i or I                           |
 
 <h3>Pseudoclasses</h3>

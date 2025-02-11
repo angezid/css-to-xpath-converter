@@ -135,7 +135,7 @@
 		if ( !selector) {
 			argumentException("The pseudo-selector \':" + name + '()\' have missing argument.');
 		}
-		
+
 		stack.push(code);
 
 		const result = parse(node, selector, axis, owner, obj || {});
@@ -693,7 +693,7 @@
 
 		} else if (operation === "*=") {
 			node.add("[contains(", attrName, ", ", attributeValue, ")]");
-			
+
 		} else if (operation === "|=") {
 			const attrValue1 = ignoreCase ? toLowerCase(' ' + attrValue + ' ') : "' " + attrValue + " '";
 			const attrValue2 = ignoreCase ? toLowerCase(' ' + attrValue + '-') : "' " + attrValue + "-'";
@@ -820,22 +820,22 @@
 				nd = node.clone();
 				node.add("[count(ancestor::", parseNested(nd, name, arg), ") > 0]");
 				break;
-			
+
 			case "after" :
 				nd = node.clone();
 				node.add("[count(preceding::", parseNested(nd, name, arg), ") > 0]");
 				break;
-			
+
 			case "after-sibling" :
 				nd = node.clone();
 				node.add("[count(preceding-sibling::", parseNested(nd, name, arg), ") > 0]");
 				break;
-			
+
 			case "before" :
 				nd = node.clone();
 				node.add("[count(following::", parseNested(nd, name, arg), ") > 0]");
 				break;
-			
+
 			case "before-sibling" :
 				nd = node.clone();
 				node.add("[count(following-sibling::", parseNested(nd, name, arg), ") > 0]");
@@ -849,7 +849,7 @@
 				owner = getOwner(node, name);
 				node.add("[not(following-sibling::", owner, ")]");
 				break;
-			
+
 			case "skip" :
 				node.add("[position() > ", parseNumber(arg), "]");
 				break;
@@ -1272,7 +1272,7 @@
 
 			} else if (ch === '"' || ch === '\'') {
 				while (++i < text.length && text[i] !== ch);
-				
+
 				if (i >= text.length) characterException(i, ch, "function getBracesContent()", text);
 
 			} else {

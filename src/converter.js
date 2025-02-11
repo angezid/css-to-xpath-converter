@@ -131,7 +131,11 @@
 		return { xpath, css : normalized, warning, error : error };
 	}
 
-	function parseNested(node, selector, axis = "", owner, obj) {
+	function parseNested(node, name, selector, axis = "", owner, obj) {
+		if ( !selector) {
+			argumentException("The pseudo-selector \':" + name + '()\' have missing argument.');
+		}
+
 		stack.push(code);
 
 		const result = parse(node, selector, axis, owner, obj || {});
@@ -409,6 +413,7 @@
 
 				if (pseudoName === "root") {
 					node.owner = node.separator = '';
+					node.axis = '//';
 					node = addNode(parNode, node, "", "", "ancestor-or-self::", "*", "[last()]");
 
 				} else {
@@ -578,7 +583,7 @@
 	}
 
 	function processAttribute(attrName, attrValue, operation, modifier, node) {
-		const ignoreCase = modifier === "i" || attrName === 'type' && getOwner(node) == "input";
+		const ignoreCase = modifier === "i" || attrName === 'lang' || attrName === 'type' && getOwner(node) == "input";
 
 		if ( !opt.useClassName && attrName === "class") {
 			processClass(attrValue, operation, ignoreCase, node);
@@ -686,6 +691,9 @@
 		if (operation === "!=") {
 			node.add("[(not(", attrName, ") or not(", getClass(attrName, attributeValue), "))]");
 
+		} else if (operation === "*=") {
+			node.add("[contains(", attrName, ", ", attributeValue, ")]");
+
 		} else if (operation === "|=") {
 			const attrValue1 = ignoreCase ? toLowerCase(' ' + attrValue + ' ') : "' " + attrValue + " '";
 			const attrValue2 = ignoreCase ? toLowerCase(' ' + attrValue + '-') : "' " + attrValue + "-'";
@@ -781,12 +789,12 @@
 			case "not" :
 				const axis = node.owner == "*" ? "self::" : "";
 				nd = node.clone();
-				node.add("[not(", parseNested(nd, arg, axis, "self::node()", { name : 'not' }), ")]");
+				node.add("[not(", parseNested(nd, name, arg, axis, "self::node()", { name : 'not' }), ")]");
 				break;
 
 			case "is" :
 				nd = node.clone();
-				result = parseNested(nd, arg, "self::", "self::node()", { predicate : true });
+				result = parseNested(nd, name, arg, "self::", "self::node()", { predicate : true });
 
 				if (hasOr(result)) node.add("[(", result, ")]"); // in the case of joining predicates by ' and ' in postprocess()
 				else node.add("[", result, "]");
@@ -794,23 +802,43 @@
 
 			case "has" :
 				nd = node.clone();
-				node.add("[count(", parseNested(nd, arg, ".//"), ") > 0]");
+				node.add("[count(", parseNested(nd, name, arg, ".//"), ") > 0]");
 				break;
 
 			case "has-sibling" :
 				nd = node.clone();
-				result = parseNested(nd, arg);
+				result = parseNested(nd, name, arg);
 				node.add("[(count(preceding-sibling::", result, ") > 0 or count(following-sibling::", result, ") > 0)]");
 				break;
 
 			case "has-parent" :
 				nd = node.clone();
-				node.add("[count(parent::", parseNested(nd, arg), ") > 0]");
+				node.add("[count(parent::", parseNested(nd, name, arg), ") > 0]");
 				break;
 
 			case "has-ancestor" :
 				nd = node.clone();
-				node.add("[count(ancestor::", parseNested(nd, arg), ") > 0]");
+				node.add("[count(ancestor::", parseNested(nd, name, arg), ") > 0]");
+				break;
+
+			case "after" :
+				nd = node.clone();
+				node.add("[count(preceding::", parseNested(nd, name, arg), ") > 0]");
+				break;
+
+			case "after-sibling" :
+				nd = node.clone();
+				node.add("[count(preceding-sibling::", parseNested(nd, name, arg), ") > 0]");
+				break;
+
+			case "before" :
+				nd = node.clone();
+				node.add("[count(following::", parseNested(nd, name, arg), ") > 0]");
+				break;
+
+			case "before-sibling" :
+				nd = node.clone();
+				node.add("[count(following-sibling::", parseNested(nd, name, arg), ") > 0]");
 				break;
 
 			case "last" :
@@ -1244,7 +1272,7 @@
 
 			} else if (ch === '"' || ch === '\'') {
 				while (++i < text.length && text[i] !== ch);
-				
+
 				if (i >= text.length) characterException(i, ch, "function getBracesContent()", text);
 
 			} else {
