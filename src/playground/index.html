@@ -36,8 +36,7 @@
 			<div class="col">
 				<button id="convert">convert</button>
 				<button id="clear-css">X</button>
-			</div>
-			<div class="col">
+
 				<select id="axis">
 					<option value=".//" title="Search among descendants of the context node (the same as descendant::)" selected>.//</option>
 					<option value="//" title="Search from the beginning of the document">//</option>
@@ -52,14 +51,15 @@
 					<option value="preceding-sibling::" title="Selects all preceding child nodes of the context node">preceding-sibling::</option>
 					<option value="following::" title="Selects the nodes that follow the context node, other than its descendants">following::</option>
 					<option value="following-sibling::" title="Selects all following child nodes of the context node">following-sibling::</option>
-					<option class="hide" value="attribute::" title="Selects attribute(s) of the context node">attribute::</option>
+					<!-- <option value="attribute::" title="Selects attribute(s) of the context node">attribute::</option> -->
+					<!-- <option value="namespace::" title="Selects namespace nodes of the context node">namespace::</option> -->
 				</select>
 				<label class="label-axis" for="axis">axis</label>
 			</div>
 
 			<div class="col console">
 				<input type="checkbox" id="console-use">
-				<label class="label-console" for="console-use" title="For using an XPath in browser's console">console</label>
+				<label class="label-console" for="console-use" title="For using an XPath in browser's console. Please note that it also changed the way of generating XPath for the class attribute.">console</label>
 			</div>
 
 			<div id="col">
@@ -101,12 +101,12 @@
 						<option value="?" title="HTML list">?</option>
 					</select>
 					<label class="label-html-list" for="html-list">HTML</label>
-				<!-- </div>
-				<div id="col"> -->
-					<button id="clear-html">X</button>
 				</div>
 			</div>
-			<div class="html"><div id="html-box"></div></div>
+			<div class="html">
+				<button id="clear-html">X</button>
+				<div id="html-box"></div>
+			</div>
 		</details>
 	</div>
 
@@ -115,12 +115,11 @@
 		<div id="examples">
 		</div>
 		<p id="info-1">[1] The CSS selector is not valid in browsers.</p>
-		<p id="info-2">[2] The CSS selector can work in some browsers.</p>
-		<p id="info-3">[3] See <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors">https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors</a> how to use case-insensitive 'i' (or 'I') modifier.</p>
-		<p id="info-4">[4] (XPath) For using with non-English languages, require filling 'Letter editors' with necessary alphabet (it's added to the default Latin alphabet).</p>
+		<p id="info-2">[2] See <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors">https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors</a> about case-insensitive 'i' (or 'I') modifier.</p>
+		<p id="info-3">[3] (XPath) For using with non-English languages, require filling 'Letter editors' with necessary alphabet (it's added to the default Latin alphabet).</p>
 	</div>
 	<div class="example-section">
-		<details class="table"><summary title="">Standard class attribute behavior</summary>
+		<details id="class_attribute_standard" class="table"><summary title="">Standard class attribute behavior</summary>
 			<div id="attribute-table">
 			</div>
 		</details>

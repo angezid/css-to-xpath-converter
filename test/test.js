@@ -18,7 +18,7 @@ performTest();
 async function performTest() {
 	try {
 		const opt = personal ?
-		  { executablePath : 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' } : 
+		  { executablePath : 'c:/Program Files (x86)/Google/Chrome/Application/chrome.exe' } :
 		  { args: ['--no-sandbox', '--disable-setuid-sandbox'] };
 		let browser = await pt.launch(opt);
 
@@ -49,12 +49,12 @@ async function performTest() {
 						css = entitize(selector);
 					let cssElems, xpathElems, xpath;
 
-					const obj = toXPath(selector, { useClassName : true });
-					if ( !obj.xpath) {
+					const obj = toXPath(selector, { standard : true });
+					if (obj.error) {
 						array.push({ 'error' : true, 'text' : `${css}`, message : obj.error });
 						continue;
 					}
-
+					
 					xpath = entitize(obj.xpath);
 
 					try { cssElems = await page.$$(selector); } catch (e) { array.push({ 'notValid' : 'css', 'text' : `${css}` }); }
@@ -136,7 +136,7 @@ function reportCoverage(coverage, name) {
 </head>
 <body>
 `;
-	const info = '<h3>Info:</h3>\n<p>All tests are run in Puppeteer.</p><p>Tests <b>Passed</b> mean that the elements selected by CSS selector are <b>reference equal</b> (not just only by count) to the elements selected by the generated XPath.</p>';
+	const info = '<h3>Info:</h3>\n<p>All tests are run in Puppeteer.</p>\n<p>Tests <b>Passed</b> mean that the elements selected by CSS selector are <b>reference equal</b> (not just only by count) to the elements selected by the generated XPath.</p>\n<p><b>Note</b> that XPath implementation for the class attribute is the standard one (like other attributes).</p>\n';
 
 	let summaries = '';
 	let passedNum = 0, failedNum = 0, errorNum = 0, notValidNum = 0, noMatchNum = 0, matchNum = 0, warningNum = 0;
@@ -166,7 +166,7 @@ function reportCoverage(coverage, name) {
 				noMatch.push(`<p>${item.css} <b>- 0 -</b> ${item.xpath}</p>\n`);
 
 			} else if (item.warning) {
-				error.push(`<p>${item.text} <b>converter warning</b></p>\n`);
+				warning.push(`<p>${item.text} <b>converter warning</b></p>\n`);
 
 			} else if (item.error) {
 				error.push(`<p>${item.text} <b>converter error:</b> ${item.message}</p>\n\n`);

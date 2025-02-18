@@ -1,12 +1,10 @@
 Passed: 107
-Have no matches: 18
 
 
 reportName
 
 Results:
 Passed: 107
-Have no matches: 18
 
 Passed: 107
 p:not(:nth-of-type(1)) 43 === 43 .//p[not(count(preceding-sibling::p) = 0)]
@@ -116,23 +114,3 @@ p:not(:nth-of-type(-5n+2)) 43 === 43 .//p[not(count(preceding-sibling::p) <= 1 a
 p:not(:nth-of-type(-5n+3)) 43 === 43 .//p[not(count(preceding-sibling::p) <= 2 and (count(preceding-sibling::p) - 2) mod 5 = 0)]
 p:not(:nth-of-type(-5n+4)) 44 === 44 .//p[not(count(preceding-sibling::p) <= 3 and (count(preceding-sibling::p) - 3) mod 5 = 0)]
 p:not(:nth-of-type(-5n+5)) 44 === 44 .//p[not(count(preceding-sibling::p) <= 4 and (count(preceding-sibling::p) - 4) mod 5 = 0)]
-
-Have no matches: 18
-p:not(:nth-of-type(n)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n+0)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n-0)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n+1)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n-1)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n-2)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n-3)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n-4)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(n-5)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n+0)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n-0)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n+1)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n-1)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n-2)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n-3)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n-4)) - 0 - .//p[not(self::node())]
-p:not(:nth-of-type(1n-5)) - 0 - .//p[not(self::node())]
