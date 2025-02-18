@@ -13,8 +13,9 @@
 <aside><nav><ul>
 <li><a href="#cssselector_json">CssSelector.json</a></li>
 <ul><li><a href="#CssSelector.json_passed">Passed</a> <b>51</b></li>
+<li><a href="#CssSelector.json_not_valid">Not valid</a> <b>1</b></li>
 <li><a href="#CssSelector.json_have_no_matches">Have no matches</a> <b>13</b></li>
-<li><a href="#CssSelector.json_coverter_errors">Coverter errors</a> <b>3</b></li>
+<li><a href="#CssSelector.json_coverter_errors">Coverter errors</a> <b>2</b></li>
 </ul>
 <li><a href="#cssselector2_test_html">CssSelector2_test.html</a></li>
 <ul><li><a href="#CssSelector2_test.html_passed">Passed</a> <b>19</b></li>
@@ -35,19 +36,15 @@
 </ul>
 <li><a href="#not_nth_child_json">not-nth-child.json</a></li>
 <ul><li><a href="#not-nth-child.json_passed">Passed</a> <b>107</b></li>
-<li><a href="#not-nth-child.json_have_no_matches">Have no matches</a> <b>18</b></li>
 </ul>
 <li><a href="#not_nth_last_child_json">not-nth-last-child.json</a></li>
 <ul><li><a href="#not-nth-last-child.json_passed">Passed</a> <b>107</b></li>
-<li><a href="#not-nth-last-child.json_have_no_matches">Have no matches</a> <b>18</b></li>
 </ul>
 <li><a href="#not_nth_last_of_type_json">not-nth-last-of-type.json</a></li>
 <ul><li><a href="#not-nth-last-of-type.json_passed">Passed</a> <b>107</b></li>
-<li><a href="#not-nth-last-of-type.json_have_no_matches">Have no matches</a> <b>18</b></li>
 </ul>
 <li><a href="#not_nth_of_type_json">not-nth-of-type.json</a></li>
 <ul><li><a href="#not-nth-of-type.json_passed">Passed</a> <b>107</b></li>
-<li><a href="#not-nth-of-type.json_have_no_matches">Have no matches</a> <b>18</b></li>
 </ul>
 <li><a href="#nth_child_json">nth-child.json</a></li>
 <ul><li><a href="#nth-child.json_passed">Passed</a> <b>125</b></li>
@@ -65,15 +62,20 @@
 <main>
 <h1>Test results:</h1>
 <p>Passed: <b>1245</b></p>
-<p>Have no matches: <b>185</b></p>
-<p>Coverter errors: <b>8</b></p>
+<p>Not valid: <b>1</b></p>
+<p>Have no matches: <b>113</b></p>
+<p>Coverter errors: <b>7</b></p>
 <h3>Info:</h3>
-<p>All tests are run in Puppeteer.</p><p>Tests <b>Passed</b> mean that the elements selected by CSS selector are <b>reference equal</b> (not just only by count) to the elements selected by the generated XPath.</p><section>
+<p>All tests are run in Puppeteer.</p>
+<p>Tests <b>Passed</b> mean that the elements selected by CSS selector are <b>reference equal</b> (not just only by count) to the elements selected by the generated XPath.</p>
+<p><b>Note</b> that XPath implementation for the class attribute is the standard one (like other attributes).</p>
+<section>
 <h2 id="cssselector_json">CssSelector.json</h2>
 <h3>Results:</h3>
 <p><a href="#CssSelector.json_passed">Passed: <b>51</b></a></p>
+<p><a href="#CssSelector.json_not_valid">Not valid: <b>1</b></a></p>
 <p><a href="#CssSelector.json_have_no_matches">Have no matches: <b>13</b></a></p>
-<p><a href="#CssSelector.json_coverter_errors">Coverter errors: <b>3</b></a></p>
+<p><a href="#CssSelector.json_coverter_errors">Coverter errors: <b>2</b></a></p>
 <h3 id="CssSelector.json_passed">Passed: <b>51</b></h3>
 <p>* <b>89 === 89</b> .//*</p>
 <p>body <b>1 === 1</b> .//body</p>
@@ -118,14 +120,16 @@
 <p>input[type=&#039;text&#039;] <b>1 === 1</b> .//input[translate(@type, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;text&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;)]</p>
 <p>input[type=&#039;TEXT&#039;] <b>1 === 1</b> .//input[translate(@type, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;TEXT&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;)]</p>
 <p>span:nth-child(even) <b>5 === 5</b> .//*[(count(preceding-sibling::*) + 1) mod 2 = 0]/self::span</p>
-<p>span:is(.this, .that) <b>3 === 3</b> .//span[(contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; this &#039;) or contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; that &#039;))]</p>
-<p>:is(div, section) &gt; h1 <b>4 === 4</b> .//*[(self::div or self::section)]/h1</p>
+<p>span:is(.this, .that) <b>3 === 3</b> .//span[contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; this &#039;) or contains(concat(&#039; &#039;, normalize-space(@class), &#039; &#039;), &#039; that &#039;)]</p>
+<p>:is(div, section) &gt; h1 <b>4 === 4</b> .//*[self::div or self::section]/h1</p>
 <p>span:nth-child(10n-1)  <b>1 === 1</b> .//*[(count(preceding-sibling::*) + 2) mod 10 = 0]/self::span</p>
 <p>span:nth-child(10n+1)  <b>3 === 3</b> .//*[(count(preceding-sibling::*)) mod 10 = 0]/self::span</p>
 <p>span:nth-last-child(2) <b>1 === 1</b> .//span[count(following-sibling::*) = 1]</p>
 <p>#myDiv :nth-last-child(2) <b>2 === 2</b> .//*[@id=&#039;myDiv&#039;]//*[count(following-sibling::*) = 1]</p>
 <p>section:not(:has(h1, h2, h3, h4, h5, h6)) <b>1 === 1</b> .//section[not(count(.//h1 | .//h2 | .//h3 | .//h4 | .//h5 | .//h6) &gt; 0)]</p>
 <p>section:has(:not(h1, h2, h3, h4, h5, h6)) <b>2 === 2</b> .//section[count(.//*[not(self::h1 | self::h2 | self::h3 | self::h4 | self::h5 | self::h6)]) &gt; 0]</p>
+<h3 id="CssSelector.json_not_valid">Not valid: <b>1</b></h3>
+<p>*:nth-child(-n+3 of span.this) <b>CSS</b></p>
 <h3 id="CssSelector.json_have_no_matches">Have no matches: <b>13</b></h3>
 <p>head p <b>- 0 -</b> .//head//p</p>
 <p>#theBody #myDiv <b>- 0 -</b> .//*[@id=&#039;theBody&#039;]//*[@id=&#039;myDiv&#039;]</p>
@@ -140,12 +144,10 @@
 <p>#whatwhatwhat #someOtherDiv <b>- 0 -</b> .//*[@id=&#039;whatwhatwhat&#039;]//*[@id=&#039;someOtherDiv&#039;]</p>
 <p>dd:nth-child(1)&gt;div:nth-child(3)&gt;div:nth-child(1)&gt;a <b>- 0 -</b> .//*[position() = 1]/self::dd/*[position() = 3]/self::div/*[position() = 1]/self::div/a</p>
 <p>*[style*=&#039;display: none&#039; i],*[style*=&#039;display:none&#039; i] <b>- 0 -</b> .//*[contains(translate(@style, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), translate(&#039;display: none&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;))] | .//*[contains(translate(@style, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), translate(&#039;display:none&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;))]</p>
-<h3 id="CssSelector.json_coverter_errors">Coverter errors: <b>3</b></h3>
+<h3 id="CssSelector.json_coverter_errors">Coverter errors: <b>2</b></h3>
 <p>:scope &gt; p <b>converter error:</b> Pseudo-class ':scope' is not implemented</p>
 
 <p>span:nth-child(10n+-1)  <b>converter error:</b> function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string 'span:nth-child(10n+-1)'</p>
-
-<p>*:nth-child(-n+3 of span.this) <b>converter error:</b> function parseFnNotation() - RegExp '/^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/' failed to match the string '*:nth-child(-n+3 of span.this)'</p>
 
 </section><section>
 <h2 id="cssselector2_test_html">CssSelector2_test.html</h2>
@@ -233,7 +235,7 @@
 <p>ul&gt;li[title^=&#039;Item&#039;] <b>10 === 10</b> .//ul/li[starts-with(@title, &#039;Item&#039;)]</p>
 <p>ul&gt;li[title*=&#039;Item&#039;] <b>10 === 10</b> .//ul/li[contains(@title, &#039;Item&#039;)]</p>
 <p>main &gt; div[id=lists] <b>1 === 1</b> .//main/div[@id=&#039;lists&#039;]</p>
-<p>a:is([name], [href]) <b>2 === 2</b> .//a[(@name or @href)]</p>
+<p>a:is([name], [href]) <b>2 === 2</b> .//a[@name or @href]</p>
 <p>ul li:nth-child(odd) <b>22 === 22</b> .//ul//*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::li</p>
 <p>ul li:nth-child(n+3) <b>27 === 27</b> .//ul//*[position() &gt;= 3]/self::li</p>
 <p>ul li:nth-child(n+4) <b>22 === 22</b> .//ul//*[position() &gt;= 4]/self::li</p>
@@ -266,7 +268,7 @@
 <p>p:nth-last-of-type(odd) <b>14 === 14</b> .//p[(count(following-sibling::p) + 1) mod 2 = 1]</p>
 <p>article p:first-of-type <b>5 === 5</b> .//article//p[not(preceding-sibling::p)]</p>
 <p>article em:last-of-type <b>3 === 3</b> .//article//em[not(following-sibling::em)]</p>
-<p>:is(ol,ul) :is(ol,ul) ol <b>1 === 1</b> .//*[(self::ol or self::ul)]//*[(self::ol or self::ul)]//ol</p>
+<p>:is(ol,ul) :is(ol,ul) ol <b>1 === 1</b> .//*[self::ol or self::ul]//*[self::ol or self::ul]//ol</p>
 <p>ul li:nth-of-type(-3n+4) <b>12 === 12</b> .//ul//li[count(preceding-sibling::li) &lt;= 3 and (count(preceding-sibling::li) - 3) mod 3 = 0]</p>
 <p>p:nth-last-of-type(even) <b>8 === 8</b> .//p[(count(following-sibling::p) + 1) mod 2 = 0]</p>
 <p>article div:only-of-type <b>2 === 2</b> .//article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]</p>
@@ -326,7 +328,7 @@
 <p>p:nth-of-type(odd) <b>176 === 176</b> .//p[(count(preceding-sibling::p) + 1) mod 2 = 1]</p>
 <p>p:nth-last-child(3) <b>22 === 22</b> .//p[count(following-sibling::*) = 2]</p>
 <p>p:nth-of-type(even) <b>148 === 148</b> .//p[(count(preceding-sibling::p) + 1) mod 2 = 0]</p>
-<p>a:is([name], [href]) <b>296 === 296</b> .//a[(@name or @href)]</p>
+<p>a:is([name], [href]) <b>296 === 296</b> .//a[@name or @href]</p>
 <p>ul li:nth-child(odd) <b>52 === 52</b> .//ul//*[(count(preceding-sibling::*) + 1) mod 2 = 1]/self::li</p>
 <p>ul li:nth-child(n+3) <b>53 === 53</b> .//ul//*[position() &gt;= 3]/self::li</p>
 <p>ul li:nth-child(n+4) <b>39 === 39</b> .//ul//*[position() &gt;= 4]/self::li</p>
@@ -406,7 +408,7 @@
 <p>div[class~=&#039;parent&#039; i] <b>- 0 -</b> .//div[contains(concat(&#039; &#039;, normalize-space(translate(@class, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;)), &#039; &#039;), concat(&#039; &#039;, translate(&#039;parent&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;), &#039; &#039;))]</p>
 <p>article p:first-of-type <b>- 0 -</b> .//article//p[not(preceding-sibling::p)]</p>
 <p>article em:last-of-type <b>- 0 -</b> .//article//em[not(following-sibling::em)]</p>
-<p>:is(ol,ul) :is(ol,ul) ol <b>- 0 -</b> .//*[(self::ol or self::ul)]//*[(self::ol or self::ul)]//ol</p>
+<p>:is(ol,ul) :is(ol,ul) ol <b>- 0 -</b> .//*[self::ol or self::ul]//*[self::ol or self::ul]//ol</p>
 <p>div[class=&#039;content&#039; i] b <b>- 0 -</b> .//div[translate(@class, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;content&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;)]//b</p>
 <p>div[class=&#039;CONTENT&#039; i] b <b>- 0 -</b> .//div[translate(@class, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;) = translate(&#039;CONTENT&#039;, &#039;ABCDEFGHJIKLMNOPQRSTUVWXYZ&#039;, &#039;abcdefghjiklmnopqrstuvwxyz&#039;)]//b</p>
 <p>article div:only-of-type <b>- 0 -</b> .//article//div[count(preceding-sibling::div) = 0 and count(following-sibling::div) = 0]</p>
@@ -557,7 +559,6 @@
 <h2 id="not_nth_child_json">not-nth-child.json</h2>
 <h3>Results:</h3>
 <p><a href="#not-nth-child.json_passed">Passed: <b>107</b></a></p>
-<p><a href="#not-nth-child.json_have_no_matches">Have no matches: <b>18</b></a></p>
 <h3 id="not-nth-child.json_passed">Passed: <b>107</b></h3>
 <p>p:not(:nth-child(1)) <b>43 === 43</b> .//p[not(count(preceding-sibling::*) = 0)]</p>
 <p>p:not(:nth-child(2)) <b>45 === 45</b> .//p[not(count(preceding-sibling::*) = 1)]</p>
@@ -666,30 +667,10 @@
 <p>p:not(:nth-child(-5n+3)) <b>43 === 43</b> .//p[not(count(preceding-sibling::*) &lt;= 2 and (count(preceding-sibling::*) - 2) mod 5 = 0)]</p>
 <p>p:not(:nth-child(-5n+4)) <b>43 === 43</b> .//p[not(count(preceding-sibling::*) &lt;= 3 and (count(preceding-sibling::*) - 3) mod 5 = 0)]</p>
 <p>p:not(:nth-child(-5n+5)) <b>45 === 45</b> .//p[not(count(preceding-sibling::*) &lt;= 4 and (count(preceding-sibling::*) - 4) mod 5 = 0)]</p>
-<h3 id="not-nth-child.json_have_no_matches">Have no matches: <b>18</b></h3>
-<p>p:not(:nth-child(n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-child(1n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
 </section><section>
 <h2 id="not_nth_last_child_json">not-nth-last-child.json</h2>
 <h3>Results:</h3>
 <p><a href="#not-nth-last-child.json_passed">Passed: <b>107</b></a></p>
-<p><a href="#not-nth-last-child.json_have_no_matches">Have no matches: <b>18</b></a></p>
 <h3 id="not-nth-last-child.json_passed">Passed: <b>107</b></h3>
 <p>p:not(:nth-last-child(1)) <b>45 === 45</b> .//p[not(count(following-sibling::*) = 0)]</p>
 <p>p:not(:nth-last-child(2)) <b>45 === 45</b> .//p[not(count(following-sibling::*) = 1)]</p>
@@ -798,30 +779,10 @@
 <p>p:not(:nth-last-child(-5n+3)) <b>44 === 44</b> .//p[not(count(following-sibling::*) &lt;= 2 and (count(following-sibling::*) - 2) mod 5 = 0)]</p>
 <p>p:not(:nth-last-child(-5n+4)) <b>44 === 44</b> .//p[not(count(following-sibling::*) &lt;= 3 and (count(following-sibling::*) - 3) mod 5 = 0)]</p>
 <p>p:not(:nth-last-child(-5n+5)) <b>44 === 44</b> .//p[not(count(following-sibling::*) &lt;= 4 and (count(following-sibling::*) - 4) mod 5 = 0)]</p>
-<h3 id="not-nth-last-child.json_have_no_matches">Have no matches: <b>18</b></h3>
-<p>p:not(:nth-last-child(n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-child(1n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
 </section><section>
 <h2 id="not_nth_last_of_type_json">not-nth-last-of-type.json</h2>
 <h3>Results:</h3>
 <p><a href="#not-nth-last-of-type.json_passed">Passed: <b>107</b></a></p>
-<p><a href="#not-nth-last-of-type.json_have_no_matches">Have no matches: <b>18</b></a></p>
 <h3 id="not-nth-last-of-type.json_passed">Passed: <b>107</b></h3>
 <p>p:not(:nth-last-of-type(1)) <b>43 === 43</b> .//p[not(count(following-sibling::p) = 0)]</p>
 <p>p:not(:nth-last-of-type(2)) <b>43 === 43</b> .//p[not(count(following-sibling::p) = 1)]</p>
@@ -930,30 +891,10 @@
 <p>p:not(:nth-last-of-type(-5n+3)) <b>43 === 43</b> .//p[not(count(following-sibling::p) &lt;= 2 and (count(following-sibling::p) - 2) mod 5 = 0)]</p>
 <p>p:not(:nth-last-of-type(-5n+4)) <b>44 === 44</b> .//p[not(count(following-sibling::p) &lt;= 3 and (count(following-sibling::p) - 3) mod 5 = 0)]</p>
 <p>p:not(:nth-last-of-type(-5n+5)) <b>44 === 44</b> .//p[not(count(following-sibling::p) &lt;= 4 and (count(following-sibling::p) - 4) mod 5 = 0)]</p>
-<h3 id="not-nth-last-of-type.json_have_no_matches">Have no matches: <b>18</b></h3>
-<p>p:not(:nth-last-of-type(n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-last-of-type(1n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
 </section><section>
 <h2 id="not_nth_of_type_json">not-nth-of-type.json</h2>
 <h3>Results:</h3>
 <p><a href="#not-nth-of-type.json_passed">Passed: <b>107</b></a></p>
-<p><a href="#not-nth-of-type.json_have_no_matches">Have no matches: <b>18</b></a></p>
 <h3 id="not-nth-of-type.json_passed">Passed: <b>107</b></h3>
 <p>p:not(:nth-of-type(1)) <b>43 === 43</b> .//p[not(count(preceding-sibling::p) = 0)]</p>
 <p>p:not(:nth-of-type(2)) <b>43 === 43</b> .//p[not(count(preceding-sibling::p) = 1)]</p>
@@ -1062,25 +1003,6 @@
 <p>p:not(:nth-of-type(-5n+3)) <b>43 === 43</b> .//p[not(count(preceding-sibling::p) &lt;= 2 and (count(preceding-sibling::p) - 2) mod 5 = 0)]</p>
 <p>p:not(:nth-of-type(-5n+4)) <b>44 === 44</b> .//p[not(count(preceding-sibling::p) &lt;= 3 and (count(preceding-sibling::p) - 3) mod 5 = 0)]</p>
 <p>p:not(:nth-of-type(-5n+5)) <b>44 === 44</b> .//p[not(count(preceding-sibling::p) &lt;= 4 and (count(preceding-sibling::p) - 4) mod 5 = 0)]</p>
-<h3 id="not-nth-of-type.json_have_no_matches">Have no matches: <b>18</b></h3>
-<p>p:not(:nth-of-type(n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n+0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n-0)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n+1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n-1)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n-2)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n-3)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n-4)) <b>- 0 -</b> .//p[not(self::node())]</p>
-<p>p:not(:nth-of-type(1n-5)) <b>- 0 -</b> .//p[not(self::node())]</p>
 </section><section>
 <h2 id="nth_child_json">nth-child.json</h2>
 <h3>Results:</h3>
