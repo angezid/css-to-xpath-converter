@@ -260,6 +260,7 @@
 			clearCSSEditor();
 			clearXPathEditor(true);
 			clearWarning();
+			cssBox.focus();
 			changed = true;
 		});
 
@@ -455,6 +456,7 @@
 		if (elem) {
 			elem.scrollIntoView({ block : "center" });
 			document.getElementById('demo')?.scrollIntoView();
+			scrollBy(0, -10);
 		}
 	}
 
@@ -547,7 +549,7 @@
 				const selector = this.getAttribute('data-selector');
 				updateCSSEditor(selector);
 				this.classList.add("visited");
-				scrollBy(0, -80);
+				scrollBy(0, -90);
 			});
 
 			elem.addEventListener('mouseover', function(e) {
