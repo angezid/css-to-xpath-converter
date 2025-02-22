@@ -35,7 +35,7 @@ async function performTest() {
 			const json = JSON.parse(str);
 
 			for (let k = 0; k < json.paths.length; k++) {
-				const htmlName = json.paths[k].replace(/\.json$/, '.html'),
+				const htmlName = json.paths[k],
 					name = htmlName.replace(/\.html$/, '');
 
 				console.log('testing ' + jsonName + ' with ' + htmlName);

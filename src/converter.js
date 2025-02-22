@@ -157,14 +157,18 @@
 	}
 
 	function postprocess(xpath) {
+		// removes unnecessary spaces
 		if (opt.removeXPathSpaces) {
-			xpath = xpath.replace(/("[^"]+"|'[^']+')|([,<=>|+-]) +| +(?=[<=>|+-])/g, (m, gr, gr2) => gr || gr2 || '');    // removes unnecessary spaces
+			xpath = xpath.replace(/("[^"]+"|'[^']+')|([,<=>|+-]) +| +(?=[<=>|+-])/g, (m, gr, gr2) => gr || gr2 || '');
 		}
-		xpath = xpath.replace(/([([]| or )self::node\(\)\[((?:[^'"[\]]|"[^"]*"|'[^']*')+)\](?!\[| *\|)/g, '$1$2');    // simplifies self::node()[] predicates
-
-		xpath = xpath.replace(/((?:[^'"[\]]|"[^"]*"|'[^']*')+)|\]\[(?![[(])/g, (m, gr) => gr || ' and ');    // joins predicates by and
-
-		xpath = xpath.replace(/\[\(((?:[^'"()]|"[^"]*"|'[^']*')+)\)]/g, (m, gr) => '[' + gr + ']');    // removes unnecessary parentheses
+		// simplifies self::node()[] predicates
+		xpath = xpath.replace(/([([]| or )self::node\(\)\[((?:[^'"[\]]|"[^"]*"|'[^']*')+)\](?!\[| *\|)/g, '$1$2');
+		// joins predicates by ' and '
+		xpath = xpath.replace(/((?:[^'"[\]]|"[^"]*"|'[^']*')+)|\]\[(?![[(])/g, (m, gr) => gr || ' and ');
+		// removes unnecessary parentheses
+		xpath = xpath.replace(/\[\(((?:[^'"()]|"[^"]*"|'[^']*')+)\)]/g, (m, gr) => '[' + gr + ']');
+		// removes curly braces; they were added to prevent joining predicates by ' and '
+		xpath = xpath.replace(/((?:[^'"{}]|"[^"]*"|'[^']*')+)|[{}]/g, (m, gr) => gr || '');
 		return xpath;
 	}
 
@@ -211,17 +215,16 @@
 						addOwner(owner, node);
 						let str = '[';
 						do {
-							str += "contains(concat(' ', normalize-space(@class), ' '), ' ";
 							[i, value] = getClassValue(i + 1, classReg, node);
-							str += value;
+							str += getClass('@class', normalizeQuotes(' ' + value + ' '));
 
 							classReg.lastIndex = i + 2;
 							if (nextChar(i, '.') && classReg.test(code)) {
-								str += " ') and ";
+								str += " and ";
 
 							} else break;
 						} while (++i < length);
-						node.add(str, " ')]");
+						node.add(str + "]");
 						check = false;
 						break;
 
@@ -597,6 +600,7 @@
 			return;
 		}
 		const lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
+		const value = normalizeQuotes(attrValue);
 
 		switch (operation) {
 			case "=" :
@@ -604,7 +608,7 @@
 					node.add("[", lowerCaseValue, " = ", toLowerCase(attrValue), "]");
 
 				} else {
-					node.add("[@", attrName, "='", attrValue, "']");
+					node.add("[@", attrName, "=", value, "]");
 				}
 				break;
 
@@ -613,7 +617,7 @@
 					node.add("[(not(@", attrName, ") or ", lowerCaseValue, "!=", toLowerCase(attrValue), ")]");
 
 				} else {
-					node.add("[(not(@", attrName, ") or @", attrName, "!='", attrValue, "')]");
+					node.add("[(not(@", attrName, ") or @", attrName, "!=", value, ")]");
 				}
 				break;
 
@@ -631,7 +635,7 @@
 					node.add("[(", lowerCaseValue, " = ", toLowerCase(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLowerCase(attrValue), ", '-')))]");
 
 				} else {
-					node.add("[(@", attrName, " = '", attrValue, "' or starts-with(@", attrName, ", '", attrValue, "-'))]");
+					node.add("[(@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), "))]");
 				}
 				break;
 
@@ -640,16 +644,16 @@
 					node.add("[starts-with(", lowerCaseValue, ", ", toLowerCase(attrValue), ")]");
 
 				} else {
-					node.add("[starts-with(@", attrName, ", '", attrValue, "')]");
+					node.add("[starts-with(@", attrName, ", ", value, ")]");
 				}
 				break;
 
 			case "$=" :    //ends with
 				if (ignoreCase) {
-					node.add("[substring(", lowerCaseValue, ", string-length(@", attrName, ") - (string-length('", attrValue, "') - 1)) = ", toLowerCase(attrValue), "]");
+					node.add("[substring(", lowerCaseValue, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", toLowerCase(attrValue), "]");
 
 				} else {
-					node.add("[substring(@", attrName, ", string-length(@", attrName, ") - (string-length('", attrValue, "') - 1)) = '", attrValue, "']");
+					node.add("[substring(@", attrName, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", value, "]");
 				}
 				break;
 
@@ -658,7 +662,7 @@
 					node.add("[contains(", lowerCaseValue, ", ", toLowerCase(attrValue), ")]");
 
 				} else {
-					node.add("[contains(@", attrName, ", '", attrValue, "')]");
+					node.add("[contains(@", attrName, ", ", value, ")]");
 				}
 				break;
 
@@ -692,7 +696,7 @@
 			attributeValue = toLowerCase(attributeValue);
 
 		} else {
-			attributeValue = "'" + attributeValue + "'";
+			attributeValue = normalizeQuotes(attributeValue);
 		}
 
 		if (operation === "!=") {
@@ -702,8 +706,8 @@
 			node.add("[contains(", attrName, ", ", attributeValue, ")]");
 
 		} else if (operation === "|=") {
-			const attrValue1 = ignoreCase ? toLowerCase(' ' + attrValue + ' ') : "' " + attrValue + " '";
-			const attrValue2 = ignoreCase ? toLowerCase(' ' + attrValue + '-') : "' " + attrValue + "-'";
+			const attrValue1 = ignoreCase ? toLowerCase(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
+			const attrValue2 = ignoreCase ? toLowerCase(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
 
 			node.add("[(", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), ")]");
 
@@ -725,8 +729,7 @@
 				break;
 
 			case "external" :
-				//node.add("[(starts-with(@href,", " 'https://') or starts-with(@href,", " 'http://'))]");
-				node.add("[((local-name() = 'a' or local-name() = 'area') and (starts-with(@href,", " 'https://') or starts-with(@href,", " 'http://')))]");
+				node.add("[((local-name() = 'a' or local-name() = 'area') and (starts-with(@href, 'https://') or starts-with(@href, 'http://')))]");
 				break;
 
 			case "contains" :
@@ -805,7 +808,11 @@
 			case "not" :
 				const axis = node.owner == "*" ? "self::" : "";
 				nd = node.clone();
-				node.add("[not(", parseNested(nd, name, arg, axis, "self::node()", { name : 'not' }), ")]");
+				result = parseNested(nd, name, arg, axis, "self::node()", { name : 'not' });
+
+				if (result !== "self::node()") {
+					node.add("[not(", result, ")]");
+				}
 				break;
 
 			case "is" :
@@ -923,17 +930,6 @@
 		if (str) node.add(str);
 	}
 
-	function checkValidity(name, arg, not) {
-		if (/^(?:-?0n?|-n(?:[+-]0|-\d+)?|(?:0|-\d+)n(?:-\d+)?|(?:0|-\d+)n\+0)$/.test(arg)) {
-			warning += pseudo + name + '\' with these arguments yield no matches';
-			//argumentException(warning);
-		}
-
-		if (not && /^1?n(?:\+[01]|-\d+)?$/.test(arg)) {
-			warning += pseudo + name + '\' with these arguments in \':not()\' yield no matches';
-		}
-	}
-
 	function processNth(name, arg, nested, parNode, node) {
 		if (isNullOrWhiteSpace(arg)) argumentException("argument is empty or white space");
 
@@ -943,40 +939,42 @@
 			owner = '*';
 
 		if (name === "nth-child" || name === "nth-last-child") {
-			const rm = /^.+ of (.+)$/.exec(arg);
+			const ofReg = / +of +(.+)$/,
+				rm = ofReg.exec(arg);
 
 			if (rm !== null) {
 				const nd = node.clone();
 				ofResult =  parseNested(nd, name, rm[1], '', "self::node()", { predicate : true });
-				ofResult = nd.toString();
-
-				const firstChild = nd.childNodes[0],
-					ofOwner = firstChild.owner;
 
 				if (nd.childNodes.length === 1) {
-					firstChild.owner = '';
-					const result = nd.toString();
+					const firstChild = nd.childNodes[0],
+						selfNode = firstChild.owner === "self::node()";
 
-					if (ofOwner === "self::node()") {
+					firstChild.owner = '';
+					const result = "{" + nd.toString() + "}";
+
+					if (selfNode) {
 						owner += result;
 						ofResult = result;
 
 					} else {
-						owner = ofResult;
-						ofResult = (nd.hasOr() ? "[(" + result +")]" : "[" + result + "]");
+						owner = "{" + ofResult + "}";
+						ofResult = "{[" + ofResult + "]}";
 					}
-					//console.log('nd.childNodes.length === 1' , childUsePosition, nd.owner, ofOwner, ofResult);
 
 				} else {
-					ofResult = (nd.hasOr() ? "[(" + ofResult +")]" : "[" + ofResult + "]");
+					ofResult = "{[" + ofResult + "]}";
 					owner += ofResult;
 				}
+				arg = arg.replace(ofReg, '');
 			}
 		}
 
-		arg = arg.replace(/\s+of .+$/g, '').replace(/\s+/g, '');
+		arg = arg.replace(/\s+/g, '');
 
-		checkValidity(name, arg, not);
+		if ( !checkValidity(name, arg, not)) {
+			return node;
+		}
 
 		let str = '',
 			child = false,
@@ -1008,7 +1006,9 @@
 				break;
 		}
 
-		if (usePosition && child && str) {
+		if ( !str) return node;
+
+		if (usePosition && child) {
 			const newNodeOwner = node.owner && node.owner != "self::node()" ? node.owner : "*";
 			node.owner = owner;
 			node.add(str);
@@ -1112,10 +1112,9 @@
 		}
 	}
 
-	function getNumber(str) {
-		const num = 1 - str;
-		if (num === 0) return '';
-		return (num < 0 ? ' - ' : ' + ') + Math.abs(num);
+	function getNumber(val) {
+		const num = 1 - val;
+		return num === 0 ? '' : (num < 0 ? ' - ' : ' + ') + Math.abs(num);
 	}
 
 	function getValue(sign, num, defaultVal) {
@@ -1123,36 +1122,35 @@
 		return isPresent(num) ? +(minus + num) : defaultVal;
 	}
 
-	function normalizeArg(name, argument, isString = true) {
-		if ( !argument) {
+	function checkValidity(name, arg, not) {
+		if (/^(?:-?0n?|-n(?:[+-]0|-\d+)?|(?:0|-\d+)n(?:-\d+)?|(?:0|-\d+)n\+0)$/.test(arg)) {
+			if (not) return false;
+
+			argumentException(pseudo + name + '\' with these arguments yield no matches');
+		}
+
+		if (not && /^1?n(?:\+[01]|-\d+)?$/.test(arg)) {
+			argumentException(pseudo + name + '\' with these arguments in \':not()\' yield no matches');
+		}
+		return true;
+	}
+
+	function normalizeArg(name, arg, isString = true) {
+		if ( !arg) {
 			argumentException(pseudo + name + " has an empty argument.");
 		}
 
 		if (isString) {
-			argument = normalizeQuotes(name, argument);
+			arg = normalizeQuotes(arg, name);
 		}
-
-		return argument;
+		return arg;
 	}
 
-	function normalizeQuotes(name, text) {
-		let len = text.length;
-
-		if (len > 1) {
-			const start = text[0], end = text[len - 1];
-
-			if (start === '\'' && end === '\'') {
-				if (len > 2) return text;
-
-			} else if (start === '"' && end === '"') {
-				if (len > 2) text = text.substring(1, len - 2);
-			}
-		}
-
+	function normalizeQuotes(text, name) {
 		if (text.includes("'")) {
 			if ( !text.includes("\"")) return '"' + text + '"';
 
-			argumentException(pseudo + name + "' string argument contains both '\"' and '\'' quotes");
+			argumentException((name ? pseudo + name + "' string argument" : 'string') + " contains both '\"' and '\'' quotes"); // ???
 		}
 		return '\'' + text + '\'';
 	}
@@ -1165,7 +1163,7 @@
 	}
 
 	function toLowerCase(str = null, quote = true) {
-		str = str === null ? "normalize-space()" : quote ? '\'' + str + '\'' : str;
+		str = str === null ? "normalize-space()" : quote ? normalizeQuotes(str) : str;
 
 		return "translate(" + str + ", 'ABCDEFGHJIKLMNOPQRSTUVWXYZ" + uppercase + "', 'abcdefghjiklmnopqrstuvwxyz" + lowercase + "')";
 	}
@@ -1197,7 +1195,7 @@
 
 	function getPseudoClass(i) {
 		pseudoClassReg.lastIndex = i;
-		const rm = pseudoClassReg.exec(code);
+		const rm = pseudoClassReg.exec(code); // /((?:[a-z]+-)*[a-z]+)(?:([(])|(?=[ ,:+>~!^]|$))/y;
 
 		if (rm !== null) {
 			const name = rm[1];
