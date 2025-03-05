@@ -20,15 +20,15 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 
 |   Selectors  |   Description                 |   Remark  |
 |--------------|-------------------------------|-----------|
-|   "+"        |                               |           |
-|   ">"        |                               |           |
-|   "~"        |                               |           |
+|   "+"        |   adjacent following sibling  |           |
+|   ">"        |   child                    |           |
+|   "~"        |   following siblings        |           |
 |   "^"        |   first child                 |           |
-|   "!"        |   ancestors                   |           |
+|   "!"        |   ancestors or self                  |           |
 |   "!^"       |   last child                  |           |
 |   "!+"       |   adjacent preceding sibling  |           |
 |   "!>"       |   parent                      |           |
-|   "!~"       |   preceding sibling           |           |
+|   "!~"       |   preceding siblings           |           |
 
 <h3>Attribute selectors</h3>
 
@@ -43,60 +43,66 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 |   "\|="                    |   exactly or followed by a hyphen               |              |
 |   [attr operator value i]  |   to perform case-insensitive value comparison  |   i or I     |
 
-<h3>Pseudoclasses</h3>
+<h3>Pseudo-classes</h3>
 
 |   Selectors              |   Description                                            |   Remark               |
 |--------------------------|----------------------------------------------------------|------------------------|
-|   ":any-link"            |                                                          |                        |
-|   ":after()"             |                                                          |                        |
-|   ":after-sibling()"     |                                                          |                        |
-|   ":before()"            |                                                          |                        |
-|   ":before-sibling()"    |                                                          |                        |
-|   ":checked"             |                                                          |                        |
-|   ":contains()"          |   text contains string                                   |                        |
+|   ":any-link"            |  select `a` or `area` elements with attribute 'href'     |                        |
+|   ":after(s)"             |  select elements that appear after specified element     |                        |
+|   ":after-sibling(s)"     |  select siblings that appear after specified element     |                        |
+|   ":before(s)"            |  select elements that appear before specified element    |                        |
+|   ":before-sibling(s)"    |  select siblings that appear before specified element    |                        |
+|   ":contains(t)"          |   select elements that have text contains string         |                        |
+|   ":icontains(t)"         |   the same as `:contains()` but case-insensitive         |                        |
 |   ":disabled"            |                                                          |                        |
 |   ":empty"               |   select empty elements                                  |                        |
 |   ":enabled"             |                                                          |                        |
-|   ":ends-with()"         |   text ends with string                                  |                        |
-|   ":eq()"                |   select element equal to number                         | same as ":nth()"       |
+|   ":ends-with(t)"         |   select elements that have text ends with string        |                        |
+|   ":iends-with(t)"        |   the same as `:ends-with()` but case-insensitive        |                        |
 |   ":first"               |   select the first element                               |                        |
-|   ":first()"             |   select the first `n` element                           |                        |
+|   ":first(n)"             |   select the first `n` element                           |                        |
 |   ":first-child"         |                                                          |                        |
 |   ":first-of-type"       |                                                          |                        |
-|   ":gt()"                |   select elements greater than number                    |                        |
-|   ":has()"               |                                                          |                        |
-|   ":has-ancestor()"      |                                                          |                        |
-|   ":has-parent()"        |                                                          |                        |
-|   ":has-sibling()"       |                                                          |                        |
-|   ":icontains()"         |   text contains string ignore case                       |                        |
-|   ":iends-with()"        |   text ends with string ignore case                      |                        |
-|   ":is()"                |                                                          |                        |
-|   ":istarts-with()"      |   text starts with string ignore case                    |                        |
+|   ":eq(n)"                |   select element equal to `n`                         | same as ":nth()"       |
+|   ":nth(n)"               |   select element equal to `n`                         | same as ":eq()"        |
+|   ":gt(n)"                |   select elements greater than `n`                    |                        |
+|   ":lt(n)"                |   select elements lesser than `n`                     |                        |
+|   ":has(s)"               |                                                          |                        |
+|   ":has-ancestor(s)"      |                                                          |                        |
+|   ":has-parent(s)"        |                                                          |                        |
+|   ":has-sibling(s)"       |                                                          |                        |
+|   ":is(s)"                |                                                          |                        |
+|   ":matches(s)"           |                                                          |                        |
 |   ":last"                |   select the last element                                |                        |
-|   ":last()"              |   select the last `n` element                            |                        |
+|   ":last(n)"              |   select the last `n` element                            |                        |
 |   ":last-child"          |                                                          |                        |
 |   ":last-of-type"        |                                                          |                        |
-|   ":limit()"             |   select specified number of elements                    |                        |
-|   ":lt()"                |   select elements lesser than number                     |                        |
-|   ":not()"               |                                                          | it's more versatile    |
-|   ":nth()"               |   select element equal to number                         | same as ":eq()"        |
+|   ":limit(n)"             |   select specified number of elements                    |                        |
+|   ":not(s)"               |                                                          |                        |
 |   ":nth-child()"         |                                                          | supports `of` selector |
 |   ":nth-last-child()"    |                                                          | supports `of` selector |
 |   ":nth-of-type()"       |                                                          |                        |
 |   ":nth-last-of-type()"  |                                                          |                        |
 |   ":only-child"          |                                                          |                        |
 |   ":only-of-type"        |                                                          |                        |
-|   ":range()"             |   select elements from smaller number to bigger one      |                        |
-|   ":root"                |   `html` element                                         |                        |
-|   ":skip()"              |   skip elements lesser than number                       |                        |
+|   ":range(n, m)"             |   select elements from `n` to `m`     |                        |
+|   ":skip(n)"              |   skip elements lesser than `n`                       |                        |
 |   ":skip-first"          |   skip the first element                                 |                        |
-|   ":skip-first()"        |   skip the first `n` elements                            |                        |
+|   ":skip-first(n)"        |   skip the first `n` elements                            |                        |
 |   ":skip-last"           |   skip the last element                                  |                        |
-|   ":skip-last()"         |   skip the last `n` elements                             |                        |
-|   ":starts-with()"       |   text starts with string                                |                        |
+|   ":skip-last(n)"         |   skip the last `n` elements                             |                        |
+|   ":starts-with(t)"       |   select elements that have text starts with string      |                        |
+|   ":istarts-with(t)"      |   the same as `:starts-with()` but case-insensitive      |                        |
+|   ":root"                |   `html` element                                         |                        |
+|   ":external"            |                                                          |                        |
+|   ":checked"             |                                                          |                        |
 |   ":target"              |   select elements with attribute 'href' starts with '#'  |                        |
 |   ":selected"            |   select `option` elements with attribute 'selected'     |                        |
-|   ":text"                |                                                          |                        |
+|   ":text"                |                                                         |                        |
+
+* `s` - selectors
+* `n, m` - numbers 
+* `t` - text
 
 </details>
 
@@ -104,7 +110,6 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 ``` js
 const { xpath, css, warning, error } = toXPath(selector, options);
 if (xpath) console.log(xpath);
-else console.log(error);
 ```
 
 ### Output object properties:
@@ -122,10 +127,10 @@ else console.log(error);
   * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor.
   * `debug` - log the converter errors to the console (the converter catches its errors internally).
   
-  * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value operations.  
+  * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value and text operations.  
   It extends the default uppercase Latin alphabet. It must be compliant with `lowercaseLetters`.
   
-  * `lowercaseLetters` - custom lowercase letters string, using by converter to perform case-insensitive attribute value operations.  
+  * `lowercaseLetters` - custom lowercase letters string, using by converter to perform case-insensitive attribute value and text operations.  
   It extends the default lowercase Latin alphabet. It must be compliant with `uppercaseLetters`.
   
   The default options:

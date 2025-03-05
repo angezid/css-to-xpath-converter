@@ -3,3 +3,4 @@
 node_modules/
 
 test/test-coverage.html
+playground/static/beautify-html.js

@@ -51,6 +51,7 @@
 	};
 
 	const maxSaveNumber = 30,
+		postprocess = document.getElementById('postprocess'),
 		up = document.getElementById('up-btn'),
 		down = document.getElementById('down-btn'),
 
@@ -117,8 +118,29 @@
 	}
 
 	initConverter();
-
+	
 	function buildHtmlSelector() {
+		let options = '<option value="">' + defaultHtmls['name'] + '</option>';
+
+		for (const key in defaultHtmls) {
+			buildOptions(key, defaultHtmls);
+		}
+		
+		for (const key in htmls) {
+			buildOptions(key, htmls);
+		}
+		
+		function buildOptions(key, htmls) {
+			if (key !== 'name') {
+				let title = key.replace(/^[a-z]/, m => m.toUpperCase()).replace(/[a-z](?=[A-Z])/g, '$& ');
+				title = title.replace(/( [A-Z])([a-z]+)/g, (m, gr1, gr2) => gr1.toLowerCase() + gr2);
+				options += `<option value="${key}">${title}</option>`;
+			}
+		}
+		htmlList.innerHTML = options;
+	}
+
+	/*function buildHtmlSelector() {
 		let options = '<option value="">' + defaultHtmls['name'] + '</option>';
 
 		for (const key in defaultHtmls) {
@@ -129,14 +151,18 @@
 			}
 		}
 		htmlList.innerHTML = options;
-	}
+	}*/
 
+	function beautify(html) {
+		return html_beautify(html);
+	}
+	
 	function updateSelector() {
 		try {
 			const obj = JSON.parse(selectorHistory.value);
 			if (obj) {
 				cssEditor.updateCode(obj.selector);
-				axesSelector.value = obj.axis || '//';
+				axesSelector.value = obj.axis || './/';
 				uppercase.value = obj.uppercase || '';
 				lowercase.value = obj.lowercase || '';
 			}
@@ -144,20 +170,52 @@
 	}
 
 	function registerEvents() {
-		cssEditor.onUpdate(() => changed = true);
-		//xpathEditor.onUpdate(() => changed = true);
-		//cssEditor.onUpdate(() => changed = true);
+		cssEditor.onUpdate(() => { changed = true; });
+		htmlEditor.onUpdate(() => { changed = true; });
 
+		window.addEventListener('beforeunload', function(e) {
+			if (changed) {
+				const selector = cssBox.innerText.trim();
+				if (selector) {
+					addSelector(selector, axesSelector.value);
+				}
+
+				const html = htmlBox.textContent;
+				if (html.trim()) {
+					settings.html = html;
+				}
+
+				settings.save();
+			}
+		});
+		
 		htmlList.addEventListener('change', function(e) {
-			const obj = defaultHtmls[this.value];
+			let html;
+			let obj = defaultHtmls[this.value];
+			
+			if (obj) html = obj.content;
+			else html = htmls[this.value];
 
-			if (obj) {
+			if (html) {
 				htmlBox.focus();
-				htmlEditor.updateCode(obj.content);
+				//htmlEditor.updateCode(obj.content);
+				htmlEditor.updateCode(beautify(html));
 				htmlEditor.recordHistory();
 				htmlBox.blur();
 			}
 		});
+
+		/*htmlList.addEventListener('change', function(e) {
+			const obj = defaultHtmls[this.value];
+
+			if (obj) {
+				htmlBox.focus();
+				//htmlEditor.updateCode(obj.content);
+				htmlEditor.updateCode(beautify(obj.content));
+				htmlEditor.recordHistory();
+				htmlBox.blur();
+			}
+		});*/
 
 		selectorHistory.addEventListener('change', function(e) {
 			updateSelector(this.value);
@@ -173,8 +231,12 @@
 			}, 100);
 		});
 
+		postprocess.addEventListener('click', function() {
+			convert();
+		});
+
 		consoleUse.addEventListener('click', function() {
-			convert(true);
+			convert();
 		});
 
 		copy.addEventListener('click', function() {
@@ -220,7 +282,12 @@
 		});
 
 		convertButton.addEventListener('click', function() {
-			convert();
+			clearWarning();
+			clearXPathEditor(true);
+
+			setTimeout(function() {
+				convert();
+			}, 10);
 		});
 
 		detailsHtmlBox.addEventListener('toggle', function() {
@@ -319,6 +386,7 @@
 		options.axis = axis;
 		options.standard = consoleUse.checked;
 		options.consoleUse = consoleUse.checked;
+		options.postprocess = postprocess.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 
@@ -333,18 +401,25 @@
 		}
 
 		if (detailsHtmlBox.hasAttribute('open') && xpath) {
+			const result = checkDifference(selector, xpath);
 			highlightXPath(xpath);
+
+			if (result) {
+				//messageBox.innerHTML = messageBox.innerHTML + '<br>' + result;
+				messageBox.innerHTML = result;
+			}
 		}
 
-		settings.save();
+		if (error) return;
 
-		if ( !css || !changed) return;
-
-		changed = false;
-
-		//addSelector(css, axis);
 		addSelector(selector, axis);
-		updateSelectors(true);
+
+		if (changed) {
+			settings.save();
+			changed = false;
+		}
+		updateSelectors();
+
 		return xpath;
 	}
 
@@ -383,8 +458,8 @@
 	function highlightCSS() {
 		clearWarning();
 
-		const selector = cssBox.innerText.trim()
-			if ( !selector) return;
+		const selector = cssBox.innerText.trim();
+		if ( !selector) return;
 
 		const { doc, htmlString, indexes } = parseHTML();
 		if ( !doc) return;
@@ -447,7 +522,7 @@
 			},
 			done : (_, totalMatches) => {
 				if (totalMatches !== length) {
-					showMessage('Missing matches - ' + length + ' != ' + totalMatches);
+					showMessage('main.js: Indexes count ' + length + ' !== ' + totalMatches + ' number of highlighted elements');
 				}
 			}
 		});
@@ -475,12 +550,70 @@
 					node : node,
 					startIndex : startIndex
 				});
-				index = startIndex;
-				//console.log(startIndex, htmlBox.textContent.substr(startIndex, 20));
+				index = startIndex + 3; // minimal open tag length is 3
 			}
 		});
 
 		return startIndexes;
+	}
+
+	function checkDifference(selector, xpath) {
+		let result = '',
+			success = true,
+			cssElems = [],
+			xpathElems = [],
+			node;
+
+		const { doc } = parseHTML();
+		if ( !doc) return '';
+
+		try {
+			cssElems = doc.querySelectorAll(selector);
+
+		} catch(e) {
+			result += 'Selector is not valid; ';
+			success = false;
+		}
+
+		if (success) {
+			result += 'Selector: count = ' + cssElems.length + '; ';
+		}
+
+		success = true;
+
+		try {
+			const iterator = doc.evaluate(xpath, doc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
+			while ((node = iterator.iterateNext())) {
+				xpathElems.push(node);
+			}
+
+		} catch (e) {
+			result += 'XPath is not valid; ';
+			success = false;
+		}
+
+		if (success) {
+			result += 'XPath: count = ' + xpathElems.length + ';';
+		}
+
+		if (cssElems.length !== xpathElems.length) {
+			return result.replaceAll('; ', ';<br>');
+
+		} else if (cssElems.length) {
+			let equals = 0,
+				notEquals = 0;
+
+			for (let i = 0; i < cssElems.length; i++) {
+				if (cssElems[i] === xpathElems[i]) equals++;
+				else notEquals++;
+			}
+
+			if (notEquals) {
+				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + notEquals + '; not equals = ' + equals;
+				return result.replaceAll('; ', ';<br>');
+			}
+		}
+		return '';
 	}
 
 	function showError(error) {
@@ -504,7 +637,13 @@
 
 	function addSelector(selector, axis) {
 		selector = selector.replace(/'/g, '&#39;');
+		const length = settings.selectors.length;
+
 		settings.selectors = settings.selectors.filter(obj => obj.selector && obj.selector !== selector);
+
+		if (length === settings.selectors.length) {
+			changed = true;
+		}
 
 		const upper = uppercase.value.trim(),
 			lower = lowercase.value.trim();
@@ -516,27 +655,13 @@
 		}
 	}
 
-	function updateSelectors(save) {    // TODO
-		if (isChanged()) {
-			let str = '';
-			settings.selectors.forEach(obj => {
-				if ( !obj.selector) return true;
-				str += "<option value='" + JSON.stringify(obj) + "'>" + obj.selector + '</option>';
-			});
-			selectorHistory.innerHTML = str;
-			settings.save();
-
-		} else if (save) {
-			settings.save();
-		}
-	}
-
-	function isChanged() {
-		const list = Array.from(selectorHistory.childNodes).filter(node => node.nodeType === 1);
-
-		if (settings.selectors.length !== list.length) return true;
-
-		return settings.selectors.some((obj, i) => list[i].getAttribute("value") !== JSON.stringify(obj).replace(/&#39;/g, "'"));
+	function updateSelectors() {
+		let str = '';
+		settings.selectors.forEach(obj => {
+			if ( !obj.selector) return true;
+			str += "<option value='" + JSON.stringify(obj) + "'>" + obj.selector + '</option>';
+		});
+		selectorHistory.innerHTML = str;
 	}
 
 	function setExamples() {
@@ -570,7 +695,7 @@
 			if (/^\$\$/.test(item[0])) {
 				let title = item[0].substring(2);
 				const id = title.replace(/\W+/g, '_').toLowerCase();
-				title = title.replace(' non-standard', ''); // is necessary to form class attribute id
+				title = title.replace(' non-standard', '');    // is necessary to form class attribute id
 
 				sb.push('<tr class="group"><td id="', id, '">', title, '</td><td>' + (item[1] || '') + '</td><td><span class="example-info">' + (item[2] || '') + '</span></td></tr>');
 
@@ -583,7 +708,7 @@
 				if (xpath) {
 					xpath = xpath.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
 
-					let description = item[1] ? item[1].replace(/ n(?= |$)/g, ' <i>n</i>') : ' - ';
+					let description = item[1] ? item[1].replace(/ (n\d?)(?= |$)/g, ' <i>$1</i>') : ' - ';
 
 					sb.push('<tr><td class="name">', href, description, '</td>');
 

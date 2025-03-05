@@ -47,20 +47,34 @@ async function performTest() {
 				for (let i = 0; i < json.selectors.length; i++) {
 					const selector = json.selectors[i],
 						css = entitize(selector);
-					let cssElems, xpathElems, xpath;
+					let cssElems,
+						xpathElems, 
+						cssError,
+						xpathError,
+						xpath;
 
 					const obj = toXPath(selector, { standard : true });
 					if (obj.error) {
 						array.push({ 'error' : true, 'text' : `${css}`, message : obj.error });
 						continue;
 					}
-					
+
 					xpath = entitize(obj.xpath);
 
-					try { cssElems = await page.$$(selector); } catch (e) { array.push({ 'notValid' : 'css', 'text' : `${css}` }); }
-					try { xpathElems = await page.$x(obj.xpath); } catch (e) { array.push({ 'notValid' : 'xpath', 'css' : `${css}`, 'text' : `${xpath}`  }); }
-
-					if ( !cssElems || !xpathElems) continue;
+					try { cssElems = await page.$$(selector); } catch (e) { cssError = true; }
+					try { xpathElems = await page.$x(obj.xpath); } catch (e) { xpathError = true; }
+					
+					if (cssError) {
+						let count = xpathElems ? xpathElems.length : NaN;
+						array.push({ 'notValid' : 'css', 'text' : `${css}`, 'xpath' : `${xpath}`, 'xpathCount' : count });
+					}
+	
+					if (xpathError) {
+						let count = cssElems ? cssElems.length : NaN;
+						array.push({ 'notValid' : 'xpath', 'css' : `${css}`, 'text' : `${xpath}`, 'cssCount' : count  })
+					}
+	
+					if (cssError || xpathError) continue;
 
 					if (cssElems.length === xpathElems.length) {
 						if (cssElems.length === 0) {
@@ -80,7 +94,7 @@ async function performTest() {
 								array.push({ 'success' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
 
 							} else {
-								array.push({ 'failed' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
+								array.push({ 'notReferenceEquals' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
 							}
 						}
 
@@ -145,21 +159,21 @@ function reportCoverage(coverage, name) {
 		const array = coverage[key],
 			id = key.replace(/\W+/g, '_').toLowerCase();
 
-		let passed = [], failed = [], error = [], notValid = [], noMatch = [], match = [], warning = [];
+		let passed = [], notReferenceEquals = [], error = [], notValid = [], noMatch = [], match = [], warning = [];
 
 		array.forEach((item) => {
 			if (item.success) {
 				passed.push(`<p>${item.css} <b>${item.count} === ${item.count}</b> ${item.xpath}</p>\n`);
 
-			} else if (item.failed) {
-				failed.push(`<p><b>${item.count}</b> ${item.css}  <b>- X -</b> ${item.xpath}</p>\n`);
+			} else if (item.notReferenceEquals) {
+				notReferenceEquals.push(`<p><b>${item.count}</b> ${item.css}  <b>- X -</b> ${item.xpath}</p>\n`);
 
 			} else if (item.notValid) {
 				if (item.notValid === 'css') {
-					notValid.push(`<p>${item.text} <b>CSS</b></p>\n`);
+					notValid.push(`<p>${item.text} <b>CSS</b><b>  x == ${item.xpathCount}</b> ${item.xpath}</p>\n`);
 
 				} else if (item.notValid === 'xpath') {
-					notValid.push(`<p>${item.css} --> ${item.text} <b>XPath</b></p>\n`);
+					notValid.push(`<p>${item.css} <b>${item.cssCount} -- </b> ${item.text} <b>XPath</b></p>\n`);
 				}
 
 			} else if (item.noMatch) {
@@ -185,23 +199,23 @@ function reportCoverage(coverage, name) {
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
-		if (failed.length) {
-			failedNum += failed.length;
-			obj = add(key, 'Failed', failed);
+		if (notReferenceEquals.length) {
+			failedNum += notReferenceEquals.length;
+			obj = add(key, 'Not reference equals', notReferenceEquals, 'red');
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (notValid.length) {
 			notValidNum += notValid.length;
-			obj = add(key, 'Not valid', notValid);
+			obj = add(key, 'Not valid', notValid, 'pink');
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (match.length) {
 			matchNum += match.length;
-			obj = add(key, 'Have different match count', match);
+			obj = add(key, 'Have different match count', match, 'red');
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
@@ -228,8 +242,9 @@ function reportCoverage(coverage, name) {
 		}
 	}
 
-	function add(key, title, array) {
+	function add(key, title, array, color) {
 		const id= key + '_' + title.replace(/\W+/g, '_').toLowerCase();
+		title = color ? '<span style="color:' + color + '">' + title + '</span>' : title;
 		const str = `<h3 id="${id}">${title}: <b>${array.length}</b></h3>\n` + array.join('');
 		const summary = `<p><a href="#${id}">${title}: <b>${array.length}</b></a></p>\n`;
 		const nav = `<li><a href="#${id}">${title}</a> <b>${array.length}</b></li>\n`;
@@ -252,7 +267,6 @@ function reportCoverage(coverage, name) {
 	text = deEntitize(text);
 
 	writeFile('test/test-coverage.txt', text);
-	if (name) writeFile('test/' + name + '.txt', text);
 
 	function writeFile(path, text) {
 		fs.writeFile(path, text, 'utf-8', err => {
