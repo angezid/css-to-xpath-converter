@@ -96,6 +96,10 @@
 		position = 0;
 
 	function initConverter() {
+		if (location.protocol === 'file:') {
+			postprocess.className = ''; // show checkbox
+		}
+
 		setExamples();
 		buildHtmlSelector();
 		settings.load();
@@ -361,7 +365,7 @@
 		options.axis = axis;
 		options.standard = consoleUse.checked;
 		options.consoleUse = consoleUse.checked;
-		options.postprocess = postprocess.checked;
+		options.postprocess = postprocess.className ? true : postprocess.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 
@@ -638,6 +642,18 @@
 		});
 		selectorHistory.innerHTML = str;
 	}
+	
+	function getPosition(elem) {
+		position = this.getBoundingClientRect().top + window.scrollY;
+	}
+	
+	function setExampleSelector(elem) {
+		clearCSSButton.click();
+		const selector = elem.getAttribute('data-selector');
+		updateCSSEditor(selector);
+		elem.classList.add("visited");
+		scrollBy(0, -90);
+	}
 
 	function setExamples() {
 		const section = document.getElementById('examples');
@@ -645,15 +661,11 @@
 
 		section.querySelectorAll('code.css').forEach((elem) => {
 			elem.addEventListener('click', function(e) {
-				clearCSSButton.click();
-				const selector = this.getAttribute('data-selector');
-				updateCSSEditor(selector);
-				this.classList.add("visited");
-				scrollBy(0, -90);
+				setExampleSelector(this);
 			});
 
 			elem.addEventListener('mouseover', function(e) {
-				position = this.getBoundingClientRect().top + window.scrollY;
+				getPosition(this);
 			});
 		});
 
