@@ -105,13 +105,12 @@ function performTest() {
 }
 
 function reportCoverage(coverage) {
-	let nav = '<aside><nav><ul>\n',
+	let nav = '<nav><ul>\n',
 		result = '',
 		text = '',
 		html = '';
-	const info = '<h3>Info:</h3>\n<p>All tests are run in your current browser.</p>\n<p>Tests <b>Passed</b> mean that the elements selected by CSS selector are <b>reference equal</b> (not just only by count) to the elements selected by the generated XPath.</p>\n<p><b>Note</b> that XPath implementation for the class attribute is the standard one (like other attributes).<br><b>Not valid</b> selectors are mostly from an extended set of selectors which the browser doesn\'t support.</p>\n';
 	
-	let summaries = '';
+	let summaries = '<h3>Total results:</h3>';
 	let passedNum = 0, failedNum = 0, errorNum = 0, notValidNum = 0, noMatchNum = 0, matchNum = 0, warningNum = 0;
 	
 	for (let key of Object.keys(coverage)) {
@@ -217,10 +216,11 @@ function reportCoverage(coverage) {
 	if (noMatchNum) summaries += '<p>Have no matches: <b>' + noMatchNum + '</b></p>\n';
 	if (errorNum) summaries += '<p>Coverter errors: <b>' + errorNum + '</b></p>\n';
 	
-	nav += '</ul><br><br></nav></aside>\n';
-	html += nav + '<main>\n<h1>Test results:</h1>\n' + summaries + info + result + '<br><br></main>\n';
+	nav += '</ul><br><br></nav>\n';
 	
-	document.body.innerHTML = html;
+	document.getElementById('sidebar').innerHTML = nav;
+	document.getElementById('summary').innerHTML = summaries;
+	document.getElementById('result').innerHTML = result;
 }
 
 function entitize(text) {
@@ -236,26 +236,3 @@ function deEntitize(text) {
 	});
 	return text;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

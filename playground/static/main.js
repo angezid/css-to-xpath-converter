@@ -96,6 +96,10 @@
 		position = 0;
 
 	function initConverter() {
+		if (location.protocol === 'file:') {
+			postprocess.className = ''; // show checkbox
+		}
+
 		setExamples();
 		buildHtmlSelector();
 		settings.load();
@@ -114,22 +118,23 @@
 		}
 
 		registerEvents();
-		//convert(true);
+		//convert();
 	}
 
 	initConverter();
-	
+
 	function buildHtmlSelector() {
 		let options = '<option value="">' + defaultHtmls['name'] + '</option>';
 
 		for (const key in defaultHtmls) {
 			buildOptions(key, defaultHtmls);
 		}
-		
+
 		for (const key in htmls) {
+			if (/CssW3CSelector|CssSelector2/.test(key)) continue;
 			buildOptions(key, htmls);
 		}
-		
+
 		function buildOptions(key, htmls) {
 			if (key !== 'name') {
 				let title = key.replace(/^[a-z]/, m => m.toUpperCase()).replace(/[a-z](?=[A-Z])/g, '$& ');
@@ -140,23 +145,10 @@
 		htmlList.innerHTML = options;
 	}
 
-	/*function buildHtmlSelector() {
-		let options = '<option value="">' + defaultHtmls['name'] + '</option>';
-
-		for (const key in defaultHtmls) {
-			if (key !== 'name') {
-				let title = key.replace(/^[a-z]/, m => m.toUpperCase()).replace(/[a-z](?=[A-Z])/g, '$& ');
-				title = title.replace(/( [A-Z])([a-z]+)/g, (m, gr1, gr2) => gr1.toLowerCase() + gr2);
-				options += `<option value="${key}">${title}</option>`;
-			}
-		}
-		htmlList.innerHTML = options;
-	}*/
-
 	function beautify(html) {
 		return html_beautify(html);
 	}
-	
+
 	function updateSelector() {
 		try {
 			const obj = JSON.parse(selectorHistory.value);
@@ -188,34 +180,21 @@
 				settings.save();
 			}
 		});
-		
+
 		htmlList.addEventListener('change', function(e) {
 			let html;
 			let obj = defaultHtmls[this.value];
-			
+
 			if (obj) html = obj.content;
 			else html = htmls[this.value];
 
 			if (html) {
 				htmlBox.focus();
-				//htmlEditor.updateCode(obj.content);
 				htmlEditor.updateCode(beautify(html));
 				htmlEditor.recordHistory();
 				htmlBox.blur();
 			}
 		});
-
-		/*htmlList.addEventListener('change', function(e) {
-			const obj = defaultHtmls[this.value];
-
-			if (obj) {
-				htmlBox.focus();
-				//htmlEditor.updateCode(obj.content);
-				htmlEditor.updateCode(beautify(obj.content));
-				htmlEditor.recordHistory();
-				htmlBox.blur();
-			}
-		});*/
 
 		selectorHistory.addEventListener('change', function(e) {
 			updateSelector(this.value);
@@ -386,7 +365,7 @@
 		options.axis = axis;
 		options.standard = consoleUse.checked;
 		options.consoleUse = consoleUse.checked;
-		options.postprocess = postprocess.checked;
+		options.postprocess = postprocess.className ? true : postprocess.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 
@@ -663,6 +642,18 @@
 		});
 		selectorHistory.innerHTML = str;
 	}
+	
+	function getPosition(elem) {
+		position = this.getBoundingClientRect().top + window.scrollY;
+	}
+	
+	function setExampleSelector(elem) {
+		clearCSSButton.click();
+		const selector = elem.getAttribute('data-selector');
+		updateCSSEditor(selector);
+		elem.classList.add("visited");
+		scrollBy(0, -90);
+	}
 
 	function setExamples() {
 		const section = document.getElementById('examples');
@@ -670,15 +661,11 @@
 
 		section.querySelectorAll('code.css').forEach((elem) => {
 			elem.addEventListener('click', function(e) {
-				clearCSSButton.click();
-				const selector = this.getAttribute('data-selector');
-				updateCSSEditor(selector);
-				this.classList.add("visited");
-				scrollBy(0, -90);
+				setExampleSelector(this);
 			});
 
 			elem.addEventListener('mouseover', function(e) {
-				position = this.getBoundingClientRect().top + window.scrollY;
+				getPosition(this);
 			});
 		});
 

@@ -5,7 +5,7 @@ Also, it implements non-standard class attribute behavior which has more practic
 
 It's inspired by [css2xpath](https://github.com/css2xpath/css2xpath), but it is too buggy.
 
-The converter has been tested in Puppeteer and Chrome. See [Test results](https://angezid.github.io/css-to-xpath-converter/test-coverage.html).  
+The converter has been tested in Puppeteer and Chrome. See [Test results](https://angezid.github.io/css-to-xpath-converter/css2xpath-tests.html).  
 The C# version was tested using an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`.
 
 **Important:** the converter itself doesn't check validity neither of CSS selector nor of resulted XPath.  

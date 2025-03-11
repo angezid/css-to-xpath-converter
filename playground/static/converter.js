@@ -42,33 +42,43 @@
 		this.separator = '';
 		this.owner = '';
 		this.isClone = false;
-		this.previousNode = null;
 		this.parentNode = node;
-		this.childNodes = [];
-		this.content = [];
+		this.previousNode;
+		this.childNodes;
+		this.content;
+
+		this.addChild = function(nd) {
+			if ( !this.childNodes) this.childNodes = [];
+			this.childNodes.push(nd);
+		}
 
 		this.add = function() {
 			let str = '';
 			for (let i = 0; i < arguments.length; i++) {
 				str += arguments[i];
 			}
+			if ( !this.content) this.content = [];
 			this.content.push(str);
 		}
 
 		this.hasAxis = function(axis) {
 			if (this.axis === axis) return true;
 
-			for (let i = 0; i < this.childNodes.length; i++) {
-				if (this.childNodes[i].hasAxis(axis)) return true;
+			if (this.childNodes) {
+				for (let i = 0; i < this.childNodes.length; i++) {
+					if (this.childNodes[i].hasAxis(axis)) return true;
+				}
 			}
 			return false;
 		}
 
 		this.hasOr = function() {
-			if (this.content.some(str => str === ' or ' ||  str === ' | ')) return true;
+			if (this.content && this.content.some(str => str === ' or ' ||  str === ' | ')) return true;
 
-			for (let i = 0; i < this.childNodes.length; i++) {
-				if (this.childNodes[i].hasOr()) return true;
+			if (this.childNodes) {
+				for (let i = 0; i < this.childNodes.length; i++) {
+					if (this.childNodes[i].hasOr()) return true;
+				}
 			}
 			return false;
 		}
@@ -84,14 +94,16 @@
 			if ( !this.isClone) {
 				text = this.separator + this.axis + this.owner;
 
-				if (this.content.length) {
+				if (this.content) {
 					text += this.content.join('');
 				}
 			}
 
-			this.childNodes.forEach((node) => {
-				text += node.toString(text);
-			});
+			if (this.childNodes) {
+				this.childNodes.forEach((node) => {
+					text += node.toString(text);
+				});
+			}
 			return text;
 		}
 	}
@@ -105,7 +117,7 @@
 			uppercaseLetters : '',
 			lowercaseLetters : '',
 			printError : () => {},
-			postprocess : true,
+			postprocess : true, // for debugging purpose
 			debug : false
 		}, options);
 
@@ -147,7 +159,7 @@
 		return { xpath, css : normalized, warning, error : error };
 	}
 
-	function convertArgument(node, selector, axis = "", owner, argInfo) {
+	function convertArgument(node, selector, axis, owner, argInfo) {
 		if ( !selector) {
 			argumentException("The pseudo-selector \':" + argInfo.name + '()\' have missing argument.');
 		}
@@ -189,6 +201,7 @@
 		let classNode = newNode(rootNode, null);
 		let node = newNode(classNode, null);
 
+		const name = argumentInfo ? argumentInfo.name : '';
 		const predicate = argumentInfo && argumentInfo.predicate;
 
 		let attrName = null,
@@ -214,19 +227,21 @@
 			ch = code[i];
 
 			if (state === State.Text) {
-				if (check && !/[>+~^! .#*:|[@a-zA-Z]/.test(ch) || !check && !/[ >+~^!,.#*:|[@a-zA-Z]/.test(ch)) {
+				if (check && !/[>+~^!.#*:|[@a-zA-Z]/.test(ch) || !check && !/[ >+~^!,.#*:|[@a-zA-Z]/.test(ch)) {
 					characterException(i, ch, "State." + getState(state) + ", check=" + check, code);
 				}
 
-				//if (argumentInfo && /[>+~^!]/.test(ch) && /(?:has-|after-?|before-?)/.test(argumentInfo.name)) {
-				if (argumentInfo && /[>+~^!]/.test(ch) && /(?:has-sibling|after-?|before-?)/.test(argumentInfo.name)) {
-					argumentException('\'' + argumentInfo.name + '()\' with these arguments has no implementation');
+				if (argumentInfo && /!?[+~]/.test(ch) && /-sibling$/.test(name)) {
+					argumentException('\'' + name + '()\' with these arguments has no implementation');
+				}
+
+				if (/[.#:[]/.test(ch) || name !== "has" && node.previousNode && /[>+~^!]/.test(ch)) {
+					addAxes(axis, node);
+					addOwner(owner, node);
 				}
 
 				switch (ch) {
 					case '.' :
-						addAxes(axis, node);
-						addOwner(owner, node);
 						let str = '[';
 						do {
 							[i, value] = getClassValue(i + 1);
@@ -243,15 +258,14 @@
 						break;
 
 					case '#' :
-						addAxes(axis, node);
-						addOwner(owner, node);
 						[i, value] = getClassValue(i + 1);
 						node.add("[@id=", normalizeQuotes(value), "]");
 						check = false;
 						break;
 
 					case '>' :
-						node = newNode(classNode, node, argumentInfo ? "child::" : "",  "/");
+						//node = newNode(classNode, node, argumentInfo ? "child::" : "",  "/");
+						node = newNode(classNode, node, "child::",  "/");
 						check = true;
 						break;
 
@@ -293,8 +307,6 @@
 						break;
 
 					case '[' :
-						addAxes(axis, node);
-						addOwner(owner, node);
 						attrName = '';
 						attrValue = null;
 						modifier = null;
@@ -303,8 +315,6 @@
 						break;
 
 					case ':' :
-						addAxes(axis, node);
-						addOwner(owner, node);
 						if (nextChar(i, ':')) i++;
 						state = State.PseudoClass;
 						break;
@@ -333,17 +343,17 @@
 
 					case ' ' :
 						if (argumentInfo) {
-							if (argumentInfo.name === 'has-ancestor') {
+							if (name === 'has-ancestor') {
 								node = newNode(classNode, node, 'ancestor::', " and ");
 
-							} else if(argumentInfo.name === 'has-parent') {
+							} else if(name === 'has-parent' || name === 'before' || name === 'after' || name.endsWith('-sibling')) {
 								if ( !node.previousNode) {
 									node.axis = 'ancestor::';
 									node.separator = '';
 								}
 								node = newNode(classNode, node, 'ancestor::', " and ");
 
-							} else if(argumentInfo.name === 'not' && node.axis === 'self::') {
+							} else if(name === 'not' && node.axis === 'self::') {
 								if (node.previousNode && node.previousNode.axis === 'ancestor::') {
 									node.separator = ' and ';
 								}
@@ -436,7 +446,7 @@
 			} else if (state === State.AttributeValue) {
 				switch (ch) {
 					case ']' :
-						if (attrValue === null) parseException("attrValue is null.'");
+						if (attrValue === null) parseException("attrValue is null.");
 
 						processAttribute(attrName, attrValue, operation, modifier, node);
 
@@ -509,7 +519,7 @@
 
 	function newNode(parNode, node, axis, separator) {
 		const nd = new xNode(parNode);
-		parNode.childNodes.push(nd);
+		parNode.addChild(nd);
 		nd.previousNode = node;
 		nd.axis = axis || '';
 
@@ -565,7 +575,6 @@
 					if (owner) {
 						if (ch === ':') result = "*";
 						else if (ch === '/') result = owner;
-						//else if (ch === '/') result = owner !== "self::node()" ? owner : "*";
 
 					} else if (ch === ':' || ch === '/') result = "*";
 				}
@@ -878,7 +887,7 @@
 				nd = node.clone();
 				result = convertArgument(nd, arg, "self::", "self::node()", { name : name });
 
-				if (result !== "self::node()") {
+				if (result !== "self::node()") { // processNth() can return 'self::node()'
 					if (nd.hasAxis('ancestor::')) {
 						result = transform(nd);
 					}
@@ -894,22 +903,21 @@
 
 			case "has-sibling" :
 				nd = node.clone();
-				const precedings = convertArgument(nd, arg, "preceding-sibling::", "", { name : name });
+				let precedings = convertArgument(nd, arg, "preceding-sibling::", "", { name : name });
+				if (nd.hasAxis('ancestor::')) {
+					precedings = transform(nd, "preceding-sibling::");
+				}
 
 				nd = node.clone();
-				const followings = convertArgument(nd, arg, "following-sibling::", "", { name : name });
+				let followings = convertArgument(nd, arg, "following-sibling::", "", { name : name });
+				if (nd.hasAxis('ancestor::')) {
+					followings = transform(nd, "following-sibling::");
+				}
 				node.add("{[(", precedings, ") or (", followings, ")]}");
 				break;
 
 			case "has-parent" :
-				nd = node.clone();
-				result = convertArgument(nd, arg, "parent::", "", { name : name });
-
-				if (nd.hasAxis('ancestor::')) {
-					result = transform(nd, "parent::");
-				}
-
-				addToNode(nd, "[" + result + "]");
+				process(name, arg, "parent::", node);
 				break;
 
 			case "has-ancestor" :
@@ -919,27 +927,19 @@
 				break;
 
 			case "after" :
-				nd = node.clone();
-				result = convertArgument(nd, arg, "preceding::", "", { name : name });
-				addToNode(nd, "[" + result + "]");
+				process(name, arg, "preceding::", node);
 				break;
 
 			case "after-sibling" :
-				nd = node.clone();
-				result = convertArgument(nd, arg, "preceding-sibling::", "", { name : name });
-				addToNode(nd, "[" + result + "]");
+				process(name, arg, "preceding-sibling::", node);
 				break;
 
 			case "before" :
-				nd = node.clone();
-				result = convertArgument(nd, arg, "following::", "", { name : name });
-				addToNode(nd, "[" + result + "]");
+				process(name, arg, "following::", node);
 				break;
 
 			case "before-sibling" :
-				nd = node.clone();
-				result = convertArgument(nd, arg, "following-sibling::", "", { name : name });
-				addToNode(nd, "[" + result + "]");
+				process(name, arg, "following-sibling::", node);
 				break;
 
 			case "last" :
@@ -1007,6 +1007,16 @@
 
 		if (str) node.add(str);
 
+		function process(name, arg, axis, node) {
+			const nd = node.clone();
+			const result = convertArgument(nd, arg, axis, "", { name : name });
+
+			if (nd.hasAxis('ancestor::')) {
+				result = transform(nd, axis);
+			}
+			addToNode(nd, "[" + result + "]");
+		}
+
 		function addToNode(nd, result) {
 			// prevents joining predicates by ' and ' in postprocess()
 			node.add(nd.hasOr() ? "{" + result + "}" : result);
@@ -1028,13 +1038,9 @@
 					} else {
 						nd.separator = '';
 
-						 if (axis) {
-							nd.axis = axis;
-							str = nd.toString() + '[' + str + ']';
+						 if (axis) nd.axis = axis;
 
-						} else {
-							str = nd.toString() + '[' + str + ']';
-						}
+						str = nd.toString() + '[' + str + ']';
 					}
 				});
 				result += str;
@@ -1046,42 +1052,53 @@
 		return result;
 	}
 
+	function checkOfSelector(name, arg, node) {
+		let ofResult,
+			owner = '*';
+		const ofReg = / +of +(.+)$/,
+			rm = ofReg.exec(arg);
+
+		if (rm !== null) {
+			const nd = node.clone();
+			ofResult =  convertArgument(nd, rm[1], '', "self::node()", { predicate : true, name : name });
+
+			if (nd.childNodes.length === 1) {
+				const classNode = nd.childNodes[0],
+					firstChild = classNode.childNodes[0];
+
+				if (firstChild.owner === "self::node()") {
+					firstChild.owner = '';
+					const result = "{" + classNode.toString() + "}";
+
+					owner += result;
+					ofResult = result;
+
+				} else {
+					owner = "{" + ofResult + "}";
+					ofResult = "{[" + ofResult + "]}";
+				}
+
+			} else {
+				ofResult = "{[" + ofResult + "]}";
+				owner += ofResult;
+			}
+			return { arg : arg.replace(ofReg, ''), owner, ofResult };
+		}
+		return null;
+	}
+
 	function processNth(name, arg, not, parNode, node) {
 		if (isNullOrWhiteSpace(arg)) argumentException("argument is empty or white space");
 
-		const childUsePosition = !not && name === 'nth-child';
-		let ofResult = '',
+		let ofResult,
 			owner = '*';
 
 		if (name === "nth-child" || name === "nth-last-child") {
-			const ofReg = / +of +(.+)$/,
-				rm = ofReg.exec(arg);
-
-			if (rm !== null) {
-				const nd = node.clone();
-				ofResult =  convertArgument(nd, rm[1], '', "self::node()", { predicate : true, name : name });
-
-				if (nd.childNodes.length === 1) {
-					const classNode = nd.childNodes[0],
-						firstChild = classNode.childNodes[0];
-
-					if (firstChild.owner === "self::node()") {
-						firstChild.owner = '';
-						const result = "{" + classNode.toString() + "}";
-
-						owner += result;
-						ofResult = result;
-
-					} else {
-						owner = "{" + ofResult + "}";
-						ofResult = "{[" + ofResult + "]}";
-					}
-
-				} else {
-					ofResult = "{[" + ofResult + "]}";
-					owner += ofResult;
-				}
-				arg = arg.replace(ofReg, '');
+			const obj = checkOfSelector(name, arg, node);
+			if (obj) {
+				arg = obj.arg;
+				owner = obj.owner;
+				ofResult = obj.ofResult;
 			}
 		}
 
