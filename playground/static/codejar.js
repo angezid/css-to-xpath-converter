@@ -59,7 +59,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 	const debounceHighlight = debounce(() => {
 		const pos = save();
 		highlight(pos);
-		select(pos);
+		restore(pos);
 	}, 30);
 	const shouldRecord = (event) => {
 		return !isCtrl(event) && !event.altKey && !isUndo(event) && !isRedo(event) && !event.key.startsWith('Arrow');
@@ -77,7 +77,6 @@ function CodeJar(editor, highlighter, opt = {}) {
 	on('keydown', event => {
 		if (event.defaultPrevented) return;
 		prev = toString();
-
 		if (event.key === 'F8') {
 			deleteLine(event);
 			return;
@@ -95,7 +94,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 				recording = true;
 			}
 		}
-		if (isLegacy) select(save());
+		//if (isLegacy) restore(save());
 	});
 	on('keyup', event => {
 		if (event.defaultPrevented || event.isComposing) return;
@@ -128,15 +127,6 @@ function CodeJar(editor, highlighter, opt = {}) {
 		const pos = { start : 0, end : 0, dir : undefined };
 		let { anchorNode, anchorOffset, focusNode, focusOffset } = s;
 		if ( !anchorNode || !focusNode) throw 'error1';
-		// If the anchor and focus are the editor element, return either a full
-		// highlight or a start/end cursor position depending on the selection
-		if (anchorNode === editor && focusNode === editor) {
-			const text = editor.textContent;
-			pos.start = (anchorOffset > 0 && text) ? text.length : 0;
-			pos.end = (focusOffset > 0 && text) ? text.length : 0;
-			pos.dir = (focusOffset >= anchorOffset) ? '->' : '<-';
-			return pos;
-		}
 		// Selection anchor and focus are expected to be text nodes,
 		// so normalize them.
 		if (anchorNode.nodeType === Node.ELEMENT_NODE) {
@@ -183,15 +173,15 @@ function CodeJar(editor, highlighter, opt = {}) {
 		return pos;
 	}
 	function setSelection(start, end, dir) {
-		select({ start, end, dir });
+		restore({ start, end, dir });
 	}
-	function select(pos) {
+	function restore(pos) {
 		const s = getSelection();
 		let startNode,
 			endNode,
 			startOffset = 0,
 			endOffset = 0,
-			current = 0;
+			previous = 0;
 		if ( !pos.dir) pos.dir = '->';
 		if (pos.start < 0) pos.start = 0;
 		if (pos.end < 0) pos.end = 0;
@@ -201,31 +191,31 @@ function CodeJar(editor, highlighter, opt = {}) {
 			pos.start = end;
 			pos.end = start;
 		}
+		const greaterThan = pos.start !== pos.end || s.anchorOffset === 0 && s.focusOffset === 0;
+
 		visit(editor, el => {
 			if (el.nodeType !== Node.TEXT_NODE) return;
-			const len = (el.nodeValue || '').length;
-			if (current + len > pos.start) {
+			const current = previous + (el.nodeValue || '').length;
+
+			if ( !greaterThan && current >= pos.start || greaterThan && current > pos.start) {
 				if ( !startNode) {
 					startNode = el;
-					startOffset = pos.start - current;
+					startOffset = pos.start - previous;
 				}
-				//if (current + len > pos.end) {
-				if (current + len > pos.end && pos.end >= current) {
+				if (current >= pos.end) {
 					endNode = el;
-					endOffset = pos.end - current;
+					endOffset = pos.end - previous;
 					return 'stop';
 				}
 			}
-			current += len;
+			previous = current;
 		});
-		//console.log(pos.dir, 'current', current, 'endOffset', endOffset, 'startOffset', startOffset);
 		if ( !startNode) startNode = editor, startOffset = editor.childNodes.length;
 		if ( !endNode) endNode = editor, endOffset = editor.childNodes.length;
 		// Flip back the selection
 		if (pos.dir == '<-') {
 			[startNode, startOffset, endNode, endOffset] = [endNode, endOffset, startNode, startOffset];
 		}
-
 		// If nodes not editable, create a text node.
 		let node = uneditable(startNode);
 		if (node) {
@@ -302,7 +292,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 			if (newIndent !== indent && options.moveToNewLine.test(after)) {
 				const pos = save();
 				insert('\n' + indent);
-				select(pos);
+				restore(pos);
 			}
 		}
 	}
@@ -316,7 +306,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 				insert('\n ');
 				const pos = save();
 				pos.start = --pos.end;
-				select(pos);
+				restore(pos);
 
 			} else {
 				insert('\n');
@@ -454,7 +444,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 		(event.originalEvent || event).clipboardData.setData('text/plain', sel);
 		document.execCommand('delete');
 
-		process2(event, pos, 0);
+		processNext(event, pos, 0);
 	}
 	function handlePaste(event) {
 		let text = (event.originalEvent || event).clipboardData.getData('text/plain');
@@ -470,9 +460,9 @@ function CodeJar(editor, highlighter, opt = {}) {
 			len = text.length;
 		insert(text);
 
-		process2(event, pos, len)
+		processNext(event, pos, len)
 	}
-	function process2(event, pos, len) {
+	function processNext(event, pos, len) {
 		highlight();
 		setSelection(Math.min(pos.start, pos.end) + len, Math.min(pos.start, pos.end) + len, '<-');
 		recordHistory();
@@ -486,7 +476,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 
 		pos.start = right ? start : pos.start;
 		pos.end = right ? pos.end : start;
-		select(pos);
+		restore(pos);
 	}
 	function normalizeSpaces(text) {
 		const indentReg = /(^|\n)[ \t]+(?=(\S)?)/g;
@@ -521,19 +511,19 @@ function CodeJar(editor, highlighter, opt = {}) {
 		if (isUndo(event)) {
 			preventDefault(event);
 			if (--index < 0) index = 0;
-			restore(index);
+			restoreHistory(index);
 		}
 		if (isRedo(event)) {
 			preventDefault(event);
 			if (++index >= history.length) index = history.length - 1;
-			restore(index);
+			restoreHistory(index);
 		}
 	}
-	function restore(index) {
+	function restoreHistory(index) {
 		const record = history[index];
 		if (record) {
 			editor.innerHTML = record.html;
-			select(record.pos);
+			restore(record.pos);
 		}
 	}
 	function recordHistory() {
@@ -573,10 +563,8 @@ function CodeJar(editor, highlighter, opt = {}) {
 		return event.metaKey || event.ctrlKey;
 	}
 	function insert(text) {
-		text = text.replace(/[<>&"']/g, m => {
-			return m === '<' ? '&lt;' : m === '>' ? '&gt;' : m === '&' ? '&amp;' : m === '"' ? '&quot;' : '&#039;';
-		});
-		document.execCommand('insertHTML', false, text);
+		const obj = { '<' : '&lt;', '>' : '&gt;', '&' : '&amp;', '"' : '&quot;', '\'' : '&#039;' };
+		document.execCommand('insertHTML', false, text.replace(/[<>&"']/g, m => obj[m]));
 	}
 	function debounce(cb, wait) {
 		let timeout = 0;
@@ -592,10 +580,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 		event.preventDefault();
 	}
 	function getSelection() {
-		const root = editor.getRootNode();
-		if (root.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-			try { return root.getSelection(); } catch (e) { }
-		}
+		try { return editor.getRootNode().getSelection(); } catch (e) { }
 		return window.getSelection();
 	}
 	return {
@@ -612,7 +597,7 @@ function CodeJar(editor, highlighter, opt = {}) {
 		},
 		toString,
 		save,
-		select,
+		restore,
 		recordHistory,
 		destroy() {
 			for (let [type, fn] of listeners) {
