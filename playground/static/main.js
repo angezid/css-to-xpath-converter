@@ -83,24 +83,26 @@
 	
 	new autoComplete(cssBox, {
 		suggestions: autocompleteCSS.concat(tagsAttrs).concat(htmlAttributes.map(str => str.replace('@', '['))),
-		regex : /(^|[\s"'*./:=@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?[\w()-]+)$/u,
+		regex : /(^|[\s"'*./:=@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
 		threshold : 2,
-		highlight : true,
 		startsWith : true,
 		listItem : (elem, data) => {
 			process(elem);
 		},
+		debug : !postprocess.checked
 	});
 	
 	new autoComplete(xpathBox, {
 		suggestions: autocompleteXPath.concat(tagsAttrs),
-		//regex : /(^|[\s"'*./:=@()[\]\\|]|[/[](?=@))([:@]?[\w()-]+)$/u,
-		regex : /(?<trigger>^|[\s"'*./:=@()[\]\\|]|[/[](?=@))(?<query>[:@]?[\w()-]+)$/u,
+		//regex : /(^|[\s"'*./:=@()[\]\\|]|[/[](?=@))([@]?[\w-]+)$/u,
+		regex : /(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,
 		threshold : 2,
 		startsWith : true,
+		highlight : true,
 		listItem : (elem, data) => {
 			process(elem);
 		},
+		debug : !postprocess.checked
 	});
 
 	const cssEditor = CodeJar(cssBox, null, { tab : '  ' }),

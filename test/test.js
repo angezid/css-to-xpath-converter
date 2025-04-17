@@ -5,9 +5,8 @@ const fs = require('fs');
 const { readdir } = require('fs/promises');
 const { readFile } = require('fs/promises');
 const pt = require('puppeteer');
-const toXPath = require('../src/converter.js');
+const toXPath = require('../dist/converter.js');
 
-const htmlDir = './test/html';
 const jsonDir = './test/json';
 
 const personal = false;
