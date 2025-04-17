@@ -79,8 +79,33 @@
 		runCSS = document.getElementById('run-css'),
 		htmlList = document.getElementById('html-list'),
 		clearHtmlButton = document.getElementById('clear-html'),
+		tagsAttrs = htmlTags.concat(htmlAttributes);
+	
+	new autoComplete(cssBox, {
+		suggestions: autocompleteCSS.concat(tagsAttrs).concat(htmlAttributes.map(str => str.replace('@', '['))),
+		regex : /(^|[\s"'*./:=@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
+		threshold : 2,
+		startsWith : true,
+		listItem : (elem, data) => {
+			process(elem);
+		},
+		debug : !postprocess.checked
+	});
+	
+	new autoComplete(xpathBox, {
+		suggestions: autocompleteXPath.concat(tagsAttrs),
+		//regex : /(^|[\s"'*./:=@()[\]\\|]|[/[](?=@))([@]?[\w-]+)$/u,
+		regex : /(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,
+		threshold : 2,
+		startsWith : true,
+		highlight : true,
+		listItem : (elem, data) => {
+			process(elem);
+		},
+		debug : !postprocess.checked
+	});
 
-		cssEditor = CodeJar(cssBox, null, { tab : '  ' }),
+	const cssEditor = CodeJar(cssBox, null, { tab : '  ' }),
 		xpathEditor = CodeJar(xpathBox, null, { tab : '  ' }),
 		htmlEditor = CodeJar(htmlBox, null, { tab : '  ' });
 
@@ -122,6 +147,14 @@
 	}
 
 	initConverter();
+	
+	function process(elem) {
+		elem = elem.querySelector('mark') || elem;
+		const text = elem.textContent;
+		if (/^[@:[]/.test(text)) {
+			elem.textContent = text.substr(1);
+		}
+	}
 
 	function buildHtmlSelector() {
 		let options = '<option value="">' + defaultHtmls['name'] + '</option>';

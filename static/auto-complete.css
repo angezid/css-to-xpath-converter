@@ -1,0 +1,49 @@
+
+.auto-complete-list {
+  list-style: none;
+  position: absolute;
+  margin: 0;
+  padding: 5px;
+  padding-right: 15px;
+  background-color: #f8f8f8;
+  max-height: 40vh;
+  box-sizing: border-box;
+  border: 1px solid #acacac;
+  border-radius: 6px;
+  display: none;
+  box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.2), 4px 4px 20px 0 rgba(0, 0, 0, 0.3), 0 -1px 2px #dcdcdc inset;
+  overflow-y: auto;
+  z-index: 100000;
+}
+
+.auto-complete-list > li {
+  margin: 5px 15px 5px 5px;
+  padding: 2px 5px;
+  text-align: left;
+  font-size: 1em;
+  color: #000;
+  border-radius: 3px;
+  background-color: #f8f8f8;
+  white-space: nowrap;
+}
+
+.auto-complete-list > li:hover {
+  cursor: pointer;
+  background-color: #aceaea;
+  width: 90%;
+}
+
+.auto-complete-list > li.selected {
+  background-color: #aceaea;
+  width: 90%;
+}
+
+.auto-complete-list > li.selected mark {
+  background-color: #aceaea;
+  color: #f00;
+}
+
+.auto-complete-list > li > mark {
+  background-color: transparent;
+  color: #f00;
+}
