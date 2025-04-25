@@ -1,8 +1,8 @@
 /*!*******************************************
 * @angezid/codejar.js 1.0.0
 * https://github.com/angezid/codejar.js
+* Modified version of https://github.com/antonmedv/codejar
 * MIT licensed
-* Copyright (c) 2025, angezid
 *********************************************/
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -24,7 +24,7 @@
     var opt = _extends({
       tab: '\t',
       indentOn: /[({[][ \t]*$/,
-      moveToNewLine: /^[)}\]]/,
+      moveToNewLine: /^[ \t]*[)}\]]/,
       spellcheck: false,
       catchTab: true,
       preserveIndent: true,
@@ -38,29 +38,28 @@
       prev,
       recording = false,
       focus = false,
-      isLegacy = false,
       update = function update() {};
-    editor.setAttribute('contenteditable', 'plaintext-only');
+    editor.setAttribute('contenteditable', 'true');
     editor.setAttribute('spellcheck', opt.spellcheck);
-    editor.style.outline = 'none';
-    editor.style.overflowWrap = 'break-word';
-    editor.style.overflowY = 'auto';
-    editor.style.whiteSpace = 'pre-wrap';
+    _extends(editor.style, {
+      outline: "none",
+      overflowWrap: "break-word",
+      overflowY: "auto",
+      whiteSpace: "pre-wrap"
+    });
     var highlight = function highlight(pos) {
       if (highlighter && typeof highlighter === 'function') {
         highlighter(editor, pos);
       }
     };
     highlight();
-    if (editor.contentEditable !== 'plaintext-only') isLegacy = true;
-    if (isLegacy) editor.setAttribute('contenteditable', 'true');
     var debounceHighlight = debounce(function () {
       var pos = save();
       highlight(pos);
       restore(pos);
     }, 30);
     var shouldRecord = function shouldRecord(event) {
-      return !isUndo(event) && !isRedo(event) || !/^(?:Control|Meta|Alt)$|^Arrow/.test(event.key);
+      return !isCtrlZ(event) || !/^(?:Control|Meta|Alt)$|^Arrow/.test(event.key);
     };
     var debounceRecordHistory = debounce(function (event) {
       if (shouldRecord(event)) {
@@ -80,7 +79,7 @@
         return;
       }
       if (event.key === 'Enter') {
-        if (opt.preserveIndent) handleNewLine(event);else legacyNewLineFix(event);
+        if (opt.preserveIndent) handleNewLine(event);else fixNewLine(event);
       }
       if (opt.catchTab && event.key === 'Tab') handleTabCharacters(event);
       if (opt.addClosing) handleSelfClosingCharacters(event);
@@ -144,17 +143,17 @@
           isFocus = node === focusNode;
         if (isAnchor) {
           pos.start += anchorOffset;
-          if (pos.dir) return 'stop';
+          if (pos.dir) return true;
           if (!isFocus) pos.dir = '->';
         }
         if (isFocus) {
           pos.end += focusOffset;
-          if (pos.dir) return 'stop';
+          if (pos.dir) return true;
           if (!isAnchor) pos.dir = '<-';
         }
         if (isAnchor && isFocus) {
           pos.dir = anchorOffset <= focusOffset ? '->' : '<-';
-          return 'stop';
+          return true;
         }
         if (pos.dir !== '->') pos.start += node.nodeValue.length;
         if (pos.dir !== '<-') pos.end += node.nodeValue.length;
@@ -170,25 +169,26 @@
       });
     }
     function restore(pos) {
-      var s = getSelection();
+      if (!pos.dir) pos.dir = '->';
+      if (pos.start < 0) pos.start = 0;
+      if (pos.end < 0) pos.end = 0;
+      var s = getSelection(),
+        reversed = pos.dir === '<-',
+        gt = pos.start !== pos.end || s.anchorOffset === 0 && s.focusOffset === 0;
       var startNode,
         endNode,
         startOffset = 0,
         endOffset = 0,
-        previous = 0;
-      if (!pos.dir) pos.dir = '->';
-      if (pos.start < 0) pos.start = 0;
-      if (pos.end < 0) pos.end = 0;
-      if (pos.dir == '<-') {
-        var start = pos.start,
-          end = pos.end;
-        pos.start = end;
-        pos.end = start;
+        previous = 0,
+        temp;
+      if (reversed) {
+        temp = pos.start;
+        pos.start = pos.end;
+        pos.end = temp;
       }
-      var greaterThan = pos.start !== pos.end || s.anchorOffset === 0 && s.focusOffset === 0;
       visit(editor, function (node) {
         var current = previous + (node.nodeValue || '').length;
-        if (!greaterThan && current >= pos.start || greaterThan && current > pos.start) {
+        if (!gt && current >= pos.start || gt && current > pos.start) {
           if (!startNode) {
             startNode = node;
             startOffset = pos.start - previous;
@@ -196,47 +196,44 @@
           if (current >= pos.end) {
             endNode = node;
             endOffset = pos.end - previous;
-            return 'stop';
+            return true;
           }
         }
         previous = current;
       });
-      if (!startNode) startNode = editor, startOffset = editor.childNodes.length;
-      if (!endNode) endNode = editor, endOffset = editor.childNodes.length;
-      if (pos.dir == '<-') {
-        var _ref = [endNode, endOffset, startNode, startOffset];
-        startNode = _ref[0];
-        startOffset = _ref[1];
-        endNode = _ref[2];
-        endOffset = _ref[3];
+      var obj = checkNode(startNode, startOffset),
+        obj2 = checkNode(endNode, endOffset);
+      if (reversed) {
+        temp = obj;
+        obj = obj2;
+        obj2 = temp;
       }
-      var node = uneditable(startNode);
-      if (node) {
-        startNode = node;
-        startOffset = 0;
-      }
-      node = uneditable(endNode);
-      if (node) {
-        endNode = node;
-        endOffset = 0;
-      }
-      s.setBaseAndExtent(startNode, startOffset, endNode, endOffset);
+      s.setBaseAndExtent(obj.node, obj.offset, obj2.node, obj2.offset);
     }
     function visit(elem, visitor) {
       var iterator = document.createNodeIterator(elem, NodeFilter.SHOW_TEXT);
       var node;
-      while (node = iterator.nextNode()) {
-        if (visitor(node) === 'stop') break;
-      }
+      while ((node = iterator.nextNode()) && !visitor(node));
     }
-    function uneditable(node) {
-      while (node && node !== editor) {
-        if (isElement(node) && node.getAttribute('contenteditable') == 'false') {
-          return insertTextNode(node.parentNode, node);
+    function checkNode(node, offset) {
+      if (!node) {
+        node = editor;
+        offset = editor.childNodes.length;
+      } else {
+        var nd = node;
+        while (nd && nd !== editor) {
+          if (isElement(nd) && nd.getAttribute('contenteditable') === 'false') {
+            node = insertTextNode(nd.parentNode, nd);
+            offset = 0;
+            break;
+          }
+          nd = nd.parentNode;
         }
-        node = node.parentNode;
       }
-      return null;
+      return {
+        node: node,
+        offset: offset
+      };
     }
     function isElement(node) {
       return node.nodeType === Node.ELEMENT_NODE;
@@ -249,11 +246,11 @@
     function getText() {
       var r0 = getSelection().getRangeAt(0);
       return {
-        before: getText2(r0, true),
-        after: getText2(r0)
+        before: getString(r0, true),
+        after: getString(r0)
       };
     }
-    function getText2(r0, before) {
+    function getString(r0, before) {
       var range = document.createRange();
       range.selectNodeContents(editor);
       if (before) range.setEnd(r0.startContainer, r0.startOffset);else range.setStart(r0.endContainer, r0.endOffset);
@@ -269,20 +266,18 @@
         preventDefault(event, true);
         insert('\n' + newIndent);
       } else {
-        legacyNewLineFix(event);
+        fixNewLine(event);
       }
       if (newIndent !== indent && opt.moveToNewLine.test(after)) {
         insertText('\n' + indent, 0);
       }
     }
-    function legacyNewLineFix(event) {
-      if (isLegacy) {
-        preventDefault(event, true);
-        if (!getText().after) {
-          insertText('\n ', 1);
-        } else {
-          insert('\n');
-        }
+    function fixNewLine(event) {
+      preventDefault(event, true);
+      if (!getText().after) {
+        insertText('\n ', 1);
+      } else {
+        insert('\n');
       }
     }
     function handleSelfClosingCharacters(event) {
@@ -301,7 +296,7 @@
       } else {
         var ch = before[before.length - 1],
           ch2 = after.charAt(0),
-          endOrSpace = !ch2 || /[\s]/.test(ch2),
+          endOrSpace = /^$|[\s]/.test(ch2),
           i = !ch2 ? -1 : close.indexOf(ch2);
         if (isOpen && ch !== '\\' && (i >= 0 || endOrSpace)) {
           enclose(event, open, close);
@@ -331,7 +326,7 @@
         index = after.indexOf('\n'),
         end = index >= 0 ? index + 1 : after.length;
       setSelection(start, before.length + end);
-      document.execCommand('delete');
+      execDelete();
     }
     function handleTabCharacters(event) {
       preventDefault(event);
@@ -348,13 +343,19 @@
       }
     }
     function dedent() {
-      var obj = findIndent(getText().before);
-      if (obj.indent) {
+      var _getText4 = getText(),
+        before = _getText4.before,
+        after = _getText4.after,
+        obj = findIndent(before),
+        spaces = getStartSpaces(after);
+      if (obj.indent || spaces) {
         var pos = save(),
-          len = Math.min(opt.tab.length, obj.indent.length);
-        setSelection(obj.start, obj.start + len);
-        document.execCommand('delete');
-        setSelection(pos.start - len, pos.end - len, pos.dir);
+          start = obj.start,
+          len = Math.min(opt.tab.length, obj.indent.length + spaces),
+          num = Math.max(start, pos.start - len);
+        setSelection(start, start + len);
+        execDelete();
+        setSelection(num, num, pos.dir);
       }
     }
     function handleSelection(shiftKey) {
@@ -367,11 +368,11 @@
         end = pos.end;
       for (var i = 0; i < lines.length; i++) {
         if (shiftKey) {
-          var rm = /^[ \t]+/.exec(lines[i]);
-          if (rm !== null) {
-            var length = Math.min(rm[0].length, tabLen);
-            lines[i] = lines[i].slice(length);
-            len += length;
+          var spaces = getStartSpaces(lines[i]);
+          if (spaces) {
+            spaces = Math.min(spaces, tabLen);
+            lines[i] = lines[i].slice(spaces);
+            len += spaces;
           }
         } else {
           if (!lines[i]) continue;
@@ -386,6 +387,10 @@
       }
       insert(lines.join('\n'));
       setSelection(start, end, pos.dir);
+    }
+    function getStartSpaces(text) {
+      var rm = /^[ \t]+/.exec(text);
+      return rm !== null ? rm[0].length : 0;
     }
     function normalizeSelection() {
       var pos = save(),
@@ -405,8 +410,11 @@
       recordHistory();
       var pos = save();
       (event.originalEvent || event).clipboardData.setData('text/plain', sel);
-      document.execCommand('delete');
+      execDelete();
       processNext(event, pos, 0);
+    }
+    function execDelete() {
+      getSelection().deleteFromDocument();
     }
     function handlePaste(event) {
       if (isPrevented(event)) return;
@@ -449,7 +457,7 @@
       return text;
     }
     function findIndent(text) {
-      var rm = /(^|\r?\n|\r)([ \t]*).*$/.exec(text);
+      var rm = /(^|[\n\r])([ \t]*)[^\n\r]*$/.exec(text);
       return {
         indent: rm[2],
         start: rm.index + rm[1].length
@@ -497,11 +505,10 @@
       return isCtrlZ(event) && event.shiftKey;
     }
     function isCtrlZ(event) {
-      return (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'Z';
+      return (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z';
     }
     function insert(text) {
       var obj = {
-        ' ': '&nbsp;',
         '<': '&lt;',
         '>': '&gt;',
         '&': '&amp;',

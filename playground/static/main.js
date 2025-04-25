@@ -78,11 +78,10 @@
 		runXPath = document.getElementById('run-xpath'),
 		runCSS = document.getElementById('run-css'),
 		htmlList = document.getElementById('html-list'),
-		clearHtmlButton = document.getElementById('clear-html'),
-		tagsAttrs = htmlTags.concat(htmlAttributes);
+		clearHtmlButton = document.getElementById('clear-html'); 
 	
 	new autoComplete(cssBox, {
-		suggestions: autocompleteCSS.concat(tagsAttrs).concat(htmlAttributes.map(str => str.replace('@', '['))),
+		suggestions: [autocompleteCSS, htmlTags, htmlAttributes.map(str => str.replace('@', '['))],
 		regex : /(^|[\s"'*./:=@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
 		threshold : 2,
 		startsWith : true,
@@ -93,7 +92,7 @@
 	});
 	
 	new autoComplete(xpathBox, {
-		suggestions: autocompleteXPath.concat(tagsAttrs),
+		suggestions: [autocompleteXPath, htmlTags, htmlAttributes],
 		//regex : /(^|[\s"'*./:=@()[\]\\|]|[/[](?=@))([@]?[\w-]+)$/u,
 		regex : /(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,
 		threshold : 2,
@@ -630,7 +629,7 @@
 
 	function showError(error) {
 		messageBox.style.color = "red";
-		messageBox.innerHTML = error.message;
+		messageBox.innerHTML = error.message || 'Error';
 		messageBox.className = '';
 		console.error(error);
 	}
@@ -677,7 +676,7 @@
 	}
 	
 	function getPosition(elem) {
-		position = this.getBoundingClientRect().top + window.scrollY;
+		position = elem.getBoundingClientRect().top + window.scrollY;
 	}
 	
 	function setExampleSelector(elem) {
