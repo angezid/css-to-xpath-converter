@@ -227,6 +227,8 @@ const autocompleteCSS = [
 	":starts-with()",
 	":target",
 	":text",
+	"even",
+	"odd",
 ];
 
 const autocompleteXPath = [
