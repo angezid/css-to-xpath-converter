@@ -97,20 +97,20 @@ const nthEquationReg = /^([+-])?([0-9]+)?n(?:([+-])([0-9]+))?$/;
 const attributeReg = /(?:(?:\*|[a-zA-Z]+)\|)?(?:\*|[^ -,.\/:-@[-^`{-~]+)/y;
 const attrNameReg = /(?:[a-zA-Z]+\|)?[^ -,.\/:-@[-^`{-~]+(?=(?:[~^|$!*]?=)|\])/y;
 const attrValueReg = /(?:"([^"]*)"|'([^']*)'|((?:\\[^ ]|[^ "'\]])+))(?: +([siSI]))?(?=\])/y;
-const State = Object.freeze({ "Text" : 0, "PseudoClass" : 1, "AttributeName" : 2, "AttributeValue" : 3 });
+const State = Object.freeze({ "Text" : 0, "PseudoClass": 1, "AttributeName": 2, "AttributeValue": 3 });
 const pseudo = "Pseudo-class ':";
 const navWarning = "\nSystem.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.";
 let opt, warning, error, uppercase, lowercase, stack, code, position, length;
 function toXPath(selector, options) {
 	opt = Object.assign({}, {
-		axis : './/',
-		consoleUse : false,
-		standard : false,
-		removeXPathSpaces : false,
-		uppercaseLetters : '',
-		lowercaseLetters : '',
-		postprocess : true,
-		debug : false
+		axis: './/',
+		consoleUse: false,
+		standard: false,
+		removeXPathSpaces: false,
+		uppercaseLetters: '',
+		lowercaseLetters: '',
+		postprocess: true,
+		debug: false
 	}, options);
 	warning = '';
 	error = '';
@@ -138,9 +138,9 @@ function toXPath(selector, options) {
 		} else {
 			console.error(e);
 		}
-		return { xpath, css : normalized, warning, error : e.message };
+		return { xpath, css: normalized, warning, error: e.message };
 	}
-	return { xpath, css : normalized, warning, error : error };
+	return { xpath, css: normalized, warning, error: error };
 }
 function convertArgument(node, selector, axis, owner, argInfo) {
 	if ( !selector) {
@@ -160,6 +160,7 @@ function postprocess(xpath) {
 		xpath = xpath.replace(/([([]| or )self::node\(\)\[((?:[^'"[\]]|"[^"]*"|'[^']*')+)\](?!\[| *\|)/g, '$1$2');
 		xpath = xpath.replace(/((?:[^'"[\]]|"[^"]*"|'[^']*')+)|\]\[(?![[(])/g, (m, gr) => gr || ' and ');
 		xpath = xpath.replace(/\[\(((?:[^'"()]|"[^"]*"|'[^']*')+)\)]/g, (m, gr) => '[' + gr + ']');
+		xpath = xpath.replace(/\/child::/g, '/');
 	}
 	xpath = xpath.replace(/((?:[^'"{}]|"[^"]*"|'[^']*')+)|[{}]/g, (m, gr) => gr || '');
 	return xpath;
@@ -192,9 +193,9 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 		ch = code[i];
 		if (state === State.Text) {
 			if (check && !/[>+~^!.#*:|[@a-zA-Z]/.test(ch) || !check && !/[ >+~^!,.#*:|[@a-zA-Z]/.test(ch)) {
-				characterException(i, ch, "State." + getState(state) + ", check=" + check, code);
+				characterException(i, ch, getState(state) + ", check=" + check, code);
 			}
-			if (argumentInfo && /!?[+~]/.test(ch) && /-sibling$/.test(name)) {
+			if (argumentInfo && /!?[+~]/.test(ch) && name.endsWith('-sibling')) {
 				argumentException('\'' + name + '()\' with these arguments has no implementation');
 			}
 			if (/[.#:[]/.test(ch) || name !== "has" && node.previousNode && /[>+~^!]/.test(ch)) {
@@ -266,7 +267,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					state = State.PseudoClass;
 					break;
 				case ',' :
-					if (i + 1 >= length) characterException(i, ch, "State." + getState(state), code);
+					if (i + 1 >= length) characterException(i, ch, getState(state), code);
 					classNode = newNode(rootNode, classNode);
 					classNode.add(predicate ? " or " : " | ");
 					classNode = newNode(rootNode, classNode);
@@ -308,7 +309,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					break;
 				case '|' :
 					if (nextChar(i, '|')) {
-						characterException(i + 1, ch, "State." + getState(state), code);
+						characterException(i + 1, ch, getState(state), code);
 					} else {
 						[i, node] = handleNamespace(i, axis, first, classNode, node);
 					}
@@ -320,12 +321,12 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 				default :
 					if (/[a-zA-Z]/.test(ch)) {
 						if (node.owner) {
-							characterException(i, ch, "State." + getState(state), code);
+							characterException(i, ch, getState(state), code);
 						}
 						addAxes(axis, node, argumentInfo);
 						i = getTagName(i, node);
 					} else {
-						characterException(i, ch, "State." + getState(state), code);
+						characterException(i, ch, getState(state), code);
 					}
 					check = false;
 					break;
@@ -354,7 +355,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 						i++;
 						addWarning(navWarning);
 					} else {
-						characterException(i, ch, "State." + getState(state), code);
+						characterException(i, ch, getState(state), code);
 					}
 					break;
 				case ']' :
@@ -378,7 +379,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					check = false;
 					break;
 				case '=' :
-					characterException(i, ch, "State." + getState(state), code);
+					characterException(i, ch, getState(state), code);
 					break;
 				case ' ' : break;
 				default :
@@ -416,12 +417,12 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 		return result + '*';
 	}
 	if (check || state !== State.Text) {
-		parseException("Something is wrong: state='" + getState(state) + "' xpath='" + result + "' in: " + code);
+		parseException("Something is wrong: '" + getState(state) + "' xpath='" + result + "' in: " + code);
 	}
 	return result;
 }
 function getState(state) {
-	return Object.keys(State)[state];
+	return "State." + Object.keys(State)[state];
 }
 function newNode(parNode, node, axis, separator) {
 	const nd = new xNode(parNode);
@@ -697,12 +698,12 @@ function processPseudoClass(name, arg, node) {
 		case "is" :
 		case "matches" :
 			nd = node.clone();
-		result = convertArgument(nd, arg, "self::", "self::node()", { predicate : true, name : name });
+			result = convertArgument(nd, arg, "self::", "self::node()", { predicate: true, name: name });
 			addToNode(nd, "[" + result + "]");
 			break;
 		case "not" :
 			nd = node.clone();
-		result = convertArgument(nd, arg, "self::", "self::node()", { name : name });
+			result = convertArgument(nd, arg, "self::", "self::node()", { name: name });
 			if (result !== "self::node()") {
 				if (nd.hasAxis('ancestor::')) {
 					result = transform(nd);
@@ -712,41 +713,41 @@ function processPseudoClass(name, arg, node) {
 			break;
 		case "has" :
 			nd = node.clone();
-		result = convertArgument(nd, arg, ".//", "", { name : name });
+			result = convertArgument(nd, arg, ".//", "", { name: name });
 			addToNode(nd, "[" + result + "]");
 			break;
 		case "has-sibling" :
 			nd = node.clone();
-		let precedings = convertArgument(nd, arg, "preceding-sibling::", "", { name : name });
+			let precedings = convertArgument(nd, arg, "preceding-sibling::", "", { name: name });
 			if (nd.hasAxis('ancestor::')) {
 				precedings = transform(nd, "preceding-sibling::");
 			}
 			nd = node.clone();
-		let followings = convertArgument(nd, arg, "following-sibling::", "", { name : name });
+			let followings = convertArgument(nd, arg, "following-sibling::", "", { name: name });
 			if (nd.hasAxis('ancestor::')) {
 				followings = transform(nd, "following-sibling::");
 			}
 			node.add("{[(", precedings, ") or (", followings, ")]}");
 			break;
 		case "has-parent" :
-			process(name, arg, "parent::", node);
+			process("parent::");
 			break;
 		case "has-ancestor" :
 			nd = node.clone();
-		result = convertArgument(nd, arg, "ancestor::", "", { name : name });
+			result = convertArgument(nd, arg, "ancestor::", "", { name: name });
 			addToNode(nd, "[" + result + "]");
 			break;
 		case "after" :
-			process(name, arg, "preceding::", node);
+			process("preceding::");
 			break;
 		case "after-sibling" :
-			process(name, arg, "preceding-sibling::", node);
+			process("preceding-sibling::");
 			break;
 		case "before" :
-			process(name, arg, "following::", node);
+			process("following::");
 			break;
 		case "before-sibling" :
-			process(name, arg, "following-sibling::", node);
+			process("following-sibling::");
 			break;
 		case "last" :
 			str = arg ? "[position() > last() - " + parseNumber(arg) + "]" : "[last()]";
@@ -795,9 +796,9 @@ function processPseudoClass(name, arg, node) {
 			break;
 	}
 	if (str) node.add(str);
-	function process(name, arg, axis, node) {
+	function process(axis) {
 		const nd = node.clone();
-		const result = convertArgument(nd, arg, axis, "", { name : name });
+		let result = convertArgument(nd, arg, axis, "", { name: name });
 		if (nd.hasAxis('ancestor::')) {
 			result = transform(nd, axis);
 		}
@@ -893,7 +894,7 @@ function addNthToXpath(name, arg, sibling, owner, last, usePosition) {
 	let str = '';
 	if (/^\d+$/.test(arg)) {
 		const num = parseInt(arg);
-		str = addPosition(sibling, owner, { valueB : num, count : num - 1, comparison : " = " }, usePosition);
+		str = addPosition(sibling, owner, { valueB: num, count: num - 1, comparison: " = " }, usePosition);
 	} else if (arg === "odd") {
 		str = addModulo(sibling, owner, ' + 1', 2, 1);
 	} else if (arg === "even") {
@@ -942,7 +943,7 @@ function parseFnNotation(arg, last) {
 		} else if (absA > 1) {
 			type = 'mod';
 		}
-		return { valueA : absA, valueB, count, comparison, type };
+		return { valueA: absA, valueB, count, comparison, type };
 	}
 	regexException(0, "parseFnNotation", nthEquationReg);
 }
@@ -983,7 +984,7 @@ function checkOfSelector(name, arg, node) {
 		rm = ofReg.exec(arg);
 	if (rm !== null) {
 		const nd = node.clone();
-		ofResult = convertArgument(nd, rm[1], '', "self::node()", { predicate : true, name : name });
+		ofResult = convertArgument(nd, rm[1], '', "self::node()", { predicate: true, name: name });
 		if (nd.childNodes.length === 1) {
 			const classNode = nd.childNodes[0],
 				firstChild = classNode.childNodes[0];
@@ -1000,7 +1001,7 @@ function checkOfSelector(name, arg, node) {
 			ofResult = "{[" + ofResult + "]}";
 			owner += ofResult;
 		}
-		return { arg : arg.replace(ofReg, ''), owner, ofResult };
+		return { arg: arg.replace(ofReg, ''), owner, ofResult };
 	}
 	return null;
 }
@@ -1170,7 +1171,7 @@ function getArgument(i, text, open, close) {
 		} else {
 			if (ch === open) n++;
 			else if (ch === close && --n === 0) {
-				return { index : i, content : getStringContent(text.substring(start, i)) };
+				return { index: i, content: getStringContent(text.substring(start, i)) };
 			}
 		}
 	}

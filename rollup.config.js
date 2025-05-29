@@ -22,7 +22,7 @@ const output = {
 * MIT licensed\n* Copyright (c) ${years}, ${pkg.author.name}
 *********************************************/`
   },
-  output_es6 = Object.assign({}, output, {
+  output_es = Object.assign({}, output, {
     format : 'es'
   }),
   plugins = [
@@ -59,11 +59,11 @@ const output = {
 
 // Actual config export
 export default [
-// es6
+// es
 {
   input: src,
-  output: Object.assign({}, output_es6, {
-    file: output_es6.file.replace('.js', '.es6.js')
+  output: Object.assign({}, output_es, {
+    file: output_es.file.replace('.js', '.es.js')
   }),
   plugins
 },
@@ -73,11 +73,11 @@ export default [
   output,
   plugins: pluginsES5
 },
-// minified es6
+// minified es
 {
   input: src,
-  output : Object.assign({}, output_es6, {
-    file: output_es6.file.replace('.js', '.es6.min.js')
+  output : Object.assign({}, output_es, {
+    file: output_es.file.replace('.js', '.es.min.js')
   }),
   plugins: minifyPlugins,
 },

@@ -57,9 +57,6 @@
   function _nonIterableRest() {
     throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
-  function _readOnlyError(r) {
-    throw new TypeError('"' + r + '" is read-only');
-  }
   function _slicedToArray(r, e) {
     return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
   }
@@ -251,6 +248,7 @@
       xpath = xpath.replace(/\[\(((?:[^'"()]|"[^"]*"|'[^']*')+)\)]/g, function (m, gr) {
         return '[' + gr + ']';
       });
+      xpath = xpath.replace(/\/child::/g, '/');
     }
     xpath = xpath.replace(/((?:[^'"{}]|"[^"]*"|'[^']*')+)|[{}]/g, function (m, gr) {
       return gr || '';
@@ -285,9 +283,9 @@
       ch = code[i];
       if (state === State.Text) {
         if (check && !/[>+~^!.#*:|[@a-zA-Z]/.test(ch) || !check && !/[ >+~^!,.#*:|[@a-zA-Z]/.test(ch)) {
-          characterException(i, ch, "State." + getState(state) + ", check=" + check, code);
+          characterException(i, ch, getState(state) + ", check=" + check, code);
         }
-        if (argumentInfo && /!?[+~]/.test(ch) && /-sibling$/.test(name)) {
+        if (argumentInfo && /!?[+~]/.test(ch) && name.endsWith('-sibling')) {
           argumentException('\'' + name + '()\' with these arguments has no implementation');
         }
         if (/[.#:[]/.test(ch) || name !== "has" && node.previousNode && /[>+~^!]/.test(ch)) {
@@ -365,7 +363,7 @@
             state = State.PseudoClass;
             break;
           case ',':
-            if (i + 1 >= length) characterException(i, ch, "State." + getState(state), code);
+            if (i + 1 >= length) characterException(i, ch, getState(state), code);
             classNode = newNode(rootNode, classNode);
             classNode.add(predicate ? " or " : " | ");
             classNode = newNode(rootNode, classNode);
@@ -410,7 +408,7 @@
             break;
           case '|':
             if (nextChar(i, '|')) {
-              characterException(i + 1, ch, "State." + getState(state), code);
+              characterException(i + 1, ch, getState(state), code);
             } else {
               var _handleNamespace = handleNamespace(i, axis, first, classNode, node);
               var _handleNamespace2 = _slicedToArray(_handleNamespace, 2);
@@ -425,12 +423,12 @@
           default:
             if (/[a-zA-Z]/.test(ch)) {
               if (node.owner) {
-                characterException(i, ch, "State." + getState(state), code);
+                characterException(i, ch, getState(state), code);
               }
               addAxes(axis, node, argumentInfo);
               i = getTagName(i, node);
             } else {
-              characterException(i, ch, "State." + getState(state), code);
+              characterException(i, ch, getState(state), code);
             }
             check = false;
             break;
@@ -459,7 +457,7 @@
               i++;
               addWarning(navWarning);
             } else {
-              characterException(i, ch, "State." + getState(state), code);
+              characterException(i, ch, getState(state), code);
             }
             break;
           case ']':
@@ -487,7 +485,7 @@
             check = false;
             break;
           case '=':
-            characterException(i, ch, "State." + getState(state), code);
+            characterException(i, ch, getState(state), code);
             break;
           case ' ':
             break;
@@ -534,12 +532,12 @@
       return result + '*';
     }
     if (check || state !== State.Text) {
-      parseException("Something is wrong: state='" + getState(state) + "' xpath='" + result + "' in: " + code);
+      parseException("Something is wrong: '" + getState(state) + "' xpath='" + result + "' in: " + code);
     }
     return result;
   }
   function getState(state) {
-    return Object.keys(State)[state];
+    return "State." + Object.keys(State)[state];
   }
   function newNode(parNode, node, axis, separator) {
     var nd = new xNode(parNode);
@@ -861,7 +859,7 @@
         node.add("{[(", precedings, ") or (", followings, ")]}");
         break;
       case "has-parent":
-        process(name, arg, "parent::", node);
+        process("parent::");
         break;
       case "has-ancestor":
         nd = node.clone();
@@ -871,16 +869,16 @@
         addToNode(nd, "[" + result + "]");
         break;
       case "after":
-        process(name, arg, "preceding::", node);
+        process("preceding::");
         break;
       case "after-sibling":
-        process(name, arg, "preceding-sibling::", node);
+        process("preceding-sibling::");
         break;
       case "before":
-        process(name, arg, "following::", node);
+        process("following::");
         break;
       case "before-sibling":
-        process(name, arg, "following-sibling::", node);
+        process("following-sibling::");
         break;
       case "last":
         str = arg ? "[position() > last() - " + parseNumber(arg) + "]" : "[last()]";
@@ -929,13 +927,13 @@
         break;
     }
     if (str) node.add(str);
-    function process(name, arg, axis, node) {
+    function process(axis) {
       var nd = node.clone();
       var result = convertArgument(nd, arg, axis, "", {
         name: name
       });
       if (nd.hasAxis('ancestor::')) {
-        transform(nd, axis), _readOnlyError("result");
+        result = transform(nd, axis);
       }
       addToNode(nd, "[" + result + "]");
     }

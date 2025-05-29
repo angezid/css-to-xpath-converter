@@ -54,21 +54,29 @@
   var contentEditable = {
     caretCoordinates: null,
     getText: function getText(elem, textContent) {
-      var selection = this.getSelection(elem),
-        rng = selection.getRangeAt(0),
-        startNode = rng.startContainer,
+      var sel = this.getSelection(elem);
+      var text = '',
+        rng;
+      if (!sel.rangeCount || (rng = sel.getRangeAt(0)).startContainer === elem) {
+        this.caretCoordinates = elem.getBoundingClientRect();
+        return elem.textContent;
+      }
+      var startNode = rng.startContainer,
         startOffset = rng.startOffset;
-      var text = '';
-      if (elem.contentEditable !== 'true' || textContent) {
+      if (textContent || elem.contentEditable === 'plaintext-only' && !this.isFirefox()) {
         var range = document.createRange();
         range.selectNodeContents(elem);
         range.setEnd(startNode, startOffset);
         text = range.toString();
         if (textContent) return text;
       } else {
-        selection.setBaseAndExtent(elem, 0, startNode, startOffset);
-        text = selection.toString();
-        selection.collapse(startNode, startOffset);
+        var anchorNode = sel.anchorNode,
+          anchorOffset = sel.anchorOffset,
+          focusNode = sel.focusNode,
+          focusOffset = sel.focusOffset;
+        sel.setBaseAndExtent(elem, 0, startNode, startOffset);
+        text = sel.toString();
+        sel.setBaseAndExtent(anchorNode, anchorOffset, focusNode, focusOffset);
       }
       var rect = rng.getBoundingClientRect();
       if (rect.x === 0 && rect.y === 0) {
@@ -79,8 +87,21 @@
     },
     replace: function replace(elem, query, text) {
       var len = this.getText(elem, true).length;
+      var asHtml = elem.contentEditable === 'true' || !this.isFirefox();
+      if (asHtml) {
+        var obj = {
+          '<': '&lt;',
+          '>': '&gt;',
+          '&': '&amp;',
+          '"': '&quot;',
+          '\'': '&#039;'
+        };
+        text = text.replace(/[<>&"']/g, function (m) {
+          return obj[m];
+        });
+      }
       this.select(elem, len - query.length, len);
-      document.execCommand('insertText', false, text);
+      document.execCommand(asHtml ? 'insertHTML' : 'insertText', false, text);
     },
     select: function select(elem, start, end) {
       var startNode,
@@ -109,6 +130,9 @@
     },
     getSelection: function getSelection(elem) {
       return elem.getRootNode().getSelection();
+    },
+    isFirefox: function isFirefox() {
+      return /firefox/i.test(navigator.userAgent);
     }
   };
 
@@ -146,13 +170,14 @@
         content = text.substring(0, caretIndex),
         style = window.getComputedStyle(elem),
         div = createElement(document.body, 'div', null, isInput ? content.replace(/\s/g, "\xA0") : content),
-        span = createElement(div, 'span', null, text || '.');
+        span = createElement(div, 'span', null, text.substring(caretIndex) || '.');
       var properties = ['direction', 'boxSizing', 'textAlign', 'textAlignLast', 'textTransform', 'textIndent', 'letterSpacing', 'wordSpacing', 'wordBreak', 'overflowX', 'overflowY', 'tabSize'];
       properties.forEach(function (prop) {
         div.style[prop] = style[prop];
       });
       var props = {
         width: style.width,
+        height: style.height,
         wordWrap: 'normal',
         whiteSpace: 'pre-wrap'
       };
@@ -250,12 +275,12 @@
       diacritics.init();
       listSelector = "".concat(opt.listTag, ".").concat(opt.listClass);
       queryRegex = opt.regex instanceof RegExp ? opt.regex : regExpCreator.create(opt, libName);
-      log(libName + ': RegExp - /' + queryRegex.source + '/' + queryRegex.flags);
+      log('RegExp - /' + queryRegex.source + '/' + queryRegex.flags);
       if (opt.optimize && opt.startsWith) {
         createIndexes(opt.suggestions).then(function (obj) {
           opt.suggestions = obj;
         })["catch"](function (err) {
-          log(libName + ': ' + err);
+          log('' + err);
         });
       }
     }
@@ -350,14 +375,14 @@
         } else if (query = rm[2]) {
           trigger = rm[1];
         }
-        log("".concat(libName, ": trigger = '").concat(trigger, "' query = '").concat(query));
+        log("trigger = '".concat(trigger, "' query = '").concat(query, "'"));
         return {
           trigger: trigger,
           query: query
         };
       }
       var len = text.length;
-      log(libName + ': No match. ', (len > 20 ? ' ... ' + text.slice(len - 20) : text).replace(/\r?\n|\r/g, ' '));
+      log('No match. ', (len > 20 ? ' ... ' + text.slice(len - 20) : text).replace(/\r?\n|\r/g, ' '));
       return null;
     }
     function show(list) {
@@ -388,6 +413,9 @@
       listbox.style.left = rect.left + 'px';
       listbox.scrollTop = 0;
       selectedIndex = -1;
+      if (isFunction(opt.open)) {
+        opt.open(listbox);
+      }
     }
     function hide() {
       listbox.innerHTML = '';
@@ -522,7 +550,7 @@
         var indexes = obj['indexes'],
           array = getIndexes(query, indexes);
         if (!array) {
-          log(libName + ': Array of indexes is undefined for ', obj.query);
+          log('Array of indexes is undefined for ', obj.query);
           return;
         }
         array.forEach(function (arr, i) {
@@ -546,7 +574,7 @@
           }
         }
       }
-      log(libName + ': Suggestion count =', results.length);
+      log('Suggestion count =', results.length);
       return results;
     }
     function getValue(str, normal) {
@@ -595,7 +623,7 @@
         textarea.replace(context, data.query, text);
       }
       var event = opt.event;
-      if (event && event instanceof KeyboardEvent) {
+      if (event && (event instanceof KeyboardEvent || event instanceof InputEvent)) {
         context.dispatchEvent(event);
       }
       hide();
