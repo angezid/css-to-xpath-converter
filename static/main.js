@@ -178,7 +178,7 @@
 	}
 
 	function beautify(html) {
-		return html_beautify(html);
+		try { return html_beautify(html); } catch(e) { return html; } 
 	}
 
 	function updateSelector() {
