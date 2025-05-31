@@ -540,54 +540,54 @@ function processAttribute(attrName, attrValue, operation, modifier, node) {
 		processClass(attrValue, operation, ignoreCase, node);
 		return;
 	}
-	const lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
+	const lowerCaseValue = ignoreCase ? translateToLower("@" + attrName) : null;
 	const value = normalizeQuotes(attrValue);
 	switch (operation) {
 		case "=" :
 			if (ignoreCase) {
-				node.add("[", lowerCaseValue, " = ", toLowerCase(attrValue), "]");
+				node.add("[", lowerCaseValue, " = ", toLower(attrValue), "]");
 			} else {
 				node.add("[@", attrName, "=", value, "]");
 			}
 			break;
 		case "!=" :
 			if (ignoreCase) {
-				node.add("{[not(@", attrName, ") or ", lowerCaseValue, "!=", toLowerCase(attrValue), "]}");
+				node.add("{[not(@", attrName, ") or ", lowerCaseValue, "!=", toLower(attrValue), "]}");
 			} else {
 				node.add("{[not(@", attrName, ") or @", attrName, "!=", value, "]}");
 			}
 			break;
 		case "~=" :
 			if (ignoreCase) {
-				node.add("[contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', ", toLowerCase(attrValue), ", ' '))]");
+				node.add("[contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', normalize-space(", toLower(attrValue), "), ' '))]");
 			} else {
-				node.add("[contains(concat(' ', normalize-space(@", attrName, "), ' '), ' ", attrValue, " ')]");
+				node.add("[contains(concat(' ', normalize-space(@", attrName, "), ' '), concat(' ', normalize-space(", value, "), ' '))]");
 			}
 			break;
 		case "|=" :
 			if (ignoreCase) {
-				node.add("{[", lowerCaseValue, " = ", toLowerCase(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLowerCase(attrValue), ", '-'))]}");
+				node.add("{[", lowerCaseValue, " = ", toLower(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLower(attrValue), ", '-'))]}");
 			} else {
 				node.add("{[@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), ")]}");
 			}
 			break;
 		case "^=" :
 			if (ignoreCase) {
-				node.add("[starts-with(", lowerCaseValue, ", ", toLowerCase(attrValue), ")]");
+				node.add("[starts-with(", lowerCaseValue, ", ", toLower(attrValue), ")]");
 			} else {
 				node.add("[starts-with(@", attrName, ", ", value, ")]");
 			}
 			break;
 		case "$=" :
 			if (ignoreCase) {
-				node.add("[substring(", lowerCaseValue, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", toLowerCase(attrValue), "]");
+				node.add("[substring(", lowerCaseValue, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", toLower(attrValue), "]");
 			} else {
 				node.add("[substring(@", attrName, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", value, "]");
 			}
 			break;
 		case "*=" :
 			if (ignoreCase) {
-				node.add("[contains(", lowerCaseValue, ", ", toLowerCase(attrValue), ")]");
+				node.add("[contains(", lowerCaseValue, ", ", toLower(attrValue), ")]");
 			} else {
 				node.add("[contains(@", attrName, ", ", value, ")]");
 			}
@@ -595,7 +595,7 @@ function processAttribute(attrName, attrValue, operation, modifier, node) {
 	}
 }
 function processClass(attrValue, operation, ignoreCase, node) {
-	const attrName = ignoreCase ? toLowerCase("@class", false) : "@class";
+	const attrName = ignoreCase ? translateToLower("@class") : "@class";
 	let attributeValue = attrValue.trim();
 	switch (operation) {
 		case "=" :
@@ -611,7 +611,7 @@ function processClass(attrValue, operation, ignoreCase, node) {
 			break;
 	}
 	if (ignoreCase) {
-		attributeValue = toLowerCase(attributeValue);
+		attributeValue = toLower(attributeValue);
 	} else {
 		attributeValue = normalizeQuotes(attributeValue);
 	}
@@ -620,8 +620,8 @@ function processClass(attrValue, operation, ignoreCase, node) {
 	} else if (operation === "*=") {
 		node.add("[contains(", attrName, ", ", attributeValue, ")]");
 	} else if (operation === "|=") {
-		const attrValue1 = ignoreCase ? toLowerCase(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
-		const attrValue2 = ignoreCase ? toLowerCase(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
+		const attrValue1 = ignoreCase ? translateToLower(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
+		const attrValue2 = ignoreCase ? translateToLower(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
 		node.add("{[", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), "]}");
 	} else {
 		node.add("[", getClass(attrName, attributeValue), "]");
@@ -643,7 +643,7 @@ function processPseudoClass(name, arg, node) {
 			node.add("[contains(normalize-space(), ", normalizeArg(arg, name), ")]");
 			break;
 		case "icontains" :
-			node.add("[contains(", toLowerCase(), ", ", toLowerCase(normalizeArg(arg, name), false), ")]");
+			node.add("[contains(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
 			break;
 		case "empty" :
 			str = "[not(*) and not(text())]";
@@ -685,7 +685,7 @@ function processPseudoClass(name, arg, node) {
 			node.add("[starts-with(normalize-space(), ", normalizeArg(arg, name), ")]");
 			break;
 		case "istarts-with" :
-			node.add("[starts-with(", toLowerCase(), ", ", toLowerCase(normalizeArg(arg, name), false), ")]");
+			node.add("[starts-with(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
 			break;
 		case "ends-with" :
 			str2 = normalizeArg(arg, name);
@@ -693,7 +693,7 @@ function processPseudoClass(name, arg, node) {
 			break;
 		case "iends-with" :
 			str2 = normalizeArg(arg, name);
-			node.add("[substring(", toLowerCase(), ", string-length(normalize-space()) - string-length(", str2, ") + 1) = ", toLowerCase(str2, false), "]");
+			node.add("[substring(", toLower(), ", string-length(normalize-space()) - string-length(", str2, ") + 1) = ", translateToLower(str2), "]");
 			break;
 		case "is" :
 		case "matches" :
@@ -1005,21 +1005,22 @@ function checkOfSelector(name, arg, node) {
 	}
 	return null;
 }
-function toLowerCase(str = null, quote = true) {
-	str = str === null ? "normalize-space()" : quote ? normalizeQuotes(str) : str;
+function toLower(str) {
+	str = str ? normalizeQuotes(str) : "normalize-space()";
+	return translateToLower(str);
+}
+function translateToLower(str) {
 	return "translate(" + str + ", 'ABCDEFGHJIKLMNOPQRSTUVWXYZ" + uppercase + "', 'abcdefghjiklmnopqrstuvwxyz" + lowercase + "')";
 }
-function normalizeArg(arg, name, isString = true) {
-	if ( !arg) {
+function normalizeArg(str, name) {
+	if ( !str) {
 		argumentException(pseudo + name + " has an empty argument.");
 	}
-	if (isString) {
-		arg = normalizeQuotes(arg, name);
-	}
-	return arg;
+	str = normalizeQuotes(str, name);
+	return "normalize-space(" + str + ")";
 }
 function normalizeQuotes(text, name) {
-	text = text.replace(/\\(.)/g, (m, gr) => gr);
+	text = text.replace(/\\(?=.)/g, '');
 	if (text.includes("'")) {
 		if ( !text.includes("\"")) return '"' + text + '"';
 		argumentException((name ? pseudo + name + "' string argument" : 'string') + " contains both '\"' and '\'' quotes");
@@ -1029,7 +1030,7 @@ function normalizeQuotes(text, name) {
 function parseNumber(str) {
 	const num = parseInt(str);
 	if (Number.isInteger(num)) return num;
-	argumentException("argument is not an integer");
+	argumentException("argument '" + str + "' is not an integer");
 }
 function getTagName(i, node) {
 	tagNameReg.lastIndex = i;
