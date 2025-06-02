@@ -620,8 +620,8 @@ function processClass(attrValue, operation, ignoreCase, node) {
 	} else if (operation === "*=") {
 		node.add("[contains(", attrName, ", ", attributeValue, ")]");
 	} else if (operation === "|=") {
-		const attrValue1 = ignoreCase ? translateToLower(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
-		const attrValue2 = ignoreCase ? translateToLower(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
+		const attrValue1 = ignoreCase ? toLower(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
+		const attrValue2 = ignoreCase ? toLower(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
 		node.add("{[", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), "]}");
 	} else {
 		node.add("[", getClass(attrName, attributeValue), "]");
@@ -652,21 +652,21 @@ function processPseudoClass(name, arg, node) {
 			str = "[not(preceding-sibling::*)]";
 			break;
 		case "first" :
-			str = arg ? "[position() <= " + parseNumber(arg) + "]" : "[1]";
+			str = arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]";
 			break;
 		case "first-of-type" :
 			owner = getOwner(node, name);
 			node.add("[not(preceding-sibling::", owner, ")]");
 			break;
 		case "gt" :
-			node.add("[position() > ", parseNumber(arg), "]");
+			node.add("[position() > ", parseNumber(arg, name), "]");
 			break;
 		case "lt" :
-			node.add("[position() < ", parseNumber(arg), "]");
+			node.add("[position() < ", parseNumber(arg, name), "]");
 			break;
 		case "eq" :
 		case "nth" :
-			node.add("[", parseNumber(arg), "]");
+			node.add("[", parseNumber(arg, name), "]");
 			break;
 		case "last-child" :
 			str = "[not(following-sibling::*)]";
@@ -750,27 +750,27 @@ function processPseudoClass(name, arg, node) {
 			process("following-sibling::");
 			break;
 		case "last" :
-			str = arg ? "[position() > last() - " + parseNumber(arg) + "]" : "[last()]";
+			str = arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]";
 			break;
 		case "last-of-type" :
 			owner = getOwner(node, name);
 			node.add("[not(following-sibling::", owner, ")]");
 			break;
 		case "skip" :
-			node.add("[position() > ", parseNumber(arg), "]");
+			node.add("[position() > ", parseNumber(arg, name), "]");
 			break;
 		case "skip-first" :
-			node.add("[position() > ", arg ? parseNumber(arg) : "1", "]");
+			node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
 			break;
 		case "skip-last" :
-			node.add("[position() < last()", arg ? " - (" + parseNumber(arg) + " - 1)" : "", "]");
+			node.add("[position() < last()", arg ? " - (" + parseNumber(arg, name) + " - 1)" : "", "]");
 			break;
 		case "limit" :
-			node.add("[position() <= ", parseNumber(arg), "]");
+			node.add("[position() <= ", parseNumber(arg, name), "]");
 			break;
 		case "range" :
 			const splits = arg.split(',');
-			if (splits.length !== 2) argumentException(pseudo + name + "(,)' requires two numbers");
+			if (splits.length !== 2) argumentException(pseudo + name + "(,)' is required two numbers");
 			const start = parseNumber(splits[0]);
 			const end = parseNumber(splits[1]);
 			if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
@@ -945,7 +945,7 @@ function parseFnNotation(arg, last) {
 		}
 		return { valueA: absA, valueB, count, comparison, type };
 	}
-	regexException(0, "parseFnNotation", nthEquationReg);
+	regexException(0, "parseFnNotation", nthEquationReg, arg);
 }
 function addModulo(sibling, owner, num, mod, eq) {
 	return `[(count(${sibling}-sibling::${owner})${num}) mod ${mod} = ${eq}]`;
@@ -1014,7 +1014,7 @@ function translateToLower(str) {
 }
 function normalizeArg(str, name) {
 	if ( !str) {
-		argumentException(pseudo + name + " has an empty argument.");
+		argumentException(pseudo + name + "' has missing argument.");
 	}
 	str = normalizeQuotes(str, name);
 	return "normalize-space(" + str + ")";
@@ -1027,10 +1027,11 @@ function normalizeQuotes(text, name) {
 	}
 	return '\'' + text + '\'';
 }
-function parseNumber(str) {
+function parseNumber(str, name) {
 	const num = parseInt(str);
 	if (Number.isInteger(num)) return num;
-	argumentException("argument '" + str + "' is not an integer");
+	const msg = !str ? "' has missing argument" : "' argument '" + str + "' is not an integer";
+	argumentException(pseudo + name + msg);
 }
 function getTagName(i, node) {
 	tagNameReg.lastIndex = i;
@@ -1218,10 +1219,11 @@ function characterException(i, ch, message, code) {
 	message = message + ". Unexpected character '" + ch + "'";
 	throw new ParserError(code, (i + 1), message);
 }
-function regexException(i, fn, reg) {
-	const text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + code.substring(i) + "</b>'\nRegExp - '<b>" + reg + "</b>'";
+function regexException(i, fn, reg, arg) {
+	const str = arg || code.substring(i);
+	const text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + str + "</b>'\nRegExp - '<b>" + reg + "</b>'";
 	printError(text);
-	const message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + code.substring(i) + "'";
+	const message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + str + "'";
 	throw new ParserError(code, (i + 1), message);
 }
 

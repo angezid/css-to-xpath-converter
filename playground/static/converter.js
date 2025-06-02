@@ -770,21 +770,21 @@
         str = "[not(preceding-sibling::*)]";
         break;
       case "first":
-        str = arg ? "[position() <= " + parseNumber(arg) + "]" : "[1]";
+        str = arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]";
         break;
       case "first-of-type":
         owner = getOwner(node, name);
         node.add("[not(preceding-sibling::", owner, ")]");
         break;
       case "gt":
-        node.add("[position() > ", parseNumber(arg), "]");
+        node.add("[position() > ", parseNumber(arg, name), "]");
         break;
       case "lt":
-        node.add("[position() < ", parseNumber(arg), "]");
+        node.add("[position() < ", parseNumber(arg, name), "]");
         break;
       case "eq":
       case "nth":
-        node.add("[", parseNumber(arg), "]");
+        node.add("[", parseNumber(arg, name), "]");
         break;
       case "last-child":
         str = "[not(following-sibling::*)]";
@@ -881,27 +881,27 @@
         process("following-sibling::");
         break;
       case "last":
-        str = arg ? "[position() > last() - " + parseNumber(arg) + "]" : "[last()]";
+        str = arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]";
         break;
       case "last-of-type":
         owner = getOwner(node, name);
         node.add("[not(following-sibling::", owner, ")]");
         break;
       case "skip":
-        node.add("[position() > ", parseNumber(arg), "]");
+        node.add("[position() > ", parseNumber(arg, name), "]");
         break;
       case "skip-first":
-        node.add("[position() > ", arg ? parseNumber(arg) : "1", "]");
+        node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
         break;
       case "skip-last":
-        node.add("[position() < last()", arg ? " - (" + parseNumber(arg) + " - 1)" : "", "]");
+        node.add("[position() < last()", arg ? " - (" + parseNumber(arg, name) + " - 1)" : "", "]");
         break;
       case "limit":
-        node.add("[position() <= ", parseNumber(arg), "]");
+        node.add("[position() <= ", parseNumber(arg, name), "]");
         break;
       case "range":
         var splits = arg.split(',');
-        if (splits.length !== 2) argumentException(pseudo + name + "(,)' requires two numbers");
+        if (splits.length !== 2) argumentException(pseudo + name + "(,)' is required two numbers");
         var start = parseNumber(splits[0]);
         var end = parseNumber(splits[1]);
         if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
@@ -1083,7 +1083,7 @@
         type: type
       };
     }
-    regexException(0, "parseFnNotation", nthEquationReg);
+    regexException(0, "parseFnNotation", nthEquationReg, arg);
   }
   function addModulo(sibling, owner, num, mod, eq) {
     return "[(count(".concat(sibling, "-sibling::").concat(owner, ")").concat(num, ") mod ").concat(mod, " = ").concat(eq, "]");
@@ -1159,7 +1159,7 @@
   }
   function normalizeArg(str, name) {
     if (!str) {
-      argumentException(pseudo + name + " has an empty argument.");
+      argumentException(pseudo + name + "' has missing argument.");
     }
     str = normalizeQuotes(str, name);
     return "normalize-space(" + str + ")";
@@ -1172,10 +1172,11 @@
     }
     return '\'' + text + '\'';
   }
-  function parseNumber(str) {
+  function parseNumber(str, name) {
     var num = parseInt(str);
     if (Number.isInteger(num)) return num;
-    argumentException("argument '" + str + "' is not an integer");
+    var msg = !str ? "' has missing argument" : "' argument '" + str + "' is not an integer";
+    argumentException(pseudo + name + msg);
   }
   function getTagName(i, node) {
     tagNameReg.lastIndex = i;
@@ -1364,10 +1365,11 @@
     message = message + ". Unexpected character '" + ch + "'";
     throw new ParserError(code, i + 1, message);
   }
-  function regexException(i, fn, reg) {
-    var text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + code.substring(i) + "</b>'\nRegExp - '<b>" + reg + "</b>'";
+  function regexException(i, fn, reg, arg) {
+    var str = arg || code.substring(i);
+    var text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + str + "</b>'\nRegExp - '<b>" + reg + "</b>'";
     printError(text);
-    var message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + code.substring(i) + "'";
+    var message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + str + "'";
     throw new ParserError(code, i + 1, message);
   }
 
