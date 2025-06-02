@@ -653,54 +653,54 @@
       processClass(attrValue, operation, ignoreCase, node);
       return;
     }
-    var lowerCaseValue = ignoreCase ? toLowerCase("@" + attrName, false) : null;
+    var lowerCaseValue = ignoreCase ? translateToLower("@" + attrName) : null;
     var value = normalizeQuotes(attrValue);
     switch (operation) {
       case "=":
         if (ignoreCase) {
-          node.add("[", lowerCaseValue, " = ", toLowerCase(attrValue), "]");
+          node.add("[", lowerCaseValue, " = ", toLower(attrValue), "]");
         } else {
           node.add("[@", attrName, "=", value, "]");
         }
         break;
       case "!=":
         if (ignoreCase) {
-          node.add("{[not(@", attrName, ") or ", lowerCaseValue, "!=", toLowerCase(attrValue), "]}");
+          node.add("{[not(@", attrName, ") or ", lowerCaseValue, "!=", toLower(attrValue), "]}");
         } else {
           node.add("{[not(@", attrName, ") or @", attrName, "!=", value, "]}");
         }
         break;
       case "~=":
         if (ignoreCase) {
-          node.add("[contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', ", toLowerCase(attrValue), ", ' '))]");
+          node.add("[contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', normalize-space(", toLower(attrValue), "), ' '))]");
         } else {
-          node.add("[contains(concat(' ', normalize-space(@", attrName, "), ' '), ' ", attrValue, " ')]");
+          node.add("[contains(concat(' ', normalize-space(@", attrName, "), ' '), concat(' ', normalize-space(", value, "), ' '))]");
         }
         break;
       case "|=":
         if (ignoreCase) {
-          node.add("{[", lowerCaseValue, " = ", toLowerCase(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLowerCase(attrValue), ", '-'))]}");
+          node.add("{[", lowerCaseValue, " = ", toLower(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLower(attrValue), ", '-'))]}");
         } else {
           node.add("{[@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), ")]}");
         }
         break;
       case "^=":
         if (ignoreCase) {
-          node.add("[starts-with(", lowerCaseValue, ", ", toLowerCase(attrValue), ")]");
+          node.add("[starts-with(", lowerCaseValue, ", ", toLower(attrValue), ")]");
         } else {
           node.add("[starts-with(@", attrName, ", ", value, ")]");
         }
         break;
       case "$=":
         if (ignoreCase) {
-          node.add("[substring(", lowerCaseValue, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", toLowerCase(attrValue), "]");
+          node.add("[substring(", lowerCaseValue, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", toLower(attrValue), "]");
         } else {
           node.add("[substring(@", attrName, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", value, "]");
         }
         break;
       case "*=":
         if (ignoreCase) {
-          node.add("[contains(", lowerCaseValue, ", ", toLowerCase(attrValue), ")]");
+          node.add("[contains(", lowerCaseValue, ", ", toLower(attrValue), ")]");
         } else {
           node.add("[contains(@", attrName, ", ", value, ")]");
         }
@@ -708,7 +708,7 @@
     }
   }
   function processClass(attrValue, operation, ignoreCase, node) {
-    var attrName = ignoreCase ? toLowerCase("@class", false) : "@class";
+    var attrName = ignoreCase ? translateToLower("@class") : "@class";
     var attributeValue = attrValue.trim();
     switch (operation) {
       case "=":
@@ -724,7 +724,7 @@
         break;
     }
     if (ignoreCase) {
-      attributeValue = toLowerCase(attributeValue);
+      attributeValue = toLower(attributeValue);
     } else {
       attributeValue = normalizeQuotes(attributeValue);
     }
@@ -733,8 +733,8 @@
     } else if (operation === "*=") {
       node.add("[contains(", attrName, ", ", attributeValue, ")]");
     } else if (operation === "|=") {
-      var attrValue1 = ignoreCase ? toLowerCase(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
-      var attrValue2 = ignoreCase ? toLowerCase(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
+      var attrValue1 = ignoreCase ? toLower(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
+      var attrValue2 = ignoreCase ? toLower(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
       node.add("{[", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), "]}");
     } else {
       node.add("[", getClass(attrName, attributeValue), "]");
@@ -761,7 +761,7 @@
         node.add("[contains(normalize-space(), ", normalizeArg(arg, name), ")]");
         break;
       case "icontains":
-        node.add("[contains(", toLowerCase(), ", ", toLowerCase(normalizeArg(arg, name), false), ")]");
+        node.add("[contains(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
         break;
       case "empty":
         str = "[not(*) and not(text())]";
@@ -770,21 +770,21 @@
         str = "[not(preceding-sibling::*)]";
         break;
       case "first":
-        str = arg ? "[position() <= " + parseNumber(arg) + "]" : "[1]";
+        str = arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]";
         break;
       case "first-of-type":
         owner = getOwner(node, name);
         node.add("[not(preceding-sibling::", owner, ")]");
         break;
       case "gt":
-        node.add("[position() > ", parseNumber(arg), "]");
+        node.add("[position() > ", parseNumber(arg, name), "]");
         break;
       case "lt":
-        node.add("[position() < ", parseNumber(arg), "]");
+        node.add("[position() < ", parseNumber(arg, name), "]");
         break;
       case "eq":
       case "nth":
-        node.add("[", parseNumber(arg), "]");
+        node.add("[", parseNumber(arg, name), "]");
         break;
       case "last-child":
         str = "[not(following-sibling::*)]";
@@ -803,7 +803,7 @@
         node.add("[starts-with(normalize-space(), ", normalizeArg(arg, name), ")]");
         break;
       case "istarts-with":
-        node.add("[starts-with(", toLowerCase(), ", ", toLowerCase(normalizeArg(arg, name), false), ")]");
+        node.add("[starts-with(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
         break;
       case "ends-with":
         str2 = normalizeArg(arg, name);
@@ -811,7 +811,7 @@
         break;
       case "iends-with":
         str2 = normalizeArg(arg, name);
-        node.add("[substring(", toLowerCase(), ", string-length(normalize-space()) - string-length(", str2, ") + 1) = ", toLowerCase(str2, false), "]");
+        node.add("[substring(", toLower(), ", string-length(normalize-space()) - string-length(", str2, ") + 1) = ", translateToLower(str2), "]");
         break;
       case "is":
       case "matches":
@@ -881,29 +881,29 @@
         process("following-sibling::");
         break;
       case "last":
-        str = arg ? "[position() > last() - " + parseNumber(arg) + "]" : "[last()]";
+        str = arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]";
         break;
       case "last-of-type":
         owner = getOwner(node, name);
         node.add("[not(following-sibling::", owner, ")]");
         break;
       case "skip":
-        node.add("[position() > ", parseNumber(arg), "]");
+        node.add("[position() > ", parseNumber(arg, name), "]");
         break;
       case "skip-first":
-        node.add("[position() > ", arg ? parseNumber(arg) : "1", "]");
+        node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
         break;
       case "skip-last":
-        node.add("[position() < last()", arg ? " - (" + parseNumber(arg) + " - 1)" : "", "]");
+        node.add("[position() < last()", arg ? " - (" + parseNumber(arg, name) + " - 1)" : "", "]");
         break;
       case "limit":
-        node.add("[position() <= ", parseNumber(arg), "]");
+        node.add("[position() <= ", parseNumber(arg, name), "]");
         break;
       case "range":
         var splits = arg.split(',');
-        if (splits.length !== 2) argumentException(pseudo + name + "(,)' requires two numbers");
-        var start = parseNumber(splits[0]);
-        var end = parseNumber(splits[1]);
+        if (splits.length !== 2) argumentException(pseudo + name + "(,)' is required two numbers");
+        var start = parseNumber(splits[0], name);
+        var end = parseNumber(splits[1], name);
         if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
         node.add("[position() >= ", start, " and position() <= ", end, "]");
         break;
@@ -1083,7 +1083,7 @@
         type: type
       };
     }
-    regexException(0, "parseFnNotation", nthEquationReg);
+    regexException(0, "parseFnNotation", nthEquationReg, arg);
   }
   function addModulo(sibling, owner, num, mod, eq) {
     return "[(count(".concat(sibling, "-sibling::").concat(owner, ")").concat(num, ") mod ").concat(mod, " = ").concat(eq, "]");
@@ -1150,36 +1150,33 @@
     }
     return null;
   }
-  function toLowerCase() {
-    var str = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-    var quote = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-    str = str === null ? "normalize-space()" : quote ? normalizeQuotes(str) : str;
+  function toLower(str) {
+    str = str ? normalizeQuotes(str) : "normalize-space()";
+    return translateToLower(str);
+  }
+  function translateToLower(str) {
     return "translate(" + str + ", 'ABCDEFGHJIKLMNOPQRSTUVWXYZ" + uppercase + "', 'abcdefghjiklmnopqrstuvwxyz" + lowercase + "')";
   }
-  function normalizeArg(arg, name) {
-    var isString = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    if (!arg) {
-      argumentException(pseudo + name + " has an empty argument.");
+  function normalizeArg(str, name) {
+    if (!str) {
+      argumentException(pseudo + name + "' has missing argument.");
     }
-    if (isString) {
-      arg = normalizeQuotes(arg, name);
-    }
-    return arg;
+    str = normalizeQuotes(str, name);
+    return "normalize-space(" + str + ")";
   }
   function normalizeQuotes(text, name) {
-    text = text.replace(/\\(.)/g, function (m, gr) {
-      return gr;
-    });
+    text = text.replace(/\\(?=.)/g, '');
     if (text.includes("'")) {
       if (!text.includes("\"")) return '"' + text + '"';
       argumentException((name ? pseudo + name + "' string argument" : 'string') + " contains both '\"' and '\'' quotes");
     }
     return '\'' + text + '\'';
   }
-  function parseNumber(str) {
+  function parseNumber(str, name) {
     var num = parseInt(str);
     if (Number.isInteger(num)) return num;
-    argumentException("argument is not an integer");
+    var msg = !str ? "' has missing argument" : "' argument '" + str + "' is not an integer";
+    argumentException(pseudo + name + msg);
   }
   function getTagName(i, node) {
     tagNameReg.lastIndex = i;
@@ -1368,10 +1365,11 @@
     message = message + ". Unexpected character '" + ch + "'";
     throw new ParserError(code, i + 1, message);
   }
-  function regexException(i, fn, reg) {
-    var text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + code.substring(i) + "</b>'\nRegExp - '<b>" + reg + "</b>'";
+  function regexException(i, fn, reg, arg) {
+    var str = arg || code.substring(i);
+    var text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + str + "</b>'\nRegExp - '<b>" + reg + "</b>'";
     printError(text);
-    var message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + code.substring(i) + "'";
+    var message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + str + "'";
     throw new ParserError(code, i + 1, message);
   }
 
