@@ -902,8 +902,8 @@
       case "range":
         var splits = arg.split(',');
         if (splits.length !== 2) argumentException(pseudo + name + "(,)' is required two numbers");
-        var start = parseNumber(splits[0]);
-        var end = parseNumber(splits[1]);
+        var start = parseNumber(splits[0], name);
+        var end = parseNumber(splits[1], name);
         if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
         node.add("[position() >= ", start, " and position() <= ", end, "]");
         break;
@@ -921,6 +921,10 @@
         break;
       case "checked":
         node.add("[(", localName, " = 'input' and (@type='checkbox' or @type='radio') or ", localName, " = 'option') and @checked]");
+        break;
+      case 'read-only':
+      case 'read-write':
+        node.add('[@', name.replace('-', ''), ']');
         break;
       default:
         parseException(pseudo + name + "' is not implemented");
@@ -964,7 +968,7 @@
     return result;
   }
   function processNth(name, arg, not, parNode, node) {
-    if (isNullOrWhiteSpace(arg)) argumentException("argument is empty or white space");
+    if (isNullOrWhiteSpace(arg)) argumentException("argument is null or white space");
     var ofResult,
       owner = '*';
     if (name === "nth-child" || name === "nth-last-child") {
@@ -985,7 +989,7 @@
     switch (name) {
       case "nth-child":
         child = true;
-        usePosition = !not;
+        usePosition = !ofResult && !not;
         str = addNthToXpath(name, arg, 'preceding', owner, false, usePosition);
         break;
       case "nth-last-child":
@@ -1128,15 +1132,16 @@
       });
       if (nd.childNodes.length === 1) {
         var classNode = nd.childNodes[0],
-          firstChild = classNode.childNodes[0];
-        if (firstChild.owner === "self::node()") {
-          firstChild.owner = '';
-          var result = "{" + classNode.toString() + "}";
+          firstChild = classNode.childNodes[0],
+          selfNode = firstChild.owner === "self::node()";
+        firstChild.owner = '';
+        var result = "{" + classNode.toString() + "}";
+        if (selfNode) {
           owner += result;
           ofResult = result;
         } else {
           owner = "{" + ofResult + "}";
-          ofResult = "{[" + ofResult + "]}";
+          ofResult = result;
         }
       } else {
         ofResult = "{[" + ofResult + "]}";

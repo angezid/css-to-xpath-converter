@@ -82,7 +82,7 @@
 	
 	new autoComplete(cssBox, {
 		suggestions: [autocompleteCSS, htmlTags, htmlAttributes.map(str => str.replace('@', '['))],
-		regex : /(^|[\s"'*./:=@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
+		regex : /(^|[\s"'*./:=>+~^!@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
 		threshold : 2,
 		startsWith : true,
 		listItem : (elem, data) => {
@@ -117,6 +117,7 @@
 	};
 
 	let changed = false,
+		selection = '',
 		position = 0;
 
 	function initConverter() {
@@ -293,6 +294,8 @@
 		});
 
 		convertButton.addEventListener('click', function() {
+			selection = tryGetSelection(cssBox);
+			
 			clearWarning();
 			clearXPathEditor(true);
 
@@ -319,7 +322,7 @@
 		});
 
 		runXPath.addEventListener('click', function() {
-			let xpath = xpathBox.textContent.trim();
+			let xpath = tryGetSelection(xpathBox) || xpathBox.textContent.trim();
 
 			if ( !xpath) {
 				if ( !cssBox.textContent.trim()) return;
@@ -387,9 +390,11 @@
 	function convert() {
 		clearWarning();
 
-		const selector = cssBox.textContent.trim();
+		//const selector = cssBox.textContent.trim();
+		const selector = selection || cssBox.textContent.trim();
 		if ( !selector) return;
-
+		
+		selection = '';
 		updateXPathEditor('');
 
 		const axis = axesSelector.value;
@@ -434,6 +439,15 @@
 		return xpath;
 	}
 
+	function tryGetSelection(elem) {
+		const sel = window.getSelection();
+		
+		if (sel && elem.contains(sel.anchorNode)) {
+			return sel.toString().trim(); 
+		}
+		return ''; 
+	}
+	
 	function highlightXPath(xpath) {
 		clearWarning();
 
@@ -469,7 +483,7 @@
 	function highlightCSS() {
 		clearWarning();
 
-		const selector = cssBox.innerText.trim();
+		const selector = tryGetSelection(cssBox) || cssBox.innerText.trim();
 		if ( !selector) return;
 
 		const { doc, htmlString, indexes } = parseHTML();

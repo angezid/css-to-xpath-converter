@@ -771,8 +771,8 @@ function processPseudoClass(name, arg, node) {
 		case "range" :
 			const splits = arg.split(',');
 			if (splits.length !== 2) argumentException(pseudo + name + "(,)' is required two numbers");
-			const start = parseNumber(splits[0]);
-			const end = parseNumber(splits[1]);
+			const start = parseNumber(splits[0], name);
+			const end = parseNumber(splits[1], name);
 			if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
 			node.add("[position() >= ", start, " and position() <= ", end, "]");
 			break;
@@ -790,6 +790,10 @@ function processPseudoClass(name, arg, node) {
 			break;
 		case "checked" :
 			node.add("[(", localName, " = 'input' and (@type='checkbox' or @type='radio') or ", localName, " = 'option') and @checked]");
+			break;
+		case 'read-only':
+		case 'read-write':
+			node.add('[@', name.replace('-', ''), ']');
 			break;
 		default :
 			parseException(pseudo + name + "' is not implemented");
@@ -831,7 +835,7 @@ function transform(node, axis) {
 	return result;
 }
 function processNth(name, arg, not, parNode, node) {
-	if (isNullOrWhiteSpace(arg)) argumentException("argument is empty or white space");
+	if (isNullOrWhiteSpace(arg)) argumentException("argument is null or white space");
 	let ofResult,
 		owner = '*';
 	if (name === "nth-child" || name === "nth-last-child") {
@@ -852,7 +856,7 @@ function processNth(name, arg, not, parNode, node) {
 	switch (name) {
 		case "nth-child" :
 			child = true;
-			usePosition = !not;
+			usePosition = !ofResult && !not;
 			str = addNthToXpath(name, arg, 'preceding', owner, false, usePosition);
 			break;
 		case "nth-last-child" :
@@ -987,15 +991,16 @@ function checkOfSelector(name, arg, node) {
 		ofResult = convertArgument(nd, rm[1], '', "self::node()", { predicate: true, name: name });
 		if (nd.childNodes.length === 1) {
 			const classNode = nd.childNodes[0],
-				firstChild = classNode.childNodes[0];
-			if (firstChild.owner === "self::node()") {
-				firstChild.owner = '';
-				const result = "{" + classNode.toString() + "}";
+				firstChild = classNode.childNodes[0],
+				selfNode = firstChild.owner === "self::node()";
+			firstChild.owner = '';
+			const result = "{" + classNode.toString() + "}";
+			if (selfNode) {
 				owner += result;
 				ofResult = result;
 			} else {
 				owner = "{" + ofResult + "}";
-				ofResult = "{[" + ofResult + "]}";
+				ofResult = result;
 			}
 		} else {
 			ofResult = "{[" + ofResult + "]}";
