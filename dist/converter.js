@@ -517,8 +517,7 @@
         } else {
           addOwner(owner, node);
           if (_name.startsWith("nth-")) {
-            var not = argumentInfo && argumentInfo.name === 'not';
-            node = processNth(_name, arg, not, classNode, node);
+            processNth(_name, arg, argumentInfo, classNode, node);
           } else {
             processPseudoClass(_name, arg, node);
           }
@@ -967,7 +966,7 @@
     });
     return result;
   }
-  function processNth(name, arg, not, parNode, node) {
+  function processNth(name, arg, info, parNode, node) {
     if (isNullOrWhiteSpace(arg)) argumentException("argument is null or white space");
     var ofResult,
       owner = '*';
@@ -980,62 +979,41 @@
       }
     }
     arg = arg.replace(/\s+/g, '');
-    if (!checkValidity(arg, not, name)) {
-      return node;
+    if (!checkValidity(arg, info, name)) {
+      return;
     }
-    var str = '',
-      child = false,
-      usePosition = false;
+    var str = '';
     switch (name) {
       case "nth-child":
-        child = true;
-        usePosition = !ofResult && !not;
-        str = addNthToXpath(name, arg, 'preceding', owner, false, usePosition);
+        str = addNthToXpath(name, arg, 'preceding', owner, false);
         break;
       case "nth-last-child":
-        str = addNthToXpath(name, arg, 'following', owner, true, usePosition);
+        str = addNthToXpath(name, arg, 'following', owner, true);
         break;
       case "nth-of-type":
         owner = getOwner(node, name);
-        str = addNthToXpath(name, arg, 'preceding', owner, false, usePosition);
+        str = addNthToXpath(name, arg, 'preceding', owner, false);
         break;
       case "nth-last-of-type":
         owner = getOwner(node, name);
-        str = addNthToXpath(name, arg, 'following', owner, true, usePosition);
+        str = addNthToXpath(name, arg, 'following', owner, true);
         break;
       default:
         parseException(pseudo + name + "' is not implemented");
         break;
     }
-    if (!str) {
-      if (ofResult) {
-        node.add(ofResult);
-      }
-      return node;
-    }
-    if (usePosition && child) {
-      var newNodeOwner = node.owner && node.owner !== "self::node()" ? node.owner : "*";
-      node.owner = owner;
-      node.add(str);
-      node = newNode(parNode, node, "self::", "/");
-      node.owner = newNodeOwner;
-    } else {
-      if (ofResult) {
-        node.add(ofResult);
-      }
-      node.add(str);
-    }
-    return node;
+    if (ofResult) node.add(ofResult);
+    if (str) node.add(str);
   }
-  function addNthToXpath(name, arg, sibling, owner, last, usePosition) {
+  function addNthToXpath(name, arg, sibling, owner, last) {
     var str = '';
     if (/^\d+$/.test(arg)) {
       var num = parseInt(arg);
-      str = addPosition(sibling, owner, {
+      str = addCount(sibling, owner, {
         valueB: num,
         count: num - 1,
         comparison: " = "
-      }, usePosition);
+      });
     } else if (arg === "odd") {
       str = addModulo(sibling, owner, ' + 1', 2, 1);
     } else if (arg === "even") {
@@ -1044,12 +1022,12 @@
       var obj = parseFnNotation(arg, last);
       if (obj.valueA) {
         var _num = getNumber(obj.valueB);
-        if (obj.type === 'mod') str = addModulo(sibling, owner, _num, obj.valueA, 0);else if (obj.type === 'pos') str = addPosition(sibling, owner, obj, usePosition);else if (obj.type === 'both') {
-          str = addPosition(sibling, owner, obj, usePosition) + addModulo(sibling, owner, _num, obj.valueA, 0);
+        if (obj.type === 'mod') str = addModulo(sibling, owner, _num, obj.valueA, 0);else if (obj.type === 'cnt') str = addCount(sibling, owner, obj);else if (obj.type === 'both') {
+          str = addCount(sibling, owner, obj) + addModulo(sibling, owner, _num, obj.valueA, 0);
           str = str.replace('][', ' and ');
         }
       } else {
-        str = addPosition(sibling, owner, obj, usePosition);
+        str = addCount(sibling, owner, obj);
       }
     }
     return str;
@@ -1072,10 +1050,10 @@
           }
         } else if (absA !== 0) comparison = " >= ";
       }
-      if (valueA === 0) type = 'pos';else if (!minus && valueB === 1) {
+      if (valueA === 0) type = 'cnt';else if (!minus && valueB === 1) {
         if (absA > 1) type = 'mod';
       } else if (valueB > 0) {
-        if (absA > 1) type = 'both';else type = 'pos';
+        if (absA > 1) type = 'both';else type = 'cnt';
       } else if (absA > 1) {
         type = 'mod';
       }
@@ -1092,10 +1070,8 @@
   function addModulo(sibling, owner, num, mod, eq) {
     return "[(count(".concat(sibling, "-sibling::").concat(owner, ")").concat(num, ") mod ").concat(mod, " = ").concat(eq, "]");
   }
-  function addPosition(sibling, owner, obj, usePosition) {
-    if (usePosition) {
-      return "[position()".concat(obj.comparison).concat(obj.valueB, "]");
-    } else if (obj.count === 0 && /^<?=$/.test(obj.comparison.trim())) {
+  function addCount(sibling, owner, obj) {
+    if (obj.count === 0 && /^<?=$/.test(obj.comparison.trim())) {
       return "[not(".concat(sibling, "-sibling::").concat(owner, ")]");
     } else {
       return "[count(".concat(sibling, "-sibling::").concat(owner, ")").concat(obj.comparison).concat(obj.count, "]");
@@ -1109,7 +1085,8 @@
     var minus = sign && sign === '-' ? '-' : '';
     return num != null ? +(minus + num) : defaultVal;
   }
-  function checkValidity(arg, not, name) {
+  function checkValidity(arg, info, name) {
+    var not = info && info.name === 'not';
     if (/^(?:-?0n?|-n(?:[+-]0|-\d+)?|(?:0|-\d+)n(?:-\d+)?|(?:0|-\d+)n\+0)$/.test(arg)) {
       if (not) return false;
       argumentException(pseudo + name + '\' with these arguments yield no matches');

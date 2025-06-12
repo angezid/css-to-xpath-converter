@@ -6,9 +6,11 @@ const cssSelectors = {
     "selectors": [
       "*:has-parent(div[id])",
       "*:has-sibling(div[id])",
+      "*:nth-child(-n+3 of li.noted)",
       "*:has-sibling(div[id], ul[id])",
       "*:has-ancestor(div[id]):not(div)",
       "  li:nth-child(  -3n  +  4  )   ",
+      "*:nth-last-child(-n+3 of li.noted)",
       "a:is([name], [href])",
       "a:not(li.c1 a, p a)",
       "article p:only-of-type",
@@ -24,10 +26,16 @@ const cssSelectors = {
       "div[class='diV' i]",
       "div[class*='iv' i]",
       "div[class!='div' i]",
+      "div + p:nth-child(2)",
+      "div ~ p:nth-child(2)",
+      "div > p:nth-child(2)",
       "div[class|='last' i]",
       "div [class^='emph' i]",
       "div [class$='size' i]",
       "div[class~='parent' i]",
+      "div + p:nth-last-child(1)",
+      "div ~ p:nth-last-child(1)",
+      "div > p:nth-last-child(1)",
       "div[id]:has-sibling(div:empty)",
       "div ul[id=list]>li:range(2, 5)",
       "div:contains('Test')",
@@ -58,8 +66,10 @@ const cssSelectors = {
       "li:not(:nth-child(odd of .noted))",
       "li:not(:nth-last-child(odd of .noted))",
       "li:nth-child(even of .noted)",
+      "li:nth-child(-n+3 of li.noted)",
       "li:nth-child(even of :not(.noted))",
       "li:nth-last-child(even of .noted)",
+      "li:nth-last-child(-n+3 of li.noted)",
       "li:nth-last-child(even of :not(.noted))",
       "main > div[id=lists]",
       "p +",
@@ -2244,6 +2254,18 @@ first letter should be included."></p>
 <li class='c9'>9</li>
 <li class='c10'>10</li>
 </ul>
+<div>		
+<div>d1</div>
+<p>p1</p>
+</div>	
+<div>	
+<div>d2</div>
+<p>p2</p>
+</div>	
+<div>	
+<div>d3</div>
+<span>span</span>
+</div>
 <ul id='list'>
 <li class='c1' title='Item One'>1</li>
 <li class='c2' title='Item Two'>2</li>

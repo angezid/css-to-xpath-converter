@@ -78,8 +78,8 @@
 		runXPath = document.getElementById('run-xpath'),
 		runCSS = document.getElementById('run-css'),
 		htmlList = document.getElementById('html-list'),
-		clearHtmlButton = document.getElementById('clear-html'); 
-	
+		clearHtmlButton = document.getElementById('clear-html');
+
 	new autoComplete(cssBox, {
 		suggestions: [autocompleteCSS, htmlTags, htmlAttributes.map(str => str.replace('@', '['))],
 		regex : /(^|[\s"'*./:=>+~^!@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
@@ -90,7 +90,7 @@
 		},
 		debug : !postprocess.checked
 	});
-	
+
 	new autoComplete(xpathBox, {
 		suggestions: [autocompleteXPath, htmlTags, htmlAttributes],
 		//regex : /(^|[\s"'*./:=@()[\]\\|]|[/[](?=@))([@]?[\w-]+)$/u,
@@ -147,7 +147,7 @@
 	}
 
 	initConverter();
-	
+
 	function process(elem) {
 		elem = elem.querySelector('mark') || elem;
 		const text = elem.textContent;
@@ -179,7 +179,7 @@
 	}
 
 	function beautify(html) {
-		try { return html_beautify(html); } catch(e) { return html; } 
+		try { return html_beautify(html); } catch(e) { return html; }
 	}
 
 	function updateSelector() {
@@ -295,7 +295,7 @@
 
 		convertButton.addEventListener('click', function() {
 			selection = tryGetSelection(cssBox);
-			
+
 			clearWarning();
 			clearXPathEditor(true);
 
@@ -393,7 +393,7 @@
 		//const selector = cssBox.textContent.trim();
 		const selector = selection || cssBox.textContent.trim();
 		if ( !selector) return;
-		
+
 		selection = '';
 		updateXPathEditor('');
 
@@ -441,13 +441,13 @@
 
 	function tryGetSelection(elem) {
 		const sel = window.getSelection();
-		
+
 		if (sel && elem.contains(sel.anchorNode)) {
-			return sel.toString().trim(); 
+			return sel.toString().trim();
 		}
-		return ''; 
+		return '';
 	}
-	
+
 	function highlightXPath(xpath) {
 		clearWarning();
 
@@ -634,7 +634,7 @@
 			}
 
 			if (notEquals) {
-				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + notEquals + '; not equals = ' + equals;
+				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + equals + '; not equals = ' + notEquals;
 				return result.replaceAll('; ', ';<br>');
 			}
 		}
@@ -688,11 +688,11 @@
 		});
 		selectorHistory.innerHTML = str;
 	}
-	
+
 	function getPosition(elem) {
 		position = elem.getBoundingClientRect().top + window.scrollY;
 	}
-	
+
 	function setExampleSelector(elem) {
 		clearCSSButton.click();
 		const selector = elem.getAttribute('data-selector');
