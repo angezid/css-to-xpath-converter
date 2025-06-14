@@ -72,6 +72,28 @@ const cssSelectors = {
       "li:nth-last-child(-n+3 of li.noted)",
       "li:nth-last-child(even of :not(.noted))",
       "main > div[id=lists]",
+      ":not(div + p)",
+      ":not(div > p)",
+      ":not(div ~ p)",
+      ":not(div ^ p)",
+      ":not(p ! div)",
+      ":not(p !+ div)",
+      ":not(p !> div)",
+      ":not(p !~ div)",
+      ":not(div !^ p)",
+      ":not(p ! div b)",
+      ":not(div p span)",
+      ":not(div + p span)",
+      ":not(div > p span)",
+      ":not(div ~ p span)",
+      ":not(div ^ p span)",
+      ":not(p !> div span)",
+      ":not(div !^ p span)",
+      ":not(div !~ p span > b)",
+      ":not(div  p > span, p b)",
+      ":not(div > div + p > span)",
+      ":not(:has(div + p:nth-child(2)))",
+      ":not(:has(div + p:nth-last-child(1)))",
       "p +",
       "p.p4 ~",
       "p.p2 !>",
@@ -2233,6 +2255,39 @@ first letter should be included."></p>
 <body lang='EN-US En-gb en-au en-nz'>
 <p class='XYZΨΩ' title='ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ'>Greek uppercase</p>
 <div>
+<div>d1</div>
+<p class='p1'>p1</p>
+</div>
+<div>
+<div>d2</div>
+<p class='p2'>p2</p>
+<p class='p3'>p3</p>
+<p class='p4'>p4</p>
+</div>
+<div>
+<div>d3</div>
+<span>span</span>
+<p class='p5'>p5</p>
+</div>
+<div>
+<div>d1</div>
+<p class='p1'>p1</p>
+</div>
+<div>
+<div>d2</div>
+<p class='p2'>
+<span>span1</span>
+<b>b1</b>
+</p>
+</div>
+<div>
+<div>d3</div>
+<p class='p3'>
+<span>span2</span>
+<b>b2</b>
+</p>
+</div>
+<div>
 <p class='c1'>1.</p>
 <h2>h2.</h2>
 <p class='c2'>2.</p>
@@ -2254,15 +2309,15 @@ first letter should be included."></p>
 <li class='c9'>9</li>
 <li class='c10'>10</li>
 </ul>
-<div>		
+<div>
 <div>d1</div>
-<p>p1</p>
-</div>	
-<div>	
+<p class='p1'>p1</p>
+</div>
+<div>
 <div>d2</div>
-<p>p2</p>
-</div>	
-<div>	
+<p class='p2'>p2</p>
+</div>
+<div>
 <div>d3</div>
 <span>span</span>
 </div>
@@ -2277,6 +2332,19 @@ first letter should be included."></p>
 <li class='c8'>8</li>
 <li class='c9'>9</li>
 </ul>
+<div>
+<div>d1</div>
+<p class='p0'>p0</p>
+<p class='p1'>p1</p>
+</div>
+<div>
+<div>d2</div>
+<p class='p2'>p2</p>
+</div>
+<div>
+<div>d3</div>
+<span>span</span>
+</div>
 <ul id='list'>
 <li class='c1' title='Item One'>1</li>
 <li class='c2' title='Item Two'>2</li>
