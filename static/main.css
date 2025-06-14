@@ -85,7 +85,7 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 
 .results { margin-top: 20px; }
 #xpath-box { color: #000; padding-right: 30px; }
-#message-box { color: #f00; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; }
+#message-box { color: #f00; background-color: #f0f0f0; font-size: 1em; padding: 10px; width: 98%; border: #ccc 1px solid; white-space: pre-wrap; }
 
 .row.html-panel { margin: 10px 20px 5px 14px; }
 #html-box { color: #000; background-color: #f0f0f0; font-size: 1em; padding: 10px; border: #ccc 1px solid; max-height: 400px; overflow-y: scroll; }

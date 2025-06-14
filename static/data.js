@@ -118,9 +118,9 @@ const exampleSelectors = [
 	["li:nth-last-child(3)", ""],
 	["li:nth-last-child(odd)", ""],
 	["li:nth-last-child(even)", ""],
-	["p:nth-last-child(3n+2)", ""],
-	["p:nth-last-child(3n+2 of .noted)", ""],
-	["p:nth-last-child(-3n+2)", ""],
+	["li:nth-last-child(3n+2)", ""],
+	["li:nth-last-child(3n+2 of .noted)", ""],
+	["li:nth-last-child(-3n+2)", ""],
 
 	["$$'-of-type'", "", "Not works with universal selector '*'"],
 	["div p:first-of-type", ""],
@@ -138,8 +138,8 @@ const exampleSelectors = [
 	["li:nth-last-of-type(3)", ""],
 	["li:nth-last-of-type(odd)", ""],
 	["li:nth-last-of-type(even)", ""],
-	["p:nth-last-of-type(3n+2)", ""],
-	["p:nth-last-of-type(-3n+2)", ""],
+	["li:nth-last-of-type(3n+2)", ""],
+	["li:nth-last-of-type(-3n+2)", ""],
 
 	["$$Spaces, comments", ""],
 	["ul   >   li:not (  .c1  )", ""],
