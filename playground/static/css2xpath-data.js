@@ -71,6 +71,7 @@ const cssSelectors = {
       "li:nth-last-child(even of .noted)",
       "li:nth-last-child(-n+3 of li.noted)",
       "li:nth-last-child(even of :not(.noted))",
+      "li:nth-last-child(even of :not(.noted ~ li))",
       "main > div[id=lists]",
       ":not(div + p)",
       ":not(div > p)",
@@ -81,6 +82,7 @@ const cssSelectors = {
       ":not(p !> div)",
       ":not(p !~ div)",
       ":not(div !^ p)",
+      ":not(.p3 span)",
       ":not(p ! div b)",
       ":not(div p span)",
       ":not(div + p span)",
@@ -89,11 +91,18 @@ const cssSelectors = {
       ":not(div ^ p span)",
       ":not(p !> div span)",
       ":not(div !^ p span)",
+      ":not([class] span + b)",
       ":not(div !~ p span > b)",
       ":not(div  p > span, p b)",
       ":not(div > div + p > span)",
+      ":not(div > [class] span + b)",
       ":not(:has(div + p:nth-child(2)))",
       ":not(:has(div + p:nth-last-child(1)))",
+      ":nth-child(even of :not(.noted ~ li))",
+      ":nth-child(even of :not(.noted > span))",
+      ":nth-child(even of :not(.noted + li span))",
+      ":nth-last-child(even of :not(.noted > span))",
+      ":nth-last-child(even of :not(.noted + li span))",
       "p +",
       "p.p4 ~",
       "p.p2 !>",
@@ -2398,19 +2407,19 @@ first letter should be included."></p>
 <li>Jayla</li>
 <li>Tyrone</li>
 <li>Ricardo</li>
-<li class="noted">Gila</li>
+<li class="noted"><span>Gila</span></li>
 <li>Sienna</li>
 <li>Titilayo</li>
 <li class="noted">Lexi</li>
-<li>Aylin</li>
+<li><span>Aylin</span></li>
 <li>Leo</li>
 <li>Leyla</li>
-<li class="noted">Bruce</li>
+<li class="noted"><span>Bruce</span></li>
 <li>Aisha</li>
 <li>Veronica</li>
 <li class="noted">Kyouko</li>
 <li>Shireen</li>
-<li>Tanya</li>
+<li><span>Tanya</span></li>
 <li class="noted">Marlene</li>
 </ul>
 <div>

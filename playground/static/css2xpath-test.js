@@ -127,11 +127,15 @@ function reportCoverage(coverage) {
 				notReferenceEquals.push(`<p>${item.css}  <b>${item.count}  !== ${item.count}</b> ${item.xpath}</p>\n`);
 
 			} else if (item.notValid) {
-				if (item.notValid === 'css') {
-					notValid.push(`<p>${item.text} <b>CSS</b><b>  x === ${item.xpathCount}</b> ${item.xpath}</p>\n`);
+				const errBoth = item.notValid === 'css' && item.notValid === 'xpath' ? 'color: #f0f' : '';
+				const errXpath = item.notValid === 'xpath'  ? 'color: #f00' : '';
 
-				} else if (item.notValid === 'xpath') {
-					notValid.push(`<p>${item.css} <b>${item.cssCount} -- </b> ${item.text} <b>XPath</b></p>\n`);
+				if (item.notValid === 'css') {
+					notValid.push(`<p><span style="${errBoth}">${item.text}</span> <b>CSS</b><b>  x === ${item.xpathCount}</b> ${item.xpath}</p>\n`);
+				}
+
+				if (item.notValid === 'xpath') {
+					notValid.push(`<p>${item.css} <b>${item.cssCount} --- x </b> <span style="${errXpath}">${item.text}</span> <b>XPath</b></p>\n`);
 				}
 
 			} else if (item.noMatch) {

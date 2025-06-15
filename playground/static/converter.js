@@ -265,7 +265,7 @@
     var node = newNode(classNode, null);
     var name = argumentInfo ? argumentInfo.name : '';
     var predicate = argumentInfo && argumentInfo.predicate;
-    var not = argumentInfo && argumentInfo.name === 'not';
+    var not = name === 'not';
     var attrName = null,
       attrValue = null,
       modifier = null,
@@ -389,18 +389,18 @@
             if (argumentInfo) {
               if (name === 'has-ancestor') {
                 node = newNode(classNode, node, 'ancestor::', " and ");
-              } else if (name === 'has-parent' || name === 'before' || name === 'after' || name.endsWith('-sibling')) {
+              } else if (['has-parent', 'before', 'after'].includes(name) || name.endsWith('-sibling')) {
                 if (!node.previousNode) {
                   node.axis = 'ancestor::';
                   node.separator = '';
                 }
                 node = newNode(classNode, node, 'ancestor::', " and ");
-              } else if (name === 'not' && node.axis === 'self::') {
+              } else if (name === 'not' && (node.axis === 'self::' || node.owner === "self::node()")) {
                 if (node.previousNode && node.previousNode.axis === 'ancestor::') {
                   node.separator = ' and ';
                 }
-                node.axis = 'ancestor::';
-                node = newNode(classNode, node, 'self::', "//");
+                if (node.owner === "self::node()") node.owner = "*";
+                node = addNode(classNode, node, "ancestor::");
               } else {
                 node = newNode(classNode, node, null, "//");
               }
@@ -550,6 +550,7 @@
     return nd;
   }
   function addNode(parNode, node, axis, content) {
+    if (node.owner === "self::node()") node.owner = "*";
     node.axis = axis;
     var nd = newNode(parNode, node, "self::", "/");
     if (content) nd.add(content);
@@ -842,21 +843,21 @@
         break;
       case "has":
         nd = node.clone();
-        result = convertArgument(nd, arg, ".//", "", {
+        result = convertArgument(nd, arg, ".//", null, {
           name: name
         });
         addToNode(nd, "[" + result + "]");
         break;
       case "has-sibling":
         nd = node.clone();
-        var precedings = convertArgument(nd, arg, precedingSibling, "", {
+        var precedings = convertArgument(nd, arg, precedingSibling, null, {
           name: name
         });
         if (nd.hasAxis('ancestor::')) {
           precedings = transform(nd, precedingSibling);
         }
         nd = node.clone();
-        var followings = convertArgument(nd, arg, followingSibling, "", {
+        var followings = convertArgument(nd, arg, followingSibling, null, {
           name: name
         });
         if (nd.hasAxis('ancestor::')) {
@@ -869,7 +870,7 @@
         break;
       case "has-ancestor":
         nd = node.clone();
-        result = convertArgument(nd, arg, "ancestor::", "", {
+        result = convertArgument(nd, arg, "ancestor::", null, {
           name: name
         });
         addToNode(nd, "[" + result + "]");
@@ -939,7 +940,7 @@
     if (str) node.add(str);
     function process(axis) {
       var nd = node.clone();
-      var result = convertArgument(nd, arg, axis, "", {
+      var result = convertArgument(nd, arg, axis, null, {
         name: name
       });
       if (nd.hasAxis('ancestor::')) {

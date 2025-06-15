@@ -552,6 +552,8 @@
 			}
 		});
 
+		if ( !postprocess.checked) return;
+
 		const elem = htmlBox.querySelector('mark');
 		if (elem) {
 			elem.scrollIntoView({ block : "center" });

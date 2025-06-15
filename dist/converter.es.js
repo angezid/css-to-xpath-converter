@@ -175,7 +175,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 	let node = newNode(classNode, null);
 	const name = argumentInfo ? argumentInfo.name : '';
 	const predicate = argumentInfo && argumentInfo.predicate;
-	const not = argumentInfo && argumentInfo.name === 'not';
+	const not = name === 'not';
 	let attrName = null,
 		attrValue = null,
 		modifier = null,
@@ -299,18 +299,18 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					if (argumentInfo) {
 						if (name === 'has-ancestor') {
 							node = newNode(classNode, node, 'ancestor::', " and ");
-						} else if (name === 'has-parent' || name === 'before' || name === 'after' || name.endsWith('-sibling')) {
+						} else if (['has-parent', 'before', 'after'].includes(name) || name.endsWith('-sibling')) {
 							if ( !node.previousNode) {
 								node.axis = 'ancestor::';
 								node.separator = '';
 							}
 							node = newNode(classNode, node, 'ancestor::', " and ");
-						} else if (name === 'not' && node.axis === 'self::') {
+						} else if (name === 'not' && (node.axis === 'self::' || node.owner === "self::node()")) {
 							if (node.previousNode && node.previousNode.axis === 'ancestor::') {
 								node.separator = ' and ';
 							}
-							node.axis = 'ancestor::';
-							node = newNode(classNode, node, 'self::', "//");
+							if (node.owner === "self::node()") node.owner = "*";
+							node = addNode(classNode, node, "ancestor::");
 						} else {
 							node = newNode(classNode, node, null, "//");
 						}
@@ -444,6 +444,7 @@ function newNode(parNode, node, axis, separator) {
 	return nd;
 }
 function addNode(parNode, node, axis, content) {
+	if (node.owner === "self::node()") node.owner = "*";
 	node.axis = axis;
 	var nd = newNode(parNode, node, "self::", "/");
 	if (content) nd.add(content);
@@ -728,17 +729,17 @@ function processPseudoClass(name, arg, node) {
 			break;
 		case "has" :
 			nd = node.clone();
-			result = convertArgument(nd, arg, ".//", "", { name: name });
+			result = convertArgument(nd, arg, ".//", null, { name: name });
 			addToNode(nd, "[" + result + "]");
 			break;
 		case "has-sibling" :
 			nd = node.clone();
-			let precedings = convertArgument(nd, arg, precedingSibling, "", { name: name });
+			let precedings = convertArgument(nd, arg, precedingSibling, null, { name: name });
 			if (nd.hasAxis('ancestor::')) {
 				precedings = transform(nd, precedingSibling);
 			}
 			nd = node.clone();
-			let followings = convertArgument(nd, arg, followingSibling, "", { name: name });
+			let followings = convertArgument(nd, arg, followingSibling, null, { name: name });
 			if (nd.hasAxis('ancestor::')) {
 				followings = transform(nd, followingSibling);
 			}
@@ -749,7 +750,7 @@ function processPseudoClass(name, arg, node) {
 			break;
 		case "has-ancestor" :
 			nd = node.clone();
-			result = convertArgument(nd, arg, "ancestor::", "", { name: name });
+			result = convertArgument(nd, arg, "ancestor::", null, { name: name });
 			addToNode(nd, "[" + result + "]");
 			break;
 		case "after" :
@@ -817,7 +818,7 @@ function processPseudoClass(name, arg, node) {
 	if (str) node.add(str);
 	function process(axis) {
 		const nd = node.clone();
-		let result = convertArgument(nd, arg, axis, "", { name: name });
+		let result = convertArgument(nd, arg, axis, null, { name: name });
 		if (nd.hasAxis('ancestor::')) {
 			result = transform(nd, axis);
 		}
@@ -1010,7 +1011,7 @@ function checkOfSelector(name, arg, node) {
 		rm = ofReg.exec(arg);
 	if (rm !== null) {
 		const nd = node.clone();
-		ofResult = convertArgument(nd, rm[1], '', "self::node()", { predicate: true, name: name });
+		ofResult = convertArgument(nd, rm[1],'', "self::node()", { predicate: true, name: name });
 		if (nd.childNodes.length === 1) {
 			const classNode = nd.childNodes[0],
 				firstChild = classNode.childNodes[0],
