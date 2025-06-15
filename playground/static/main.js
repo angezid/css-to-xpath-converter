@@ -695,30 +695,37 @@
 		position = elem.getBoundingClientRect().top + window.scrollY;
 	}
 
+	async function setExamples() {
+		await buildExamples();
+	}
+
+	async function buildExamples() {
+		return new Promise((resolve) => {
+			const section = document.getElementById('examples');
+			section.innerHTML = buildTable(exampleSelectors, true);
+
+			section.querySelectorAll('code.css').forEach((elem) => {
+				elem.addEventListener('click', function(e) {
+					setExampleSelector(this);
+				});
+
+				elem.addEventListener('mouseover', function(e) {
+					getPosition(this);
+				});
+			});
+
+			const element = document.getElementById('attribute-table');
+			element.innerHTML = buildTable(classAttributes);
+			resolve();
+		});
+	}
+
 	function setExampleSelector(elem) {
 		clearCSSButton.click();
 		const selector = elem.getAttribute('data-selector');
 		updateCSSEditor(selector);
 		elem.classList.add("visited");
 		scrollBy(0, -90);
-	}
-
-	function setExamples() {
-		const section = document.getElementById('examples');
-		section.innerHTML = buildTable(exampleSelectors, true);
-
-		section.querySelectorAll('code.css').forEach((elem) => {
-			elem.addEventListener('click', function(e) {
-				setExampleSelector(this);
-			});
-
-			elem.addEventListener('mouseover', function(e) {
-				getPosition(this);
-			});
-		});
-
-		const element = document.getElementById('attribute-table');
-		element.innerHTML = buildTable(classAttributes);
 	}
 
 	function buildTable(array, examples) {

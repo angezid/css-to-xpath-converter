@@ -158,7 +158,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 			}
 
 			if (/[.#:[]/.test(ch) || name !== "has" && node.previousNode && /[>+~^!]/.test(ch)) {
-				addAxes(axis, node);
+				addAxes(axis, node, argumentInfo);
 				addOwner(owner, node);
 			}
 
@@ -230,9 +230,9 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 						else node = newNode(classNode, node, precedingSibling, "/");
 						i++;
 
-					} else {
+					} else { // ancestors
 						if (not) node = addNode(classNode, node, "descendant-or-self::");
-						else node = newNode(classNode, node, "ancestor-or-self::", "/");    // ancestors
+						else node = newNode(classNode, node, "ancestor-or-self::", "/");
 					}
 					check = true;
 					break;
@@ -278,19 +278,17 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 							node = newNode(classNode, node, 'ancestor::', " and ");
 
 						} else if (['has-parent', 'before', 'after'].includes(name) || name.endsWith('-sibling')) {
-						//} else if (/^(?:before|after|has-parent)$|-sibling$/.test(name)) {
 							if ( !node.previousNode) {
 								node.axis = 'ancestor::';
 								node.separator = '';
 							}
 							node = newNode(classNode, node, 'ancestor::', " and ");
 
-						//} else if (name === 'not' && node.axis === 'self::') {
-						} else if (name === 'not' && (node.axis === 'self::' || node.owner === "self::node()")) {
+						} else if (name === 'not' && node.axis === 'self::') {
 							if (node.previousNode && node.previousNode.axis === 'ancestor::') {
 								node.separator = ' and ';
 							}
-							if (node.owner === "self::node()") node.owner = "*";
+							if (node.owner === "node()") node.owner = "*";
 
 							node = addNode(classNode, node, "ancestor::");
 
@@ -465,7 +463,7 @@ function newNode(parNode, node, axis, separator) {
 }
 
 function addNode(parNode, node, axis, content) {
-	if (node.owner === "self::node()") node.owner = "*";
+	//if (node.owner === "self::node()") node.owner = "*";
 
 	node.axis = axis;
 	var nd = newNode(parNode, node, "self::", "/");
@@ -826,13 +824,13 @@ function processPseudoClass(name, arg, node) {
 		case "is" :
 		case "matches" :
 			nd = node.clone();
-			result = convertArgument(nd, arg, "self::", "self::node()", { predicate: true, name: name });
+			result = convertArgument(nd, arg, "self::", "node()", { predicate: true, name: name });
 			addToNode(nd, "[" + result + "]");
 			break;
 
 		case "not" :
 			nd = node.clone();
-			result = convertArgument(nd, arg, "self::", "self::node()", { name: name });
+			result = convertArgument(nd, arg, "self::", "node()", { name: name });
 
 			if (result !== "self::node()") {    // processNth() can return a node with owner 'self::node()'
 				result = transformNot(nd);
@@ -1208,7 +1206,7 @@ function checkOfSelector(name, arg, node) {
 
 	if (rm !== null) {
 		const nd = node.clone();
-		ofResult = convertArgument(nd, rm[1],'', "self::node()", { predicate: true, name: name });
+		ofResult = convertArgument(nd, rm[1], null, "self::node()", { predicate: true, name: name });
 
 		if (nd.childNodes.length === 1) {
 			const classNode = nd.childNodes[0],
@@ -1317,7 +1315,7 @@ function getPseudoClass(i) {
 }
 
 function getOwner(node, name) {
-	const owner = node.owner !== "self::node()" ? node.owner : node.parentNode.parentNode.owner;
+	const owner = node.owner !== "node()" ? node.owner : node.parentNode.parentNode.owner;
 
 	if (name && owner == "*") parseException(pseudo + name + "' is required an element name; '*' is not implemented.");
 	return owner;
