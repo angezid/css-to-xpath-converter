@@ -111,13 +111,13 @@ function reportCoverage(coverage) {
 		html = '';
 
 	let summaries = '<h3>Total results:</h3>';
-	let passedNum = 0, failedNum = 0, errorNum = 0, notValidNum = 0, noMatchNum = 0, matchNum = 0, warningNum = 0;
+	let passedNum = 0, failedNum = 0, errorNum = 0, notValidNum = 0, noMatchNum = 0, notEqualsNum = 0, warningNum = 0;
 
 	for (let key of Object.keys(coverage)) {
 		const array = coverage[key],
 			id = key.replace(/\W+/g, '_').toLowerCase();
 
-		let passed = [], notReferenceEquals = [], error = [], notValid = [], noMatch = [], match = [], warning = [];
+		let passed = [], notReferenceEquals = [], error = [], notValid = [], noMatch = [], notEquals = [], warning = [];
 
 		array.forEach((item) => {
 			if (item.success) {
@@ -127,15 +127,14 @@ function reportCoverage(coverage) {
 				notReferenceEquals.push(`<p>${item.css}  <b>${item.count}  !== ${item.count}</b> ${item.xpath}</p>\n`);
 
 			} else if (item.notValid) {
-				const errBoth = item.notValid === 'css' && item.notValid === 'xpath' ? 'color: #f0f' : '';
-				const errXpath = item.notValid === 'xpath'  ? 'color: #f00' : '';
-
 				if (item.notValid === 'css') {
-					notValid.push(`<p><span style="${errBoth}">${item.text}</span> <b>CSS</b><b>  x === ${item.xpathCount}</b> ${item.xpath}</p>\n`);
-				}
+					const errBoth = item.xpathCount === NaN ? 'color: #f0f' : '';
+					const htmlCss =`<p><span style="${errBoth}">${item.text}</span> <b>CSS</b><b>  x === ${item.xpathCount}</b> ${item.xpath}</p>\n`;
+					notValid.push({ html: htmlCss });
 
-				if (item.notValid === 'xpath') {
-					notValid.push(`<p>${item.css} <b>${item.cssCount} --- x </b> <span style="${errXpath}">${item.text}</span> <b>XPath</b></p>\n`);
+				} else if (item.notValid === 'xpath') {
+					const htmlXpath =`<p>${item.css} <b>${item.cssCount} --- x </b> <span style="color: #f00">${item.text}</span> <b>XPath</b></p>\n`;
+					notValid.push({ html: htmlXpath, error: true });
 				}
 
 			} else if (item.noMatch) {
@@ -148,49 +147,50 @@ function reportCoverage(coverage) {
 				error.push(`<p>${item.text} <b>converter error:</b> ${item.message}</p>\n\n`);
 
 			} else if (item.notEquals) {
-				match.push(`<p>${item.css} <b>${item.cssCount} !== ${item.xpathCount}</b> ${item.xpath}</p>\n`);
+				notEquals.push(`<p>${item.css} <b>${item.cssCount} !== ${item.xpathCount}</b> ${item.xpath}</p>\n`);
 			}
 		});
 
 		let obj, str = '', summary = '', resultNav = '';
 
 		if (passed.length) {
-			passedNum += passed.length;
+			passedNum = passed.length;
 			obj = add(key, 'Passed', passed);
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (notReferenceEquals.length) {
-			failedNum += notReferenceEquals.length;
+			failedNum = notReferenceEquals.length;
 			obj = add(key, 'Not reference equals', notReferenceEquals, 'red');
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (notValid.length) {
-			notValidNum += notValid.length;
-			obj = add(key, 'Not valid', notValid, 'pink');
+			notValidNum = notValid.length;
+			const xpathErrors = notValid.filter(obj => obj.error).length;
+			obj = add(key, 'Not valid', notValid.map((obj) => obj.html), '#ff8300', xpathErrors);
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
-		if (match.length) {
-			matchNum += match.length;
-			obj = add(key, 'Have different match count', match, 'red');
+		if (notEquals.length) {
+			notEqualsNum = notEquals.length;
+			obj = add(key, 'Have different match count', notEquals, 'red');
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (noMatch.length) {
-			noMatchNum += noMatch.length;
+			noMatchNum = noMatch.length;
 			obj = add(key, 'Have no matches', noMatch);
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (error.length) {
-			errorNum += error.length;
+			errorNum = error.length;
 			obj = add(key, 'Coverter errors', error);
 			str += obj.str;
 			summary += obj.summary;
@@ -204,19 +204,21 @@ function reportCoverage(coverage) {
 		}
 	}
 
-	function add(key, title, array, color) {
+	function add(key, title, array, color, errors) {
 		const id = key + '_' + title.replace(/\W+/g, '_').toLowerCase();
 		title = color ? '<span style="color:' + color + '">' + title + '</span>' : title;
-		const str = `<h3 id="${id}">${title}: <b>${array.length}</b></h3>\n` + array.join('');
-		const summary = `<p><a href="#${id}">${title}: <b>${array.length}</b></a></p>\n`;
-		const nav = `<li><a href="#${id}">${title}</a> <b>${array.length}</b></li>\n`;
+		const err = errors ? ` <b style="color: red">${errors}</b>` : '';
+
+		const str = `<h3 id="${id}">${title}: <b>${array.length}</b>${err}</h3>\n` + array.join('');
+		const summary = `<p><a href="#${id}">${title}: <b>${array.length}</b></a>${err}</p>\n`;
+		const nav = `<li><a href="#${id}">${title}</a> <b>${array.length}</b>${err}</li>\n`;
 		return { str, summary, nav };
 	}
 
 	if (passedNum) summaries += '<p>Passed: <b>' + passedNum + '</b></p>\n';
 	if (failedNum) summaries += '<p>Failed: <b>' + failedNum + '</b></p>\n';
 	if (notValidNum) summaries += '<p>Not valid: <b>' + notValidNum + '</b></p>\n';
-	if (matchNum) summaries += '<p>Have different match count: <b>' + matchNum + '</b></p>\n';
+	if (notEqualsNum) summaries += '<p>Have different match count: <b>' + notEqualsNum + '</b></p>\n';
 	if (noMatchNum) summaries += '<p>Have no matches: <b>' + noMatchNum + '</b></p>\n';
 	if (errorNum) summaries += '<p>Coverter errors: <b>' + errorNum + '</b></p>\n';
 

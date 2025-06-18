@@ -448,7 +448,7 @@
 		return '';
 	}
 
-	function highlightXPath(xpath) {
+	function highlightXPath(xpath, different) {
 		clearWarning();
 
 		const { doc, htmlString, indexes } = parseHTML();
@@ -476,7 +476,7 @@
 		}
 
 		htmlEditor.updateCode(htmlString);
-		highlightElements(startIndexes);
+		highlightElements(startIndexes, 'XPath: ');
 		settings.html = htmlString;
 	}
 
@@ -508,7 +508,7 @@
 			}
 		}
 		htmlEditor.updateCode(htmlString);
-		highlightElements(startIndexes);
+		highlightElements(startIndexes, 'CSS: ');
 		settings.html = htmlString;
 	}
 
@@ -523,9 +523,9 @@
 		return { doc, htmlString, indexes };
 	}
 
-	function highlightElements(startIndexes) {
+	function highlightElements(startIndexes, type) {
 		const length = startIndexes.length;
-		showMessage('Count = ' + length);
+		showMessage(type + 'count = ' + length);
 
 		if ( !length) return;
 
@@ -622,8 +622,23 @@
 		if (success) {
 			result += 'XPath: count = ' + xpathElems.length + ';';
 		}
+		
+		if (cssElems.length && xpathElems.length) {
+			let equals = 0,
+				notEquals = 0;
 
-		if (cssElems.length !== xpathElems.length) {
+			for (let i = 0; i < cssElems.length; i++) {
+				if (cssElems[i] === xpathElems[i]) equals++;
+				else notEquals++;
+			}
+
+			if (notEquals) {
+				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + equals + '; not equals = ' + notEquals;
+			}
+		}
+		return result.replaceAll('; ', ';<br>');
+
+		/*if (cssElems.length !== xpathElems.length || xpathElems.length === 0) {
 			return result.replaceAll('; ', ';<br>');
 
 		} else if (cssElems.length) {
@@ -640,7 +655,7 @@
 				return result.replaceAll('; ', ';<br>');
 			}
 		}
-		return '';
+		return '';*/
 	}
 
 	function showError(error) {
@@ -695,30 +710,37 @@
 		position = elem.getBoundingClientRect().top + window.scrollY;
 	}
 
+	async function setExamples() {
+		await buildExamples();
+	}
+
+	async function buildExamples() {
+		return new Promise((resolve) => {
+			const section = document.getElementById('examples');
+			section.innerHTML = buildTable(exampleSelectors, true);
+
+			section.querySelectorAll('code.css').forEach((elem) => {
+				elem.addEventListener('click', function(e) {
+					setExampleSelector(this);
+				});
+
+				elem.addEventListener('mouseover', function(e) {
+					getPosition(this);
+				});
+			});
+
+			const element = document.getElementById('attribute-table');
+			element.innerHTML = buildTable(classAttributes);
+			resolve();
+		});
+	}
+
 	function setExampleSelector(elem) {
 		clearCSSButton.click();
 		const selector = elem.getAttribute('data-selector');
 		updateCSSEditor(selector);
 		elem.classList.add("visited");
 		scrollBy(0, -90);
-	}
-
-	function setExamples() {
-		const section = document.getElementById('examples');
-		section.innerHTML = buildTable(exampleSelectors, true);
-
-		section.querySelectorAll('code.css').forEach((elem) => {
-			elem.addEventListener('click', function(e) {
-				setExampleSelector(this);
-			});
-
-			elem.addEventListener('mouseover', function(e) {
-				getPosition(this);
-			});
-		});
-
-		const element = document.getElementById('attribute-table');
-		element.innerHTML = buildTable(classAttributes);
 	}
 
 	function buildTable(array, examples) {
