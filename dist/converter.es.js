@@ -240,13 +240,13 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					check = true;
 					break;
 				case '^' :
-					if (not) node = addNode(classNode, node, "parent::", "[not(preceding-sibling::*)]");
+					if (not) node = addNode(classNode, node, "parent::", notSibling(precedingSibling));
 					else node = addTwoNodes(classNode, node, "child::", "*", "[1]");
 					check = true;
 					break;
 				case '!' :
 					if (nextChar(i, '^')) {
-						if (not) node = addNode(classNode, node, "parent::", "[not(following-sibling::*)]");
+						if (not) node = addNode(classNode, node, "parent::", notSibling(followingSibling));
 						else node = addTwoNodes(classNode, node, "child::", "*", "[last()]");
 						i++;
 					} else if (nextChar(i, '+')) {
@@ -309,7 +309,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 							if (node.previousNode && node.previousNode.axis === 'ancestor::') {
 								node.separator = ' and ';
 							}
-							if (node.owner === "node()") node.owner = "*";
+							node.and = true;
 							node = addNode(classNode, node, "ancestor::");
 						} else {
 							node = newNode(classNode, node, null, "//");
@@ -414,9 +414,9 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 			} else {
 				addOwner(owner, node);
 				if (name.startsWith("nth-")) {
-					processNth(name, arg, argumentInfo, classNode, node);
+					processNth(name, arg, argumentInfo, node);
 				} else {
-					processPseudoClass(name, arg, node);
+					processPseudoClass(name, arg, not, node);
 				}
 			}
 			state = State.Text;
@@ -435,25 +435,26 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 function getState(state) {
 	return "State." + Object.keys(State)[state];
 }
-function newNode(parNode, node, axis, separator) {
-	const nd = new xNode(parNode);
-	parNode.addChild(nd);
+function newNode(classNode, node, axis, separator) {
+	const nd = new xNode(classNode);
+	classNode.addChild(nd);
 	nd.previousNode = node;
 	nd.axis = axis || '';
 	if (separator && node.owner) nd.separator = separator;
 	return nd;
 }
-function addNode(parNode, node, axis, content) {
+function addNode(classNode, node, axis, content) {
+	if (node.owner === "node()") node.owner = "*";
 	node.axis = axis;
-	var nd = newNode(parNode, node, "self::", "/");
+	var nd = newNode(classNode, node, "self::", "/");
 	if (content) nd.add(content);
 	return nd;
 }
-function addTwoNodes(parNode, node, axis, owner, content) {
-	const nd = newNode(parNode, node, axis, "/");
+function addTwoNodes(classNode, node, axis, owner, content) {
+	const nd = newNode(classNode, node, axis, "/");
 	nd.owner = owner;
 	nd.add(content);
-	return newNode(parNode, nd, "self::", "/");
+	return newNode(classNode, nd, "self::", "/");
 }
 function addAxes(axis, node, argumentInfo) {
 	if ( !axis || node.axis || axis === "self::" && !argumentInfo) return;
@@ -489,7 +490,7 @@ function addOwner(owner, node) {
 	}
 	node.owner = result;
 }
-function handleNamespace(i, axis, first, parNode, node) {
+function handleNamespace(i, axis, first, classNode, node) {
 	if (node.owner == "*") {
 		if (nextChar(i, '*')) {
 			node.owner = "*:*";
@@ -509,7 +510,7 @@ function handleNamespace(i, axis, first, parNode, node) {
 			}
 			i++;
 		} else if (i + 1 < length && /[a-zA-Z]/.test(code[i + 1])) {
-			let nd = newNode(parNode, node, "self::", "/");
+			let nd = newNode(classNode, node, "self::", "/");
 			nd.owner = "*";
 			return [i, nd];
 		} else {
@@ -519,7 +520,7 @@ function handleNamespace(i, axis, first, parNode, node) {
 	}
 	return [i, node];
 }
-function parseAttribute(i, axis, argumentInfo, parNode, node) {
+function parseAttribute(i, axis, argumentInfo, classNode, node) {
 	const text = node.parentNode.toString().trim();
 	if (text.length === 0) {
 		if (argumentInfo) axis = "";
@@ -533,7 +534,7 @@ function parseAttribute(i, axis, argumentInfo, parNode, node) {
 	attributeReg.lastIndex = i + 1;
 	const rm = attributeReg.exec(code);
 	if (rm !== null) {
-		const nd = newNode(parNode, node, axis);
+		const nd = newNode(classNode, node, axis);
 		nd.add("@", rm[0].replace('|', ':').toLowerCase());
 		return [i + rm[0].length, nd];
 	}
@@ -647,7 +648,7 @@ function processClass(attrValue, operation, ignoreCase, node) {
 function getClass(attrName, attributeValue) {
 	return `contains(concat(' ', normalize-space(${attrName}), ' '), ${attributeValue})`;
 }
-function processPseudoClass(name, arg, node) {
+function processPseudoClass(name, arg, not, node) {
 	let nd, result, owner, str2, str = '', localName = 'local-name()';
 	switch (name) {
 		case "any-link" :
@@ -666,27 +667,31 @@ function processPseudoClass(name, arg, node) {
 			str = "[not(*) and not(text())]";
 			break;
 		case "first-child" :
-			node.add("[not(", precedingSibling, "*)]");
+			node.add(notSibling(precedingSibling));
 			break;
 		case "first" :
-			str = arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]";
+			if (not) node.add(arg ? getNot(arg, name, precedingSibling, "*", " <= ") : notSibling(precedingSibling));
+			else node.add(arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]");
 			break;
 		case "first-of-type" :
 			owner = getOwner(node, name);
-			node.add("[not(", precedingSibling, owner, ")]");
+			node.add(notSibling(precedingSibling, owner));
 			break;
 		case "gt" :
-			node.add("[position() > ", parseNumber(arg, name), "]");
+			if (not) node.add(getNot(arg, name, precedingSibling, "*", " > "));
+			else node.add("[position() > ", parseNumber(arg, name), "]");
 			break;
 		case "lt" :
-			node.add("[position() < ", parseNumber(arg, name), "]");
+			if (not) node.add(getNot(arg, name, precedingSibling, "*", " <= "));
+			else node.add("[position() < ", parseNumber(arg, name), "]");
 			break;
 		case "eq" :
 		case "nth" :
-			node.add("[", parseNumber(arg, name), "]");
+			if (not) node.add(getNot(arg, name, precedingSibling, "*", " = "));
+			else node.add("[", parseNumber(arg, name), "]");
 			break;
 		case "last-child" :
-			node.add("[not(", followingSibling, "*)]");
+			node.add(notSibling(followingSibling));
 			break;
 		case "only-child" :
 			node.add("[not(", precedingSibling, "*) and not(", followingSibling, "*)]");
@@ -765,23 +770,28 @@ function processPseudoClass(name, arg, node) {
 			process(followingSibling);
 			break;
 		case "last" :
-			str = arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]";
+			if (not) node.add(arg ? getNot(arg, name, followingSibling, "*", " <= ") : notSibling(followingSibling));
+			else node.add(arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]");
 			break;
 		case "last-of-type" :
 			owner = getOwner(node, name);
-			node.add("[not(", followingSibling, owner, ")]");
+			node.add(notSibling(followingSibling, owner));
 			break;
 		case "skip" :
-			node.add("[position() > ", parseNumber(arg, name), "]");
+			if (not) node.add(getNot(arg, name, precedingSibling, "*", " > "));
+			else node.add("[position() > ", parseNumber(arg, name), "]");
 			break;
 		case "skip-first" :
-			node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
+			if (not) node.add(arg ? getNot(arg, name, precedingSibling, "*", " > ") : notSibling(precedingSibling));
+			else node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
 			break;
 		case "skip-last" :
-			node.add("[position() < last()", arg ? " - (" + parseNumber(arg, name) + " - 1)" : "", "]");
+			if (not) node.add(arg ? getNot(arg, name, followingSibling, "*", " > ") : notSibling(followingSibling));
+			else node.add("[position() < last()", arg ? " - " + (parseNumber(arg, name) - 1) : "", "]");
 			break;
 		case "limit" :
-			node.add("[position() <= ", parseNumber(arg, name), "]");
+			if (not) node.add(getNot(arg, name, precedingSibling, "*", " <= "));
+			else node.add("[position() <= ", parseNumber(arg, name), "]");
 			break;
 		case "range" :
 			const splits = arg.split(',');
@@ -789,7 +799,8 @@ function processPseudoClass(name, arg, node) {
 			const start = parseNumber(splits[0], name);
 			const end = parseNumber(splits[1], name);
 			if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
-			node.add("[position() >= ", start, " and position() <= ", end, "]");
+			if (not) node.add((addCount(precedingSibling, "*", { count: start - 1, comparison: " >= " }) + addCount(precedingSibling, "*", { count: end - 1, comparison: " <= " })).replace("][", " and "));
+			else node.add("[position() >= ", start, " and position() <= ", end, "]");
 			break;
 		case "target" :
 			str = "[starts-with(@href, '#')]";
@@ -825,6 +836,9 @@ function processPseudoClass(name, arg, node) {
 	}
 	function addToNode(nd, result) {
 		node.add(nd.hasOr() ? "{" + result + "}" : result);
+	}
+	function getNot(arg, name, sibling, owner, comparison) {
+		return addCount(sibling, owner, { count: parseNumber(arg, name) - 1, comparison });
 	}
 }
 function transformNot(node) {
@@ -866,7 +880,7 @@ function transform(node, axis) {
 				if (i < last) {
 					str += nd.toString();
 				} else {
-					if (axis) nd.axis = axis;
+					nd.axis = axis;
 					nd.separator = '';
 					str = nd.toString() + '[' + str + ']';
 				}
@@ -878,10 +892,11 @@ function transform(node, axis) {
 	});
 	return result;
 }
-function processNth(name, arg, info, parNode, node) {
+function processNth(name, arg, info, node) {
 	if (isNullOrWhiteSpace(arg)) argumentException("argument is null or white space");
 	let ofResult,
-		owner = '*';
+		owner = '*',
+		str = '';
 	if (name === "nth-child" || name === "nth-last-child") {
 		const obj = checkOfSelector(name, arg, node);
 		if (obj) {
@@ -894,21 +909,20 @@ function processNth(name, arg, info, parNode, node) {
 	if ( !checkValidity(arg, info, name)) {
 		return;
 	}
-	let str = '';
 	switch (name) {
 		case "nth-child" :
-			str = addNthToXpath(name, arg, 'preceding', owner, false);
+			str = addNthToXpath(name, arg, precedingSibling, owner, false);
 			break;
 		case "nth-last-child" :
-			str = addNthToXpath(name, arg, 'following', owner, true);
+			str = addNthToXpath(name, arg, followingSibling, owner, true);
 			break;
 		case "nth-of-type" :
 			owner = getOwner(node, name);
-			str = addNthToXpath(name, arg, 'preceding', owner, false);
+			str = addNthToXpath(name, arg, precedingSibling, owner, false);
 			break;
 		case "nth-last-of-type" :
 			owner = getOwner(node, name);
-			str = addNthToXpath(name, arg, 'following', owner, true);
+			str = addNthToXpath(name, arg, followingSibling, owner, true);
 			break;
 		default :
 			parseException(pseudo + name + "' is not implemented");
@@ -921,7 +935,7 @@ function addNthToXpath(name, arg, sibling, owner, last) {
 	let str = '';
 	if (/^\d+$/.test(arg)) {
 		const num = parseInt(arg);
-		str = addCount(sibling, owner, { valueB: num, count: num - 1, comparison: " = " });
+		str = addCount(sibling, owner, { count: num - 1, comparison: " = " });
 	} else if (arg === "odd") {
 		str = addModulo(sibling, owner, ' + 1', 2, 1);
 	} else if (arg === "even") {
@@ -975,14 +989,17 @@ function parseFnNotation(arg, last) {
 	regexException(0, "parseFnNotation", nthEquationReg, arg);
 }
 function addModulo(sibling, owner, num, mod, eq) {
-	return `[(count(${sibling}-sibling::${owner})${num}) mod ${mod} = ${eq}]`;
+	return `[(count(${sibling}${owner})${num}) mod ${mod} = ${eq}]`;
 }
 function addCount(sibling, owner, obj) {
 	if (obj.count === 0 && /^<?=$/.test(obj.comparison.trim())) {
-		return `[not(${sibling}-sibling::${owner})]`;
+		return notSibling(sibling, owner);
 	} else {
-		return `[count(${sibling}-sibling::${owner})${obj.comparison}${obj.count}]`;
+		return `[count(${sibling}${owner})${obj.comparison}${obj.count}]`;
 	}
+}
+function notSibling(sibling, owner) {
+	return `[not(${sibling}${owner || "*"})]`;
 }
 function getNumber(val) {
 	const num = 1 - val;
@@ -1146,8 +1163,7 @@ function normalizeWhiteSpaces(text) {
 			if (i + 1 >= length || /\s/.test(code[i + 1])) {
 				characterException(i, ch, "Non-escape character", code);
 			}
-			sb.push(ch);
-			sb.push(code[++i]);
+			sb.push(ch, code[++i]);
 		} else if (ch === '/' && nextChar(i, '*')) {
 			i += 2;
 			const k = findEnd(i, ch, true);
