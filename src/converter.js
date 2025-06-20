@@ -664,10 +664,10 @@ function processAttribute(attrName, attrValue, operation, modifier, node) {
 
 		case "$=" :    //ends with
 			if (ignoreCase) {
-				node.add("[substring(", lowerCaseValue, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", toLower(attrValue), "]");
+				node.add(endsWith(lowerCaseValue, "@" + attrName, value, toLower(attrValue)));
 
 			} else {
-				node.add("[substring(@", attrName, ", string-length(@", attrName, ") - (string-length(", value, ") - 1)) = ", value, "]");
+				node.add(endsWith("@" + attrName, "@" + attrName, value, value));
 			}
 			break;
 
@@ -682,6 +682,10 @@ function processAttribute(attrName, attrValue, operation, modifier, node) {
 
 		default : break;
 	}
+}
+
+function endsWith(str, str2, str3, str4) {
+	return "[substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4 + "]"; 
 }
 
 function processClass(attrValue, operation, ignoreCase, node) {
@@ -755,7 +759,7 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "empty" :
-			str = "[not(*) and not(text())]";
+			node.add("[not(*) and not(text())]");
 			break;
 
 		case "first-child" :
@@ -763,7 +767,7 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "first" :
-			if (not) node.add(arg ? getNot(arg, name, precedingSibling, "*", " <= ") : notSibling(precedingSibling));
+			if (not) node.add(arg ? getNot(precedingSibling, " <= ") : notSibling(precedingSibling));
 			else node.add(arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]");
 			break;
 
@@ -773,18 +777,18 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "gt" :
-			if (not) node.add(getNot(arg, name, precedingSibling, "*", " > "));
+			if (not) node.add(getNot(precedingSibling, " > "));
 			else node.add("[position() > ", parseNumber(arg, name), "]");
 			break;
 
 		case "lt" :
-			if (not) node.add(getNot(arg, name, precedingSibling, "*", " <= "));
+			if (not) node.add(getNot(precedingSibling, " <= "));
 			else node.add("[position() < ", parseNumber(arg, name), "]");
 			break;
 
 		case "eq" :
 		case "nth" :
-			if (not) node.add(getNot(arg, name, precedingSibling, "*", " = "));
+			if (not) node.add(getNot(precedingSibling, " = "));
 			else node.add("[", parseNumber(arg, name), "]");
 			break;
 
@@ -794,17 +798,15 @@ function processPseudoClass(name, arg, not, node) {
 
 		case "only-child" :
 			node.add("[not(", precedingSibling, "*) and not(", followingSibling, "*)]");
-			//node.add((notSibling(precedingSibling) + notSibling(followingSibling)).replace("][", " and "));
 			break;
 
 		case "only-of-type" :
 			owner = getOwner(node, name);
 			node.add("[not(", precedingSibling, owner, ") and not(", followingSibling, owner, ")]");
-			//node.add((notSibling(precedingSibling, owner) + notSibling(followingSibling, owner)).replace("][", " and "));
 			break;
 
 		case "text" :
-			str = "[@type='text']";
+			node.add("[@type='text']");
 			break;
 
 		case "starts-with" :
@@ -817,13 +819,12 @@ function processPseudoClass(name, arg, not, node) {
 
 		case "ends-with" :
 			str2 = normalizeArg(arg, name);
-			node.add("[substring(normalize-space(), string-length(normalize-space()) - string-length(", str2, ") + 1) = ", str2, "]");
-			//node.add("[substring(", normalizeSpace, "), string-length(", normalize-space, ")) - string-length(", str2, ") + 1) = ", str2, "]");
+			node.add(endsWith("normalize-space()", "normalize-space()", str2, str2));
 			break;
 
 		case "iends-with" :
 			str2 = normalizeArg(arg, name);
-			node.add("[substring(", toLower(), ", string-length(normalize-space()) - string-length(", str2, ") + 1) = ", translateToLower(str2), "]");
+			node.add(endsWith(toLower(), "normalize-space()", str2, translateToLower(str2)));
 			break;
 
 		case "is" :
@@ -891,7 +892,7 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "last" :
-			if (not) node.add(arg ? getNot(arg, name, followingSibling, "*", " <= ") : notSibling(followingSibling));
+			if (not) node.add(arg ? getNot(followingSibling, " <= ") : notSibling(followingSibling));
 			else node.add(arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]");
 			break;
 
@@ -901,22 +902,22 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "skip" :
-			if (not) node.add(getNot(arg, name, precedingSibling, "*", " > "));
+			if (not) node.add(getNot(precedingSibling, " > "));
 			else node.add("[position() > ", parseNumber(arg, name), "]");
 			break;
 
 		case "skip-first" :
-			if (not) node.add(arg ? getNot(arg, name, precedingSibling, "*", " > ") : notSibling(precedingSibling));
+			if (not) node.add(arg ? getNot(precedingSibling, " > ") : notSibling(precedingSibling));
 			else node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
 			break;
 
 		case "skip-last" :
-			if (not) node.add(arg ? getNot(arg, name, followingSibling, "*", " > ") : notSibling(followingSibling));
+			if (not) node.add(arg ? getNot(followingSibling, " > ") : notSibling(followingSibling));
 			else node.add("[position() < last()", arg ? " - " + (parseNumber(arg, name) - 1) : "", "]");
 			break;
 
 		case "limit" :
-			if (not) node.add(getNot(arg, name, precedingSibling, "*", " <= "));
+			if (not) node.add(getNot(precedingSibling, " <= "));
 			else node.add("[position() <= ", parseNumber(arg, name), "]");
 			break;
 
@@ -929,21 +930,25 @@ function processPseudoClass(name, arg, not, node) {
 			const end = parseNumber(splits[1], name);
 
 			if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
-
-			if (not) node.add((addCount(precedingSibling, "*", { count: start - 1, comparison: " >= " }) + addCount(precedingSibling, "*", { count: end - 1, comparison: " <= " })).replace("][", " and "));
-			else node.add("[position() >= ", start, " and position() <= ", end, "]");
+			
+			if (not) {
+				str = addCount(precedingSibling, "*", { count: start - 1, comparison: " >= " });
+				str += addCount(precedingSibling, "*", { count: end - 1, comparison: " <= " });
+				node.add(str.replace("][", " and "));
+				
+			} else node.add("[position() >= ", start, " and position() <= ", end, "]");
 			break;
 
 		case "target" :
-			str = "[starts-with(@href, '#')]";
+			node.add("[starts-with(@href, '#')]");
 			break;
 
 		case "disabled" :
-			str = "[@disabled]";
+			node.add("[@disabled]");
 			break;
 
 		case "enabled" :
-			str = "[not(@disabled)]";
+			node.add("[not(@disabled)]");
 			break;
 
 		case "selected" :
@@ -964,8 +969,6 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 	}
 
-	if (str) node.add(str);
-
 	function process(axis) {
 		const nd = node.clone();
 		let result = convertArgument(nd, arg, axis, null, { name: name });
@@ -977,12 +980,12 @@ function processPseudoClass(name, arg, not, node) {
 	}
 
 	function addToNode(nd, result) {
-		// prevents joining predicates by ' and ' in postprocess()
+		// curly braces prevent joining predicates by ' and ' in postprocess()
 		node.add(nd.hasOr() ? "{" + result + "}" : result);
 	}
 
-	function getNot(arg, name, sibling, owner, comparison) {
-		return addCount(sibling, owner, { count: parseNumber(arg, name) - 1, comparison });
+	function getNot(sibling, comparison) {
+		return addCount(sibling, "*", { count: parseNumber(arg, name) - 1, comparison });
 	}
 }
 
@@ -1006,8 +1009,6 @@ function transformNot(node) {
 					str += nd.toString();
 
 				} else {
-					if ( !nd.separator) hit = false; // ???
-
 					nd.separator = '';
 					str += '[' + nd.toString();
 					end += ']';
@@ -1202,16 +1203,17 @@ function getValue(sign, num, defaultVal) {
 }
 
 function checkValidity(arg, info, name) {
-	const not = info && info.name === 'not';
+	const not = info && info.name === 'not',
+		msg = '\' with these arguments yield no matches';
 
 	if (/^(?:-?0n?|-n(?:[+-]0|-\d+)?|(?:0|-\d+)n(?:-\d+)?|(?:0|-\d+)n\+0)$/.test(arg)) {
 		if (not) return false;
 
-		argumentException(pseudo + name + '\' with these arguments yield no matches');
+		argumentException(pseudo + name + msg);
 	}
 
 	if (not && /^1?n(?:\+[01]|-\d+)?$/.test(arg)) {
-		argumentException(pseudo + name + '\' with these arguments in \':not()\' yield no matches');
+		argumentException(pseudo + name + msg + ' in \':not()\'');
 	}
 	return true;
 }
@@ -1258,8 +1260,13 @@ function toLower(str) {
 }
 
 function translateToLower(str) {
-	return "translate(" + str + ", 'ABCDEFGHJIKLMNOPQRSTUVWXYZ" + uppercase + "', 'abcdefghjiklmnopqrstuvwxyz" + lowercase + "')";
+	const letters = 'ABCDEFGHJIKLMNOPQRSTUVWXYZ';
+	return "translate(" + str + ", '" + letters + uppercase + "', '" + letters.toLowerCase() + lowercase + "')";
 }
+
+/*function translateToLower(str) {
+	return "translate(" + str + ", 'ABCDEFGHJIKLMNOPQRSTUVWXYZ" + uppercase + "', 'abcdefghjiklmnopqrstuvwxyz" + lowercase + "')";
+}*/
 
 function normalizeArg(str, name) {
 	if ( !str) {
@@ -1448,7 +1455,6 @@ function normalizeWhiteSpaces(text) {
 		}
 		return -1;
 	}
-
 	return sb.join('');
 }
 

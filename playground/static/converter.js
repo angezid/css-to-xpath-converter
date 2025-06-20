@@ -1328,6 +1328,7 @@
       }
       return -1;
     }
+    
     return sb.join('');
   }
   function getArgument(i, text, open, close) {
