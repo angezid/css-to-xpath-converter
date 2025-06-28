@@ -746,7 +746,7 @@
 	function buildTable(array, examples) {
 		const hrefs = ['<a href="#info-1">[1]</a> ', '<a href="#info-2">[2]</a> ', '<a href="#info-3">[3]</a> '];
 		const sb = [];
-		sb.push('<table><thead><tr><td>Description</td><td>CSS</td><td class="thead-xpath">XPath</td></tr></thead><tbody>');
+		sb.push('<table><thead><tr><th>Description</th><th>CSS</th><th class="thead-xpath">XPath</th></tr></thead><tbody>');
 
 		array.forEach(item => {
 			if (/^\$\$/.test(item[0])) {
