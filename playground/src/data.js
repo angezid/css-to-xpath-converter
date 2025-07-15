@@ -15,6 +15,9 @@ const defaultHtmls = {
 	},
 	"toc": {
 		"content": "<ul>\n  <li>\n    <div class=\"collapsed\"></div>\n    <span>Header</span>\n    <ul style=\"display:none;\">\n      <li><a href=\"#\">Item </a></li>\n      <li><a href=\"#\">Item </a></li>\n      <li><a href=\"#\">Item </a></li>\n      <li>\n        <div class=\"collapsed\"></div>\n        <span>Subheader</span>\n        <ul style=\"display:none;\">\n          <li><a href=\"#\">Item </a></li>\n          <li><a href=\"#\">Item </a></li>\n          <li><a href=\"#\">Item </a></li>\n        </ul>\n      </li>\n    </ul>\n  </li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n  <li><a href=\"#\">Item </a></li>\n</ul>"
+	},
+	"nth": {
+		"content": "<div>\n	<p class='c1'>1.</p>\n	<h2>h2.</h2>\n	<p class='c2'>2.</p>\n	<p class='c3'>3.</p>\n	<h2>h2.</h2>\n	<p class='c4'>4</p>\n	<p class='c5'>5</p>\n	<p class='c6'>6</p>\n</div>\n\n<div id=div1>\n	<p>The first p.</p>\n	<p>The second p.</p>\n	<p class=nth>The third p.</p>\n	<p>The fourth p.</p>\n\n	<p>The first p.</p>\n	<p class=nth>The sixth p.</p>\n	<p>The seventh p.</p>\n	<p>The eighth p.</p>\n\n	<p>The ninth p.</p>\n	<!-- <p>The tenth p.</p> -->\n</div>\n<hr>\n\n<div id=first>\n	<p>The first p.</p>\n	<p>The second p.</p>\n	<p class=nth>The third p.</p>\n	<p>The fourth p.</p>\n\n	<p>The first p.</p>\n	<p class=nth>The sixth p.</p>\n	<p>The seventh p.</p>\n	<p>The eighth p.</p>\n\n	<p>The ninth p.</p>\n	<p>The tenth p.</p>\n	<p>The eleventh p.</p>\n	<p>The twelfth p.</p>\n\n    <p class='c4'>4</p>\n	<p class='c5'>5</p>\n	<p class='c6'>6</p>\n</div>\n\n<hr>\n\n<div id=second>\n    <p>The first p.</p>\n	<p>The second p.</p>\n	<p>The third p.</p>\n	<p>The fourth p.</p>\n\n	<p>The first p.</p>\n	<p>The sixth p.</p>\n	<p>The seventh p.</p>\n	<p>The eighth p.</p>\n	<b>The B element.</b>\n\n	<p>The ninth p.</p>\n	<p>The tenth p.</p>\n	<p>The eleventh p.</p>\n	<p>The twelfth p.</p>\n\n	<p>The 1 p.</p>\n	<b>The B element.</b>\n	<p>The 2 p.</p>\n	<p>The 3 p.</p>\n	<b>The B element.</b>\n	<b>The B element.</b>\n</div>\n\n<div id=third>\n	<p>The 1 p.</p>\n	<b>The B element.</b>\n	<p>The 2 p.</p>\n	<p>The 3 p.</p>\n	<b>The B element.</b>\n	<b>The B element.</b>\n	<b>The B element.</b>\n</div>"
 	}
 };
 
@@ -106,40 +109,19 @@ const exampleSelectors = [
 	["li:first-child", ""],
 	["li:last-child", ""],
 	["p:only-child", ""],
-
-	["$$'nth-child'", ""],
 	["li:nth-child(3)", ""],
-	["li:nth-child(odd)", ""],
-	["li:nth-child(even)", ""],
-	["li:nth-child(even of .noted)", ""],
 	["li:nth-child(3n+2)", ""],
-
-	["$$'nth-last-child'", ""],
-	["li:nth-last-child(3)", ""],
-	["li:nth-last-child(odd)", ""],
 	["li:nth-last-child(even)", ""],
-	["li:nth-last-child(3n+2)", ""],
 	["li:nth-last-child(3n+2 of .noted)", ""],
-	["li:nth-last-child(-3n+2)", ""],
 
 	["$$'-of-type'", "", "Not works with universal selector '*'"],
 	["div p:first-of-type", ""],
 	["div>p:last-of-type", ""],
 	["div p:only-of-type", ""],
-
-	["$$':nth-of-type'", "", "Not works with universal selector '*'"],
 	["li:nth-of-type(3)", ""],
-	["li:nth-of-type(odd)", ""],
-	["li:nth-of-type(even)", ""],
-	["li:nth-of-type(3n+2)", ""],
 	["li:nth-of-type(-3n+2)", ""],
-
-	["$$':nth-last-of-type'", "", "Not works with universal selector '*'"],
-	["li:nth-last-of-type(3)", ""],
 	["li:nth-last-of-type(odd)", ""],
-	["li:nth-last-of-type(even)", ""],
 	["li:nth-last-of-type(3n+2)", ""],
-	["li:nth-last-of-type(-3n+2)", ""],
 
 	["$$Spaces, comments", ""],
 	["ul   >   li:not (  .c1  )", ""],

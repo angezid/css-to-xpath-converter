@@ -163,11 +163,6 @@
 			buildOptions(key, defaultHtmls);
 		}
 
-		for (const key in htmls) {
-			if (/CssW3CSelector|CssSelector2/.test(key)) continue;
-			buildOptions(key, htmls);
-		}
-
 		function buildOptions(key, htmls) {
 			if (key !== 'name') {
 				let title = key.replace(/^[a-z]/, m => m.toUpperCase()).replace(/[a-z](?=[A-Z])/g, '$& ');
@@ -215,11 +210,7 @@
 		});
 
 		htmlList.addEventListener('change', function(e) {
-			let html;
-			let obj = defaultHtmls[this.value];
-
-			if (obj) html = obj.content;
-			else html = htmls[this.value];
+			const html = defaultHtmls[this.value]?.content;
 
 			if (html) {
 				htmlBox.focus();
@@ -746,7 +737,7 @@
 	function buildTable(array, examples) {
 		const hrefs = ['<a href="#info-1">[1]</a> ', '<a href="#info-2">[2]</a> ', '<a href="#info-3">[3]</a> '];
 		const sb = [];
-		sb.push('<table><thead><tr><td>Description</td><td>CSS</td><td class="thead-xpath">XPath</td></tr></thead><tbody>');
+		sb.push('<table><thead><tr><th>Description</th><th>CSS</th><th class="thead-xpath">XPath</th></tr></thead><tbody>');
 
 		array.forEach(item => {
 			if (/^\$\$/.test(item[0])) {
@@ -784,26 +775,3 @@
 		return sb.join('');
 	}
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

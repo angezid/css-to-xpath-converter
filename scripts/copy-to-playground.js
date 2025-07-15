@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const file = 'dist/converter.js',
-    destFile = 'playground/static/converter.js';
+    destFile = 'playground/static/src/converter.js';
 
 try {
     fs.copyFile(file, destFile, () => {}, fs.constants.COPYFILE_FICLONE);

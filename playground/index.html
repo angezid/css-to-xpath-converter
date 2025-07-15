@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0" />
 <title>CSS to XPath converter/playground</title>
-<link href="static/main.css" rel="stylesheet">
+<link href="static/playground.css" rel="stylesheet">
 <link href="static/auto-complete.css" rel="stylesheet">
 </head>
 
@@ -40,19 +40,19 @@
 				<button id="clear-css">X</button>
 
 				<select id="axis">
-					<option value=".//" title="Search among descendants of the context node (the same as descendant::)" selected>.//</option>
 					<option value="//" title="Search from the beginning of the document">//</option>
-					<option value="descendant::" title="Selects all descendant nodes of the context node">descendant::</option>
-					<option value="descendant-or-self::" title="Selects the current node plus all descendant nodes">descendant-or-self::</option>
-					<option value="ancestor::" title="Selects ancestor nodes starting with the context node and ending with the document node">ancestor::</option>
-					<option value="ancestor-or-self::" title="Selects the current node plus all ancestor nodes">ancestor-or-self::</option>
-					<option value="self::" title="Selects the current node">self::</option>
-					<option value="parent::" title="Selects the parent of the context node">parent::</option>
-					<option value="child::" title="Selects all child nodes of context node (can be removed from the beginning of XPath)">child::</option>
-					<option value="preceding::" title="Selects the nodes that precede the context node, other than its ancestors">preceding::</option>
-					<option value="preceding-sibling::" title="Selects all preceding child nodes of the context node">preceding-sibling::</option>
-					<option value="following::" title="Selects the nodes that follow the context node, other than its descendants">following::</option>
-					<option value="following-sibling::" title="Selects all following child nodes of the context node">following-sibling::</option>
+					<option value=".//" title="Search among descendants of the context node (the same as descendant::)" selected>.//</option>
+					<option value="descendant::" title="Search among descendant nodes of the context node">descendant::</option>
+					<option value="descendant-or-self::" title="Search among the context node and all descendant nodes">descendant-or-self::</option>
+					<option value="ancestor::" title="Search among ancestor nodes starting from the parent of the context node">ancestor::</option>
+					<option value="ancestor-or-self::" title="Search among the context node and all ancestor nodes">ancestor-or-self::</option>
+					<option value="child::" title="Search among child nodes of context node (can be removed from the beginning of XPath)">child::</option>
+					<option value="parent::" title="Select the parent of the context node">parent::</option>
+					<option value="preceding::" title="Search among nodes that precede the context node, other than its ancestors">preceding::</option>
+					<option value="preceding-sibling::" title="Search among preceding siblings of the context node">preceding-sibling::</option>
+					<option value="following::" title="Search among nodes that follow the context node, other than its descendants">following::</option>
+					<option value="following-sibling::" title="Search among following siblings of the context node">following-sibling::</option>
+					<option value="self::" title="The context node itself">self::</option>
 					<!-- <option value="attribute::" title="Selects attribute(s) of the context node">attribute::</option> -->
 					<!-- <option value="namespace::" title="Selects namespace nodes of the context node">namespace::</option> -->
 				</select>
@@ -133,16 +133,6 @@
 <span>CSS to XPath converter / playground</span>
 </div></footer>
 </main>
-
-<script src="static/data.js"></script>
-<script src="static/codejar.js"></script>
-<script src="static/mark.min.js"></script>
-<script src="static/beautify-html.js"></script>
-<script src="static/css2xpath-data.js"></script>
-<!--<script src="static/auto-complete.min.js"></script>-->
-<script src="static/auto-complete.js"></script>
-<script src="static/converter.js"></script>
-<script src="static/main.js"></script>
-
+<script src="static/bundle.js"></script>
 </body>
 </html>

@@ -23,25 +23,25 @@
   "main": "dist/converter.js",
   "scripts": {
     "copy-file": "node scripts/copy-to-playground.js",
-    "build": "npm run compile && npm run copy-file && npm run browser-test",
+    "bundle-files": "node scripts/minify-bundle-files.js",
+    "build": "npm run compile && npm run copy-file && npm run bundle-files && npm run browser-test",
     "compile": "rollup -c",
     "browser-test": "node test/test.js",
     "test": "npm run compile && npm run browser-test"
   },
   "devDependencies": {
     "@babel/core": "^7.26.10",
-    "@babel/preset-env": "^7.26.9",
     "@babel/plugin-transform-object-assign": "^7.22.5",
+    "@babel/preset-env": "^7.26.9",
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-terser": "^0.3.0",
-    "rollup": "^2.79.2",
-    "rollup-plugin-cleanup": "^3.2.1",
+    "advanced-mark.js": "^2.6.0",
+    "chalk": "^4.0.0",
     "puppeteer": "^24.1.1",
     "puppeteer-core": "^24.1.1",
-    "chalk": "^4.0.0",
-    "advanced-mark.js": "^2.6.0"
+    "rollup": "^2.79.2",
+    "rollup-plugin-cleanup": "^3.2.1"
   }
 }
-  

@@ -1,6 +1,4 @@
 /*!*******************************************
-* @angezid/codejar.js 1.0.0
-* https://github.com/angezid/codejar.js
 * Modified version of https://github.com/antonmedv/codejar
 * MIT licensed
 *********************************************/
@@ -31,7 +29,8 @@
       addClosing: true,
       history: true
     }, options);
-    var maxHistory = 300;
+    var maxHistory = 300,
+      isFirefox = /firefox/i.test(window.navigator.userAgent);
     var listeners = [],
       history = [],
       index = -1,
@@ -39,7 +38,7 @@
       recording = false,
       focus = false,
       update = function update() {};
-    editor.setAttribute('contenteditable', 'true');
+    editor.setAttribute('contenteditable', 'plaintext-only');
     editor.setAttribute('spellcheck', opt.spellcheck);
     _extends(editor.style, {
       outline: "none",
@@ -47,6 +46,8 @@
       overflowY: "auto",
       whiteSpace: "pre-wrap"
     });
+    var richText = editor.contentEditable !== 'plaintext-only';
+    if (richText) editor.setAttribute('contenteditable', 'true');
     var highlight = function highlight(pos) {
       if (highlighter && typeof highlighter === 'function') {
         highlighter(editor, pos);
@@ -273,11 +274,13 @@
       }
     }
     function fixNewLine(event) {
-      preventDefault(event, true);
-      if (!getText().after) {
-        insertText('\n ', 1);
-      } else {
-        insert('\n');
+      if (richText || isFirefox) {
+        preventDefault(event, true);
+        if (!getText().after) {
+          insertText('\n ', 1);
+        } else {
+          insert('\n');
+        }
       }
     }
     function handleSelfClosingCharacters(event) {
@@ -508,16 +511,20 @@
       return (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'z';
     }
     function insert(text) {
-      var obj = {
-        '<': '&lt;',
-        '>': '&gt;',
-        '&': '&amp;',
-        '"': '&quot;',
-        '\'': '&#039;'
-      };
-      document.execCommand('insertHTML', false, text.replace(/[<>&"']/g, function (m) {
-        return obj[m];
-      }));
+      var asHtml = richText || !isFirefox;
+      if (asHtml) {
+        var obj = {
+          '<': '&lt;',
+          '>': '&gt;',
+          '&': '&amp;',
+          '"': '&quot;',
+          '\'': '&#039;'
+        };
+        text = text.replace(/[<>&"']/g, function (m) {
+          return obj[m];
+        });
+      }
+      document.execCommand(asHtml ? 'insertHTML' : 'insertText', false, text);
     }
     function debounce(cb, wait) {
       var id;
