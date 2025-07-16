@@ -25,15 +25,20 @@ const cssSelectors = {
       "b:not(ul > li:nth-last-of-type(2n) b)",
       "body[lang|=EN]",
       "body[lang|=En i]",
+      ":dir(rtl)",
       "div.content",
+      "div > p:lang(En)",
       "div>*:only-child",
       "div[class='diV' i]",
       "div[class*='iv' i]",
+      "div > span:dir(ltr)",
       "div[class!='div' i]",
       "div + p:nth-child(2)",
       "div ~ p:nth-child(2)",
       "div > p:nth-child(2)",
       "div[class|='last' i]",
+      "div + div > :dir(ltr)",
+      "div + div > :lang(fr)",
       "div [class^='emph' i]",
       "div [class$='size' i]",
       "div[class~='parent' i]",
@@ -66,6 +71,7 @@ const cssSelectors = {
       ":is(ol,ul) :is(ol,ul) ol",
       ":is(p, li):has-ancestor(div, ul[id])",
       ":is(p, h1, li):has-parent(div, ul[id])",
+      ":lang(EN-US)",
       "li !> ul",
       "li:not(:first)",
       "li:not(:last(4))",
@@ -96,6 +102,8 @@ const cssSelectors = {
       ":not(div !^ p)",
       ":not(.p3 span)",
       ":not(p ! div b)",
+      ":not(:dir(rtl))",
+      ":not(:lang(en))",
       ":not(div p span)",
       ":not(div + p span)",
       ":not(div > p span)",
@@ -108,6 +116,8 @@ const cssSelectors = {
       ":not(div !~ p span > b)",
       ":not(div  p > span, p b)",
       ":not(div > div + p > span)",
+      ":not(div ~ div > :dir(ltr))",
+      ":not(div + div > :lang(fr))",
       ":not(div > [class] span + b)",
       ":not(:has(div + p:nth-last-child(1)))",
       ":nth-child(even of :not(.noted ~ li))",
@@ -1159,7 +1169,7 @@ const htmls = {
 <meta charset='utf-8'>
 <title>Test</title>
 </head>
-<body lang='EN-US En-gb en-au en-nz'>
+<body lang='EN-US'>
 <ul>
 <li id="-a-b-c-">The background of this list item should be green</li>
 <li>The background of this second list item should be also green</li>
@@ -1214,7 +1224,7 @@ const htmls = {
 <meta charset='utf-8'>
 <title>Te</title>
 </head>
-<body lang='EN-US En-gb en-au en-nz'>
+<body lang='EN-US'>
 <div class="head">
 <p><a href="http://www.w"><img height=48 alt=W3C src="http://www.w" width=72></a>
 <h1 id="title">Se</h1>
@@ -2286,7 +2296,7 @@ first letter should be included."></p>
 <meta charset='utf-8'>
 <title>Test</title>
 </head>
-<body lang='EN-US En-gb en-au en-nz'>
+<body lang='EN-US'>
 <p class='XYZΨΩ' title='ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ'>Greek uppercase</p>
 <div>
 <div>d1</div>
@@ -2321,6 +2331,47 @@ first letter should be included."></p>
 <b>b2</b>
 </p>
 </div>
+<article>
+<div dir='rtl'>
+<span>test rtl</span>
+<div dir='ltr'>
+<span>test1 ltr</span>
+<div dir='rtl'>עִבְרִית rtl<span>test2 rtl</span></div>
+<span>test3 ltr</span>
+<div dir='rtl'><span>test6 rtl</span></div>
+<div><span>test7 ltr</span></div>
+</div>
+<span>test8 rtl</span>
+</div>
+<div dir='ltr'>
+<span>test ltr</span>
+<div dir='rtl'>
+<span>test1 rtl</span>
+<div dir='ltr'>ltr<span>test2 ltr</span></div>
+<span>test3 rtl</span>
+<div dir='ltr'><span>test6 ltr</span></div>
+<div><span>test7 rtl</span></div>
+</div>
+<span>test8 ltr</span>
+</div>
+</article>
+<article lang='en'>
+<div lang='en-us'>
+<p class='p1'>1.</p>
+<p class='p2'>2.</p>
+<p class='p3'>3.</p>
+<p class='P4'>4.</p>
+</div>
+</article>
+<article lang='fr'>
+<div>
+<p class='p1'>1.</p>
+</div>
+<div>
+<p class='p2'>2.</p>
+<p class='p3'>3.</p>
+</div>
+</article>
 <div>
 <p class='c1'>1.</p>
 <h2>h2.</h2>
@@ -2588,7 +2639,7 @@ first letter should be included."></p>
 <meta charset='utf-8'>
 <title>Te</title>
 </head>
-<body lang='EN-US En-gb en-au en-nz'>
+<body lang='EN-US'>
 <ul>
 <li>Th</li>
 <li>Th</li>

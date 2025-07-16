@@ -738,7 +738,7 @@ function getClass(attrName, attributeValue) {
 }
 
 function processPseudoClass(name, arg, not, node) {
-	let nd, result, owner, str2, num, str = '', localName = 'local-name()';
+	let nd, result, owner, num, str = '', val, localName = 'local-name()';
 
 	switch (name) {
 		case "any-link" :
@@ -759,6 +759,12 @@ function processPseudoClass(name, arg, not, node) {
 
 		case "empty" :
 			node.add("[not(*) and not(text())]");
+			break;
+
+		case "dir" :
+			// not handles 'auto' property; 'ltr' is default
+			val = normalizeQuotes(arg);
+			node.add("[", /ltr/.test(val) ? "not(ancestor-or-self::*[@dir]) or " : "","ancestor-or-self::*[@dir]{[1]}[@dir = ",val, "]]");
 			break;
 
 		case "first-child" :
@@ -817,13 +823,13 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "ends-with" :
-			str2 = normalizeArg(arg, name);
-			node.add(endsWith("normalize-space()", "normalize-space()", str2, str2));
+			str = normalizeArg(arg, name);
+			node.add(endsWith("normalize-space()", "normalize-space()", str, str));
 			break;
 
 		case "iends-with" :
-			str2 = normalizeArg(arg, name);
-			node.add(endsWith(toLower(), "normalize-space()", str2, translateToLower(str2)));
+			str = normalizeArg(arg, name);
+			node.add(endsWith(toLower(), "normalize-space()", str, translateToLower(str)));
 			break;
 
 		case "is" :
@@ -920,6 +926,13 @@ function processPseudoClass(name, arg, not, node) {
 			else node.add("[position() <= ", parseNumber(arg, name), "]");
 			break;
 
+		case "lang":
+			str = translateToLower("@lang");
+			val = toLower(arg);
+
+			node.add("[ancestor-or-self::*[@lang]{[1]}[", str, " = ", val, " or starts-with(", str, ", concat(", val, ", '-'))", "]]");
+			break;
+
 		case "range" :
 			const splits = arg.split(',');
 
@@ -1009,8 +1022,8 @@ function transformNot(node) {
 
 				} else {
 					nd.separator = '';
-					str += '[' + nd.toString();
-					end += ']';
+					str += '{[' + nd.toString();
+					end += ']}';
 				}
 			}
 			result += str + end;

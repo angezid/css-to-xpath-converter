@@ -757,8 +757,8 @@
     var nd,
       result,
       owner,
-      str2,
       str = '',
+      val,
       localName = 'local-name()';
     switch (name) {
       case "any-link":
@@ -775,6 +775,10 @@
         break;
       case "empty":
         node.add("[not(*) and not(text())]");
+        break;
+      case "dir":
+        val = normalizeQuotes(arg);
+        node.add("[", /ltr/.test(val) ? "not(ancestor-or-self::*[@dir]) or " : "", "ancestor-or-self::*[@dir]{[1]}[@dir = ", val, "]]");
         break;
       case "first-child":
         node.add(notSibling(precedingSibling));
@@ -816,12 +820,12 @@
         node.add("[starts-with(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
         break;
       case "ends-with":
-        str2 = normalizeArg(arg, name);
-        node.add(endsWith("normalize-space()", "normalize-space()", str2, str2));
+        str = normalizeArg(arg, name);
+        node.add(endsWith("normalize-space()", "normalize-space()", str, str));
         break;
       case "iends-with":
-        str2 = normalizeArg(arg, name);
-        node.add(endsWith(toLower(), "normalize-space()", str2, translateToLower(str2)));
+        str = normalizeArg(arg, name);
+        node.add(endsWith(toLower(), "normalize-space()", str, translateToLower(str)));
         break;
       case "is":
       case "matches":
@@ -907,6 +911,11 @@
       case "limit":
         if (not) node.add(getNot(precedingSibling, " <= "));else node.add("[position() <= ", parseNumber(arg, name), "]");
         break;
+      case "lang":
+        str = translateToLower("@lang");
+        val = toLower(arg);
+        node.add("[ancestor-or-self::*[@lang]{[1]}[", str, " = ", val, " or starts-with(", str, ", concat(", val, ", '-'))", "]]");
+        break;
       case "range":
         var splits = arg.split(',');
         if (splits.length !== 2) argumentException(pseudo + name + "(,)' is required two numbers");
@@ -985,8 +994,8 @@
             str += nd.toString();
           } else {
             nd.separator = '';
-            str += '[' + nd.toString();
-            end += ']';
+            str += '{[' + nd.toString();
+            end += ']}';
           }
         }
         result += str + end;
