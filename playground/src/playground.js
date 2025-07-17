@@ -51,7 +51,7 @@
 	};
 
 	const maxSaveNumber = 30,
-		postprocess = document.getElementById('postprocess'),
+		debug = document.getElementById('debug'),
 		up = document.getElementById('up-btn'),
 		down = document.getElementById('down-btn'),
 
@@ -88,7 +88,7 @@
 		listItem : (elem, data) => {
 			process(elem);
 		},
-		debug : !postprocess.checked
+		debug : !debug.checked
 	});
 
 	new autoComplete(xpathBox, {
@@ -101,7 +101,7 @@
 		listItem : (elem, data) => {
 			process(elem);
 		},
-		debug : !postprocess.checked
+		debug : !debug.checked
 	});
 
 	const cssEditor = CodeJar(cssBox, null, { tab : '  ' }),
@@ -122,7 +122,7 @@
 
 	function initConverter() {
 		if (location.protocol === 'file:') {
-			postprocess.className = ''; // show checkbox
+			debug.className = ''; // show checkbox
 		}
 
 		setExamples();
@@ -234,7 +234,7 @@
 			}, 100);
 		});
 
-		postprocess.addEventListener('click', function() {
+		debug.addEventListener('click', function() {
 			convert();
 		});
 
@@ -393,9 +393,10 @@
 		options.axis = axis;
 		options.standard = consoleUse.checked;
 		options.consoleUse = consoleUse.checked;
-		options.postprocess = postprocess.className ? true : postprocess.checked;
+		options.debug = debug.className ? true : debug.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
+		options.debug = !debug.checked;
 
 		const { xpath, css, warning, error } = toXPath(selector, options);
 
@@ -543,7 +544,7 @@
 			}
 		});
 
-		if ( !postprocess.checked) return;
+		if ( !debug.checked) return;
 
 		const elem = htmlBox.querySelector('mark');
 		if (elem) {

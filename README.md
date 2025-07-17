@@ -21,14 +21,14 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 |   Selectors  |   Description                 |   Remark  |
 |--------------|-------------------------------|-----------|
 |   "+"        |   adjacent following sibling  |           |
-|   ">"        |   child                    |           |
-|   "~"        |   following siblings        |           |
+|   ">"        |   child                       |           |
+|   "~"        |   following siblings          |           |
 |   "^"        |   first child                 |           |
-|   "!"        |   ancestors or self                  |           |
+|   "!"        |   ancestors or self           |           |
 |   "!^"       |   last child                  |           |
 |   "!+"       |   adjacent preceding sibling  |           |
 |   "!>"       |   parent                      |           |
-|   "!~"       |   preceding siblings           |           |
+|   "!~"       |   preceding siblings          |           |
 
 <h3>Attribute selectors</h3>
 
@@ -48,57 +48,59 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 |   Selectors              |   Description                                            |   Remark               |
 |--------------------------|----------------------------------------------------------|------------------------|
 |   ":any-link"            |  select `a` or `area` elements with attribute 'href'     |                        |
-|   ":after(s)"             |  select elements that appear after specified element     |                        |
-|   ":after-sibling(s)"     |  select siblings that appear after specified element     |                        |
-|   ":before(s)"            |  select elements that appear before specified element    |                        |
-|   ":before-sibling(s)"    |  select siblings that appear before specified element    |                        |
-|   ":contains(t)"          |   select elements that have text contains string         |                        |
-|   ":icontains(t)"         |   the same as `:contains()` but case-insensitive         |                        |
+|   ":after(s)"            |  select elements that appear after specified element     |                        |
+|   ":after-sibling(s)"    |  select siblings that appear after specified element     |                        |
+|   ":before(s)"           |  select elements that appear before specified element    |                        |
+|   ":before-sibling(s)"   |  select siblings that appear before specified element    |                        |
+|   ":contains(t)"         |   select elements that have text contains string         |                        |
+|   ":icontains(t)"        |   the same as `:contains()` but case-insensitive         |                        |
+|   ":dir()"               |                                                          | not handle `auto` value |
 |   ":disabled"            |                                                          |                        |
 |   ":empty"               |   select empty elements                                  |                        |
 |   ":enabled"             |                                                          |                        |
-|   ":ends-with(t)"         |   select elements that have text ends with string        |                        |
-|   ":iends-with(t)"        |   the same as `:ends-with()` but case-insensitive        |                        |
+|   ":ends-with(t)"        |   select elements that have text ends with string        |                        |
+|   ":iends-with(t)"       |   the same as `:ends-with()` but case-insensitive        |                        |
 |   ":first"               |   select the first element                               |                        |
-|   ":first(n)"             |   select the first `n` element                           |                        |
+|   ":first(n)"            |    select the first `n` element                          |                        |
 |   ":first-child"         |                                                          |                        |
 |   ":first-of-type"       |                                                          |                        |
-|   ":eq(n)"                |   select element equal to `n`                         | same as ":nth()"       |
-|   ":nth(n)"               |   select element equal to `n`                         | same as ":eq()"        |
-|   ":gt(n)"                |   select elements greater than `n`                    |                        |
-|   ":lt(n)"                |   select elements lesser than `n`                     |                        |
-|   ":has(s)"               |                                                          |                        |
-|   ":has-ancestor(s)"      |                                                          |                        |
-|   ":has-parent(s)"        |                                                          |                        |
-|   ":has-sibling(s)"       |                                                          |                        |
-|   ":is(s)"                |                                                          |                        |
-|   ":matches(s)"           |                                                          |                        |
+|   ":eq(n)"               |   select element equal to `n`                            | same as ":nth()"       |
+|   ":nth(n)"              |   select element equal to `n`                            | same as ":eq()"        |
+|   ":gt(n)"               |   select elements greater than `n`                       |                        |
+|   ":lt(n)"               |   select elements lesser than `n`                        |                        |
+|   ":has(s)"              |                                                          |                        |
+|   ":has-ancestor(s)"     |                                                          |                        |
+|   ":has-parent(s)"       |                                                          |                        |
+|   ":has-sibling(s)"      |                                                          |                        |
+|   ":is(s)"               |                                                          |                        |
+|   ":matches(s)"          |                                                          |                        |
+|   ":lang()"              |                                                          |                        |
 |   ":last"                |   select the last element                                |                        |
-|   ":last(n)"              |   select the last `n` element                            |                        |
+|   ":last(n)"             |   select the last `n` element                            |                        |
 |   ":last-child"          |                                                          |                        |
 |   ":last-of-type"        |                                                          |                        |
-|   ":limit(n)"             |   select specified number of elements                    |                        |
-|   ":not(s)"               |                                                          |                        |
+|   ":limit(n)"            |   select specified number of elements                    |                        |
+|   ":not(s)"              |                                                          |                        |
 |   ":nth-child()"         |                                                          | supports `of` selector |
 |   ":nth-last-child()"    |                                                          | supports `of` selector |
 |   ":nth-of-type()"       |                                                          |                        |
 |   ":nth-last-of-type()"  |                                                          |                        |
 |   ":only-child"          |                                                          |                        |
 |   ":only-of-type"        |                                                          |                        |
-|   ":range(n, m)"             |   select elements from `n` to `m`     |                        |
-|   ":skip(n)"              |   skip elements lesser than `n`                       |                        |
+|   ":range(n, m)"         |   select elements from `n` to `m`                        |                        |
+|   ":skip(n)"             |   skip elements lesser than `n`                          |                        |
 |   ":skip-first"          |   skip the first element                                 |                        |
-|   ":skip-first(n)"        |   skip the first `n` elements                            |                        |
+|   ":skip-first(n)"       |   skip the first `n` elements                            |                        |
 |   ":skip-last"           |   skip the last element                                  |                        |
-|   ":skip-last(n)"         |   skip the last `n` elements                             |                        |
-|   ":starts-with(t)"       |   select elements that have text starts with string      |                        |
-|   ":istarts-with(t)"      |   the same as `:starts-with()` but case-insensitive      |                        |
+|   ":skip-last(n)"        |   skip the last `n` elements                             |                        |
+|   ":starts-with(t)"      |   select elements that have text starts with string      |                        |
+|   ":istarts-with(t)"     |   the same as `:starts-with()` but case-insensitive      |                        |
 |   ":root"                |   `html` element                                         |                        |
 |   ":external"            |                                                          |                        |
 |   ":checked"             |                                                          |                        |
 |   ":target"              |   select elements with attribute 'href' starts with '#'  |                        |
 |   ":selected"            |   select `option` elements with attribute 'selected'     |                        |
-|   ":text"                |                                                         |                        |
+|   ":text"                |                                                          |                        |
 
 * `s` - selectors
 * `n, m` - numbers 

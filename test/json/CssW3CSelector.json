@@ -12,7 +12,6 @@
     ".5cm",
     "address",
     "address.t5.t5",
-    "address[lang=fi]",
     "address[title=foo]",
     "address[title~=foo]",
     "address:empty",
@@ -103,6 +102,7 @@
     "ul li:nth-child(2n+1)",
     "ul > li:not(:nth-child(odd))",
     ".warning",
-    ".white"
+    ".white",
+    "address[lang=fi]"
   ]
 }

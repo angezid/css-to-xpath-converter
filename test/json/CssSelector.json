@@ -15,7 +15,6 @@
     "*[class^=check]",
     "*:nth-child(-n+3)",
     "*:nth-child(-n+3 of span.this)",
-    "*[style*='display: none' i],*[style*='display:none' i]",
     "a",
     "a+span",
     "a+ span",
@@ -44,8 +43,6 @@
     "div:has(p + p)",
     "form input",
     "head p",
-    "input[type='text']",
-    "input[type='TEXT']",
     ":is(div, section) > h1",
     "#myDiv",
     "#myDiv *",
@@ -81,6 +78,9 @@
     "#theBody>#myDiv",
     "#theBody #whatwhatwhat",
     "#theBody>#someOtherDiv",
-    "#whatwhatwhat #someOtherDiv"
+    "#whatwhatwhat #someOtherDiv",
+    "*[style*='display: none' i],*[style*='display:none' i]",
+    "input[type='text']",
+    "input[type='TEXT']"
   ]
 }

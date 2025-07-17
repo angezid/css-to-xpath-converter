@@ -207,7 +207,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 				case '.' :
 					let str = '[';
 					do {
-						[i, value] = getClassValue(i + 1);
+						[i, value] = parseClassValue(i + 1);
 						str += getClass('@class', normalizeQuotes(' ' + value + ' '));
 						classIdReg.lastIndex = i + 2;
 						if (nextChar(i, '.') && classIdReg.test(code)) {
@@ -218,7 +218,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					check = false;
 					break;
 				case '#' :
-					[i, value] = getClassValue(i + 1);
+					[i, value] = parseClassValue(i + 1);
 					node.add("[@id=", normalizeQuotes(value), "]");
 					check = false;
 					break;
@@ -334,7 +334,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 							exception();
 						}
 						addAxes(axis, node, argumentInfo);
-						i = getTagName(i, node);
+						i = parseTagName(i, node);
 					} else {
 						exception();
 					}
@@ -376,7 +376,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					break;
 				case ' ' : break;
 				default :
-					[i, value] = getAttributeName(i);
+					[i, value] = parseAttributeName(i);
 					attrName += value;
 					break;
 			}
@@ -396,13 +396,13 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 					if (attrValue) {
 						parseException("attrValue '" + attrValue + "' is already parse: " + code.substring(i));
 					}
-					[i, attrValue, modifier] = getAttributeValue(i);
+					[i, attrValue, modifier] = parseAttributeValue(i);
 					break;
 			}
 		} else if (state === State.PseudoClass) {
 			let name = '',
 				arg = '';
-			[i, name, arg] = getPseudoClass(i);
+			[i, name, arg] = parsePseudoClass(i);
 			if (name === "root") {
 				node.owner = node.separator = '';
 				node.axis = '//';
@@ -669,7 +669,7 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 		case "dir" :
 			val = normalizeQuotes(arg);
-			node.add("[", /ltr/.test(val) ? "not(ancestor-or-self::*[@dir]) or " : "","ancestor-or-self::*[@dir]{[1]}[@dir = ",val, "]]");
+			node.add("[", /ltr/.test(val) ? "not(ancestor-or-self::*[@dir]) or " : "", "ancestor-or-self::*[@dir]{[1]}[@dir = ", val, "]]");
 			break;
 		case "first-child" :
 			node.add(notSibling(precedingSibling));
@@ -1090,7 +1090,7 @@ function parseNumber(str, name) {
 	const msg = !str ? "' has missing argument" : "' argument '" + str + "' is not an integer";
 	argumentException(pseudo + name + msg);
 }
-function getTagName(i, node) {
+function parseTagName(i, node) {
 	tagNameReg.lastIndex = i;
 	const rm = tagNameReg.exec(code);
 	if (rm !== null) {
@@ -1099,17 +1099,17 @@ function getTagName(i, node) {
 		else node.owner = owner;
 		return i + rm[0].length - 1;
 	}
-	regexException(i, 'getTagName', tagNameReg);
+	regexException(i, 'parseTagName', tagNameReg);
 }
-function getClassValue(i) {
+function parseClassValue(i) {
 	classIdReg.lastIndex = i;
 	const rm = classIdReg.exec(code);
 	if (rm !== null) {
 		return [i + rm[0].length - 1, rm[0].replace(/^\\00003(?=\d+)/, '')];
 	}
-	regexException(i, 'getClassValue', classIdReg);
+	regexException(i, 'parseClassValue', classIdReg);
 }
-function getPseudoClass(i) {
+function parsePseudoClass(i) {
 	pseudoClassReg.lastIndex = i;
 	const rm = pseudoClassReg.exec(code);
 	if (rm !== null) {
@@ -1122,23 +1122,23 @@ function getPseudoClass(i) {
 		}
 		return [i + rm[0].length - 1, name, ''];
 	}
-	regexException(i, 'getPseudoClass', pseudoClassReg);
+	regexException(i, 'parsePseudoClass', pseudoClassReg);
 }
 function getOwner(node, name) {
 	const owner = node.owner !== "node()" ? node.owner : node.parentNode.parentNode.owner;
 	if (name && owner == "*") parseException(pseudo + name + "' is required an element name; '*' is not implemented.");
 	return owner;
 }
-function getAttributeName(i) {
+function parseAttributeName(i) {
 	attrNameReg.lastIndex = i;
 	const rm = attrNameReg.exec(code);
 	if (rm !== null) {
 		const name = rm[0].toLowerCase();
 		return [i + rm[0].length - 1, name];
 	}
-	regexException(i, 'getAttributeName', attrNameReg);
+	regexException(i, 'parseAttributeName', attrNameReg);
 }
-function getAttributeValue(i) {
+function parseAttributeValue(i) {
 	attrValueReg.lastIndex = i;
 	const rm = attrValueReg.exec(code);
 	if (rm !== null) {
@@ -1149,7 +1149,7 @@ function getAttributeValue(i) {
 		if (rm[4] != null) modifier = rm[4].toLowerCase();
 		return [i + rm[0].length - 1, value, modifier];
 	}
-	regexException(i, "getAttributeValue", attrValueReg);
+	regexException(i, "parseAttributeValue", attrValueReg);
 }
 function normalizeWhiteSpaces(text) {
 	const leftChars = ",>+=~^!:([";
@@ -1276,10 +1276,16 @@ function characterException(i, ch, message, code) {
 	throw new ParserError(code, (i + 1), message);
 }
 function regexException(i, fn, reg, arg) {
-	const str = arg || code.substring(i);
-	const text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + str + "</b>'\nRegExp - '<b>" + reg + "</b>'";
+	const str = arg || code.substring(i),
+		msg = " failed to match the string: ";
+	let text = '';
+	if (opt.debug) {
+		text = `function - <b>${fn}()</b>\nRegExp${msg}'<b>${str}</b>'\nRegExp - '<b>${reg}</b>'`;
+	} else {
+		text = `Error of ${fn.replace(/\B([A-Z])/g, (m, gr) => ' ' + gr.toLowerCase()).replace('parse', 'parsing')}\nString: '<b>${str}</b>'`;
+	}
 	printError(text);
-	const message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + str + "'";
+	const message = `function ${fn}() - RegExp '${reg}'${msg}'${str}'`;
 	throw new ParserError(code, (i + 1), message);
 }
 

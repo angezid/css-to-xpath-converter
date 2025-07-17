@@ -297,10 +297,10 @@
           case '.':
             var str = '[';
             do {
-              var _getClassValue = getClassValue(i + 1);
-              var _getClassValue2 = _slicedToArray(_getClassValue, 2);
-              i = _getClassValue2[0];
-              value = _getClassValue2[1];
+              var _parseClassValue = parseClassValue(i + 1);
+              var _parseClassValue2 = _slicedToArray(_parseClassValue, 2);
+              i = _parseClassValue2[0];
+              value = _parseClassValue2[1];
               str += getClass('@class', normalizeQuotes(' ' + value + ' '));
               classIdReg.lastIndex = i + 2;
               if (nextChar(i, '.') && classIdReg.test(code)) {
@@ -311,10 +311,10 @@
             check = false;
             break;
           case '#':
-            var _getClassValue3 = getClassValue(i + 1);
-            var _getClassValue4 = _slicedToArray(_getClassValue3, 2);
-            i = _getClassValue4[0];
-            value = _getClassValue4[1];
+            var _parseClassValue3 = parseClassValue(i + 1);
+            var _parseClassValue4 = _slicedToArray(_parseClassValue3, 2);
+            i = _parseClassValue4[0];
+            value = _parseClassValue4[1];
             node.add("[@id=", normalizeQuotes(value), "]");
             check = false;
             break;
@@ -427,7 +427,7 @@
                 exception();
               }
               addAxes(axis, node, argumentInfo);
-              i = getTagName(i, node);
+              i = parseTagName(i, node);
             } else {
               exception();
             }
@@ -470,10 +470,10 @@
           case ' ':
             break;
           default:
-            var _getAttributeName = getAttributeName(i);
-            var _getAttributeName2 = _slicedToArray(_getAttributeName, 2);
-            i = _getAttributeName2[0];
-            value = _getAttributeName2[1];
+            var _parseAttributeName = parseAttributeName(i);
+            var _parseAttributeName2 = _slicedToArray(_parseAttributeName, 2);
+            i = _parseAttributeName2[0];
+            value = _parseAttributeName2[1];
             attrName += value;
             break;
         }
@@ -494,21 +494,21 @@
             if (attrValue) {
               parseException("attrValue '" + attrValue + "' is already parse: " + code.substring(i));
             }
-            var _getAttributeValue = getAttributeValue(i);
-            var _getAttributeValue2 = _slicedToArray(_getAttributeValue, 3);
-            i = _getAttributeValue2[0];
-            attrValue = _getAttributeValue2[1];
-            modifier = _getAttributeValue2[2];
+            var _parseAttributeValue = parseAttributeValue(i);
+            var _parseAttributeValue2 = _slicedToArray(_parseAttributeValue, 3);
+            i = _parseAttributeValue2[0];
+            attrValue = _parseAttributeValue2[1];
+            modifier = _parseAttributeValue2[2];
             break;
         }
       } else if (state === State.PseudoClass) {
         var _name = '',
           arg = '';
-        var _getPseudoClass = getPseudoClass(i);
-        var _getPseudoClass2 = _slicedToArray(_getPseudoClass, 3);
-        i = _getPseudoClass2[0];
-        _name = _getPseudoClass2[1];
-        arg = _getPseudoClass2[2];
+        var _parsePseudoClass = parsePseudoClass(i);
+        var _parsePseudoClass2 = _slicedToArray(_parsePseudoClass, 3);
+        i = _parsePseudoClass2[0];
+        _name = _parsePseudoClass2[1];
+        arg = _parsePseudoClass2[2];
         if (_name === "root") {
           node.owner = node.separator = '';
           node.axis = '//';
@@ -1225,7 +1225,7 @@
     var msg = !str ? "' has missing argument" : "' argument '" + str + "' is not an integer";
     argumentException(pseudo + name + msg);
   }
-  function getTagName(i, node) {
+  function parseTagName(i, node) {
     tagNameReg.lastIndex = i;
     var rm = tagNameReg.exec(code);
     if (rm !== null) {
@@ -1233,17 +1233,17 @@
       if (node.owner === "*:") node.owner += owner;else node.owner = owner;
       return i + rm[0].length - 1;
     }
-    regexException(i, 'getTagName', tagNameReg);
+    regexException(i, 'parseTagName', tagNameReg);
   }
-  function getClassValue(i) {
+  function parseClassValue(i) {
     classIdReg.lastIndex = i;
     var rm = classIdReg.exec(code);
     if (rm !== null) {
       return [i + rm[0].length - 1, rm[0].replace(/^\\00003(?=\d+)/, '')];
     }
-    regexException(i, 'getClassValue', classIdReg);
+    regexException(i, 'parseClassValue', classIdReg);
   }
-  function getPseudoClass(i) {
+  function parsePseudoClass(i) {
     pseudoClassReg.lastIndex = i;
     var rm = pseudoClassReg.exec(code);
     if (rm !== null) {
@@ -1256,23 +1256,23 @@
       }
       return [i + rm[0].length - 1, name, ''];
     }
-    regexException(i, 'getPseudoClass', pseudoClassReg);
+    regexException(i, 'parsePseudoClass', pseudoClassReg);
   }
   function getOwner(node, name) {
     var owner = node.owner !== "node()" ? node.owner : node.parentNode.parentNode.owner;
     if (name && owner == "*") parseException(pseudo + name + "' is required an element name; '*' is not implemented.");
     return owner;
   }
-  function getAttributeName(i) {
+  function parseAttributeName(i) {
     attrNameReg.lastIndex = i;
     var rm = attrNameReg.exec(code);
     if (rm !== null) {
       var name = rm[0].toLowerCase();
       return [i + rm[0].length - 1, name];
     }
-    regexException(i, 'getAttributeName', attrNameReg);
+    regexException(i, 'parseAttributeName', attrNameReg);
   }
-  function getAttributeValue(i) {
+  function parseAttributeValue(i) {
     attrValueReg.lastIndex = i;
     var rm = attrValueReg.exec(code);
     if (rm !== null) {
@@ -1281,7 +1281,7 @@
       if (rm[4] != null) modifier = rm[4].toLowerCase();
       return [i + rm[0].length - 1, value, modifier];
     }
-    regexException(i, "getAttributeValue", attrValueReg);
+    regexException(i, "parseAttributeValue", attrValueReg);
   }
   function normalizeWhiteSpaces(text) {
     var leftChars = ",>+=~^!:([";
@@ -1412,10 +1412,18 @@
     throw new ParserError(code, i + 1, message);
   }
   function regexException(i, fn, reg, arg) {
-    var str = arg || code.substring(i);
-    var text = "function - <b>" + fn + "()</b>\nError - RegExp failed to match the string:\nstring - '<b>" + str + "</b>'\nRegExp - '<b>" + reg + "</b>'";
+    var str = arg || code.substring(i),
+      msg = " failed to match the string: ";
+    var text = '';
+    if (opt.debug) {
+      text = "function - <b>".concat(fn, "()</b>\nRegExp").concat(msg, "'<b>").concat(str, "</b>'\nRegExp - '<b>").concat(reg, "</b>'");
+    } else {
+      text = "Error of ".concat(fn.replace(/\B([A-Z])/g, function (m, gr) {
+        return ' ' + gr.toLowerCase();
+      }).replace('parse', 'parsing'), "\nString: '<b>").concat(str, "</b>'");
+    }
     printError(text);
-    var message = "function " + fn + "() - RegExp '" + reg + "' failed to match the string '" + str + "'";
+    var message = "function ".concat(fn, "() - RegExp '").concat(reg, "'").concat(msg, "'").concat(str, "'");
     throw new ParserError(code, i + 1, message);
   }
 
