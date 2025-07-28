@@ -59,9 +59,9 @@
 				<label class="label-axis" for="axis">axis</label>
 			</div>
 
-			<div class="col console">
-				<input type="checkbox" id="console-use">
-				<label class="label-console" for="console-use" title="For using an XPath in browser's console. Please note that it also changed the way of generating XPath for the class attribute.">console</label>
+			<div class="col translate">
+				<input type="checkbox" id="translate" checked>
+				<label class="label-translate" for="translate" title="Whether to translate to lowercase attribute values and string arguments when using selectors which perform case insensitive operations. When it is unchecked, the generated XPath will be smaller, but it forces using lowercase letters for attribute values and string arguments.">translate</label>
 			</div>
 
 			<div id="col">
@@ -73,18 +73,33 @@
 		</div>
 
 		<div id="css-box" class="css-box"></div>
-
-		<div class="letters">
-			<details><summary title="For case sensitive operations with attribute values and text content. A custom alphabet is added to the default Latin alphabet.">Letter editors</summary>
-				<div>
-					<textarea id="uppercase" type="text" placeholder="Uppercase" autofocus="" spellcheck="false" ></textarea>
-					<button id="to-lowercase">To lowercase</button>
-				</div>
-				<div>
-					<textarea id="lowercase" type="text" placeholder="Lowercase" autofocus="" spellcheck="false" ></textarea>
-					<button id="to-uppercase">To uppercase</button>
-				</div>
-			</details>
+		
+		<div class="row xpath-panel">
+			<div class="letters">
+				<details><summary title="For case sensitive operations with attribute values and text content. A custom alphabet is added to the default Latin alphabet.">Letter editors</summary>
+					<div class="row">
+						<div class="col uppercase">
+							<textarea id="uppercase" type="text" placeholder="Uppercase" autofocus="" spellcheck="false" ></textarea>
+						</div>
+						<div class="co to-lowercase">
+							<button id="to-lowercase" class="col">To lowercase</button>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col lowercase">
+							<textarea id="lowercase" type="text" placeholder="Lowercase" autofocus="" spellcheck="false" ></textarea>
+						</div>
+						<div class="col to-uppercase">
+							<button id="to-uppercase">To uppercase</button>
+						</div>
+					</div>
+				</details>
+			</div>
+			
+			<div class="col console">
+				<input type="checkbox" id="console-use">
+				<label class="label-console" for="console-use" title="For using an XPath in browser's console. Please note that it also changed the way of generating XPath for the class attribute.">console</label>
+			</div>
 		</div>
 
 		<!-- <button id="clear-xpath">X</button> -->

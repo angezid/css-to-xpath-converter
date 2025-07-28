@@ -5,7 +5,6 @@ export default function xNode(node) {
 	this.axis = '';
 	this.separator = '';
 	this.owner = '';
-	this.isClone = false;
 	this.parentNode = node;
 	this.previousNode;
 	this.childNodes;
@@ -17,12 +16,15 @@ export default function xNode(node) {
 	}
 
 	this.add = function() {
-		let str = '';
+		let str = '',
+			forbid = false;
+
 		for (let i = 0; i < arguments.length; i++) {
-			str += arguments[i];
+			if (i === arguments.length - 1 && typeof arguments[i] === 'boolean') forbid = true;
+			else str += arguments[i];
 		}
 		if ( !this.content) this.content = [];
-		this.content.push(str);
+		this.content.push({ str, forbid });
 	}
 
 	this.hasAxis = function(axis) {
@@ -31,17 +33,6 @@ export default function xNode(node) {
 		if (this.childNodes) {
 			for (let i = 0; i < this.childNodes.length; i++) {
 				if (this.childNodes[i].hasAxis(axis)) return true;
-			}
-		}
-		return false;
-	}
-
-	this.hasOr = function() {
-		if (this.content && this.content.some(str => str === ' or ' || str === ' | ')) return true;
-
-		if (this.childNodes) {
-			for (let i = 0; i < this.childNodes.length; i++) {
-				if (this.childNodes[i].hasOr()) return true;
 			}
 		}
 		return false;
@@ -59,7 +50,37 @@ export default function xNode(node) {
 			text = this.separator + this.axis + this.owner;
 
 			if (this.content) {
-				text += this.content.join('');
+				const len = this.content.length;
+
+				if (len === 1) {
+					text += this.or ? this.content[0].str : '[' + removeBrackets(this.content[0].str) + ']';
+
+				} else {
+					let join = false;
+
+					for (let i = 0; i < len; i++) {
+						const obj = this.content[i],
+							str = removeBrackets(obj.str),
+							last = i + 1 === len;
+
+						if ( !obj.forbid) {
+							text += (join ? ' and ' : '[') + str;
+
+							if (i + 1 < len && !this.content[i + 1].forbid) {
+								text += (last ? ']' : '');
+								join = true;
+
+							} else {
+								text += ']';
+								join = false;
+							}
+
+						} else {
+							text += '[' + str + ']';
+							join = false;
+						}
+					}
+				}
 			}
 		}
 
@@ -68,6 +89,11 @@ export default function xNode(node) {
 				text += node.toString(text);
 			});
 		}
+
+		function removeBrackets(str) {
+			return str.replace(/\x01\[((?:[^"'\x01\x02]|"[^"]*"|'[^']*')+)\]\x02/g, '$1');
+		}
+
 		return text;
 	}
 }

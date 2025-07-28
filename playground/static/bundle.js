@@ -72,7 +72,6 @@
     this.axis = '';
     this.separator = '';
     this.owner = '';
-    this.isClone = false;
     this.parentNode = node;
     this.previousNode;
     this.childNodes;
@@ -82,29 +81,22 @@
       this.childNodes.push(nd);
     };
     this.add = function () {
-      var str = '';
+      var str = '',
+        forbid = false;
       for (var i = 0; i < arguments.length; i++) {
-        str += arguments[i];
+        if (i === arguments.length - 1 && typeof arguments[i] === 'boolean') forbid = true;else str += arguments[i];
       }
       if (!this.content) this.content = [];
-      this.content.push(str);
+      this.content.push({
+        str: str,
+        forbid: forbid
+      });
     };
     this.hasAxis = function (axis) {
       if (this.axis === axis) return true;
       if (this.childNodes) {
         for (var i = 0; i < this.childNodes.length; i++) {
           if (this.childNodes[i].hasAxis(axis)) return true;
-        }
-      }
-      return false;
-    };
-    this.hasOr = function () {
-      if (this.content && this.content.some(function (str) {
-        return str === ' or ' || str === ' | ';
-      })) return true;
-      if (this.childNodes) {
-        for (var i = 0; i < this.childNodes.length; i++) {
-          if (this.childNodes[i].hasOr()) return true;
         }
       }
       return false;
@@ -120,13 +112,39 @@
       if (!this.isClone) {
         text = this.separator + this.axis + this.owner;
         if (this.content) {
-          text += this.content.join('');
+          var len = this.content.length;
+          if (len === 1) {
+            text += this.or ? this.content[0].str : '[' + removeBrackets(this.content[0].str) + ']';
+          } else {
+            var join = false;
+            for (var i = 0; i < len; i++) {
+              var obj = this.content[i],
+                str = removeBrackets(obj.str),
+                last = i + 1 === len;
+              if (!obj.forbid) {
+                text += (join ? ' and ' : '[') + str;
+                if (i + 1 < len && !this.content[i + 1].forbid) {
+                  text += last ? ']' : '';
+                  join = true;
+                } else {
+                  text += ']';
+                  join = false;
+                }
+              } else {
+                text += '[' + str + ']';
+                join = false;
+              }
+            }
+          }
         }
       }
       if (this.childNodes) {
         this.childNodes.forEach(function (node) {
           text += node.toString(text);
         });
+      }
+      function removeBrackets(str) {
+        return str.replace(/\x01\[((?:[^"'\x01\x02]|"[^"]*"|'[^']*')+)\]\x02/g, '$1');
       }
       return text;
     };
@@ -173,6 +191,7 @@
   var pseudo = "Pseudo-class ':";
   var precedingSibling = "preceding-sibling::";
   var followingSibling = "following-sibling::";
+  var ancestor = "ancestor::";
   var navWarning = "\nSystem.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.";
   var opt, warning, error, uppercase, lowercase, stack, code, position, length;
   function toXPath(selector, options) {
@@ -185,6 +204,7 @@
       uppercaseLetters: '',
       lowercaseLetters: '',
       postprocess: true,
+      translate: true,
       debug: false
     }, options);
     warning = '';
@@ -197,7 +217,7 @@
       uppercase = opt.uppercaseLetters ? opt.uppercaseLetters.trim() : '';
       lowercase = opt.lowercaseLetters ? opt.lowercaseLetters.trim() : '';
       if (uppercase.length !== lowercase.length) {
-        argumentException("Custom upper and lower case letters have different length");
+        argumentException("Custom letters have different length");
       }
       normalized = normalizeWhiteSpaces(selector);
       xpath = convert(node, normalized, opt.axis, null);
@@ -241,19 +261,42 @@
           return gr || gr2 || '';
         });
       }
-      xpath = xpath.replace(/([([]| or )self::node\(\)\[((?:[^'"[\]]|"[^"]*"|'[^']*')+)\](?!\[| *\|)/g, '$1$2');
-      xpath = xpath.replace(/((?:[^'"[\]]|"[^"]*"|'[^']*')+)|\]\[(?![[(])/g, function (m, gr) {
-        return gr || ' and ';
-      });
-      xpath = xpath.replace(/\[\(((?:[^'"()]|"[^"]*"|'[^']*')+)\)]/g, function (m, gr) {
-        return '[' + gr + ']';
-      });
+      var array = xpath.split(/(?<!\| *)(\bself::node\(\)\[)/g);
+      xpath = '';
+      for (var i = 0; i < array.length; i++) {
+        if (array[i] === "self::node()[") {
+          var str = array[i + 1],
+            obj = parseArgument(0, "[" + str, true, "[", "]");
+          if (obj) {
+            var content = obj.content,
+              end = str.substr(obj.index);
+            if (!hasOr(content) && !(/^(?:\[| *\|)/.test(end) && !content.endsWith("]"))) {
+              xpath += content + end;
+              i++;
+            } else {
+              xpath += array[i];
+            }
+          }
+        } else {
+          xpath += array[i];
+        }
+      }
+      xpath = xpath.replace(/([[(])\{((?:[^'"{}]|"[^"]*"|'[^']*')+)\}([\])])/g, '$1$2$3');
+      xpath = xpath.replace(/([/:])\*\[self::(\w+)(\[(?:[^"'[\]]|"[^"]*"|'[^']*')+\])?\]/g, "$1$2$3");
       xpath = xpath.replace(/\/child::/g, '/');
     }
-    xpath = xpath.replace(/((?:[^'"{}]|"[^"]*"|'[^']*')+)|[{}]/g, function (m, gr) {
-      return gr || '';
+    xpath = xpath.replace(/(?:[^'"{}]|"[^"]*"|'[^']*')+|([{}])/g, function (m, gr) {
+      return gr ? gr === "{" ? "(" : ")" : m;
     });
     return xpath;
+  }
+  function hasOr(xpath) {
+    var reg = /(?:[^'" ]|"[^"]*"|'[^']*')+|( or )/g;
+    var rm;
+    while (rm = reg.exec(xpath)) {
+      if (rm[1]) return true;
+    }
+    return false;
   }
   function convert(rootNode, selector, axis, owner, argumentInfo) {
     checkSelector(selector);
@@ -295,7 +338,7 @@
         }
         switch (ch) {
           case '.':
-            var str = '[';
+            var str = '';
             do {
               var _parseClassValue = parseClassValue(i + 1);
               var _parseClassValue2 = _slicedToArray(_parseClassValue, 2);
@@ -307,7 +350,7 @@
                 str += " and ";
               } else break;
             } while (++i < length);
-            node.add(str + "]");
+            node.add(str);
             check = false;
             break;
           case '#':
@@ -315,7 +358,7 @@
             var _parseClassValue4 = _slicedToArray(_parseClassValue3, 2);
             i = _parseClassValue4[0];
             value = _parseClassValue4[1];
-            node.add("[@id=", normalizeQuotes(value), "]");
+            node.add("@id=", normalizeQuotes(value));
             check = false;
             break;
           case '>':
@@ -323,7 +366,7 @@
             check = true;
             break;
           case '+':
-            if (not) node = addTwoNodes(unitNode, node, precedingSibling, "*", "{[1]}");else node = addTwoNodes(unitNode, node, followingSibling, "*", "{[1]}");
+            if (not) node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");else node = addTwoNodes(unitNode, node, followingSibling, "*", "1");
             check = true;
             break;
           case '~':
@@ -331,15 +374,15 @@
             check = true;
             break;
           case '^':
-            if (not) node = addNode(unitNode, node, "parent::", notSibling(precedingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "[1]");
+            if (not) node = addNode(unitNode, node, "parent::", notSibling(precedingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "1");
             check = true;
             break;
           case '!':
             if (nextChar(i, '^')) {
-              if (not) node = addNode(unitNode, node, "parent::", notSibling(followingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "[last()]");
+              if (not) node = addNode(unitNode, node, "parent::", notSibling(followingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "last()");
               i++;
             } else if (nextChar(i, '+')) {
-              if (not) node = addTwoNodes(unitNode, node, followingSibling, "*", "{[1]}");else node = addTwoNodes(unitNode, node, precedingSibling, "*", "[1]");
+              if (not) node = addTwoNodes(unitNode, node, followingSibling, "*", "1");else node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");
               i++;
             } else if (nextChar(i, '>')) {
               if (not) node = addNode(unitNode, node, "child::");else node = newNode(unitNode, node, "parent::", "/");
@@ -366,6 +409,7 @@
           case ',':
             if (i + 1 >= length) exception();
             unitNode = newNode(rootNode, unitNode);
+            unitNode.or = true;
             unitNode.add(predicate ? " or " : " | ");
             unitNode = newNode(rootNode, unitNode);
             node = newNode(unitNode, null, argumentInfo ? "" : axis);
@@ -386,19 +430,19 @@
           case ' ':
             if (argumentInfo) {
               if (name === 'has-ancestor') {
-                node = newNode(unitNode, node, 'ancestor::', " and ");
+                node = newNode(unitNode, node, ancestor, " and ");
               } else if (['has-parent', 'before', 'after'].includes(name) || name.endsWith('-sibling')) {
                 if (!node.previousNode) {
-                  node.axis = 'ancestor::';
+                  node.axis = ancestor;
                   node.separator = '';
                 }
-                node = newNode(unitNode, node, 'ancestor::', " and ");
+                node = newNode(unitNode, node, ancestor, " and ");
               } else if (name === 'not' && node.axis === 'self::') {
-                if (node.previousNode && node.previousNode.axis === 'ancestor::') {
+                if (node.previousNode && node.previousNode.axis === ancestor) {
                   node.separator = ' and ';
                 }
                 node.and = true;
-                node = addNode(unitNode, node, "ancestor::");
+                node = addNode(unitNode, node, ancestor);
               } else {
                 node = newNode(unitNode, node, null, "//");
               }
@@ -411,10 +455,10 @@
             if (nextChar(i, '|')) {
               exception(1);
             } else {
-              var _handleNamespace = handleNamespace(i, axis, first, unitNode, node);
-              var _handleNamespace2 = _slicedToArray(_handleNamespace, 2);
-              i = _handleNamespace2[0];
-              node = _handleNamespace2[1];
+              var _parseNamespace = parseNamespace(i, axis, first, unitNode, node);
+              var _parseNamespace2 = _slicedToArray(_parseNamespace, 2);
+              i = _parseNamespace2[0];
+              node = _parseNamespace2[1];
             }
             check = false;
             break;
@@ -463,7 +507,7 @@
             break;
           case ']':
             if (!attrName) parseException("attrName is null or empty.'");
-            node.add("[@" + attrName + "]");
+            node.add("@" + attrName);
             state = State.Text;
             check = false;
             break;
@@ -514,7 +558,7 @@
           node.axis = '//';
           node = newNode(unitNode, node, "ancestor-or-self::");
           node.owner = "*";
-          node.add("[last()]");
+          node.add("last()");
         } else {
           addOwner(owner, node);
           if (_name.startsWith("nth-")) {
@@ -557,20 +601,15 @@
   function addTwoNodes(unitNode, node, axis, owner, content) {
     var nd = newNode(unitNode, node, axis, "/");
     nd.owner = owner;
-    nd.add(content);
+    nd.add(content, true);
     return newNode(unitNode, nd, "self::", "/");
   }
   function addAxes(axis, node, argumentInfo) {
     if (!axis || node.axis || axis === "self::" && !argumentInfo) return;
     var text = node.parentNode.toString().trim(),
       len = text.length;
-    if (len == 0 || / (?:or|\|)$/.test(text)) {
+    if (len == 0 || endByOr(text)) {
       node.axis = axis;
-    } else {
-      var ch = text[len - 1];
-      if (ch == ':' || ch == '|') {
-        node.axis = axis;
-      }
     }
   }
   function addOwner(owner, node) {
@@ -581,7 +620,7 @@
     } else {
       var text = node.parentNode.toString().trim();
       if (text.length) {
-        if (/(?: or|\|)$/.test(text)) {
+        if (endByOr(text)) {
           result = owner || "*";
         } else {
           var ch = text[text.length - 1];
@@ -593,7 +632,10 @@
     }
     node.owner = result;
   }
-  function handleNamespace(i, axis, first, unitNode, node) {
+  function endByOr(text) {
+    return /(?: or|\|)$/.test(text);
+  }
+  function parseNamespace(i, axis, first, unitNode, node) {
     if (node.owner == "*") {
       if (nextChar(i, '*')) {
         node.owner = "*:*";
@@ -607,7 +649,7 @@
       if (nextChar(i, '*')) {
         if (!node.owner) {
           node.owner = "*";
-          node.add("[not(contains(name(), ':'))]");
+          node.add("not(contains(name(), ':'))");
         } else {
           node.owner += ":*";
         }
@@ -627,7 +669,7 @@
     var text = node.parentNode.toString().trim();
     if (text.length === 0) {
       if (argumentInfo) axis = "";
-    } else if (/ (?:or|\|)$/.test(text)) {
+    } else if (endByOr(text)) {
       axis = "";
     } else {
       var ch = text[text.length - 1];
@@ -645,13 +687,13 @@
   function processAttribute(attrName, attrValue, operation, modifier, node) {
     if (!attrValue.trim()) {
       if (operation === "=") {
-        node.add("[@", attrName, " = '']");
+        node.add("@", attrName, " = ''");
       } else if (operation === "!=") {
-        node.add("{[not(@", attrName, ") or @", attrName, " != '']}");
+        node.add("{not(@", attrName, ") or @", attrName, " != ''}");
       } else if (operation === "|=") {
-        node.add("{[@", attrName, " = '' or starts-with(@", attrName, ", '-')]}");
+        node.add("{@", attrName, " = '' or starts-with(@", attrName, ", '-')}");
       } else {
-        node.add("[false()]");
+        node.add("false()", true);
       }
       return;
     }
@@ -665,37 +707,37 @@
     switch (operation) {
       case "=":
         if (ignoreCase) {
-          node.add("[", lowerCaseValue, " = ", toLower(attrValue), "]");
+          node.add(lowerCaseValue, " = ", toLower(attrValue));
         } else {
-          node.add("[@", attrName, "=", value, "]");
+          node.add("@", attrName, "=", value);
         }
         break;
       case "!=":
         if (ignoreCase) {
-          node.add("{[not(@", attrName, ") or ", lowerCaseValue, "!=", toLower(attrValue), "]}");
+          node.add("{not(@", attrName, ") or ", lowerCaseValue, "!=", toLower(attrValue), "}");
         } else {
-          node.add("{[not(@", attrName, ") or @", attrName, "!=", value, "]}");
+          node.add("{not(@", attrName, ") or @", attrName, "!=", value, "}");
         }
         break;
       case "~=":
         if (ignoreCase) {
-          node.add("[contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', normalize-space(", toLower(attrValue), "), ' '))]");
+          node.add("contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', normalize-space(", toLower(attrValue), "), ' '))");
         } else {
-          node.add("[contains(concat(' ', normalize-space(@", attrName, "), ' '), concat(' ', normalize-space(", value, "), ' '))]");
+          node.add("contains(concat(' ', normalize-space(@", attrName, "), ' '), concat(' ', normalize-space(", value, "), ' '))");
         }
         break;
       case "|=":
         if (ignoreCase) {
-          node.add("{[", lowerCaseValue, " = ", toLower(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLower(attrValue), ", '-'))]}");
+          node.add("{", lowerCaseValue, " = ", toLower(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLower(attrValue), ", '-'))}");
         } else {
-          node.add("{[@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), ")]}");
+          node.add("{@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), ")}");
         }
         break;
       case "^=":
         if (ignoreCase) {
-          node.add("[starts-with(", lowerCaseValue, ", ", toLower(attrValue), ")]");
+          node.add("starts-with(", lowerCaseValue, ", ", toLower(attrValue), ")");
         } else {
-          node.add("[starts-with(@", attrName, ", ", value, ")]");
+          node.add("starts-with(@", attrName, ", ", value, ")");
         }
         break;
       case "$=":
@@ -707,15 +749,15 @@
         break;
       case "*=":
         if (ignoreCase) {
-          node.add("[contains(", lowerCaseValue, ", ", toLower(attrValue), ")]");
+          node.add("contains(", lowerCaseValue, ", ", toLower(attrValue), ")");
         } else {
-          node.add("[contains(@", attrName, ", ", value, ")]");
+          node.add("contains(@", attrName, ", ", value, ")");
         }
         break;
     }
   }
   function endsWith(str, str2, str3, str4) {
-    return "[substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4 + "]";
+    return "substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4;
   }
   function processClass(attrValue, operation, ignoreCase, node) {
     var attrName = ignoreCase ? translateToLower("@class") : "@class";
@@ -739,15 +781,15 @@
       attributeValue = normalizeQuotes(attributeValue);
     }
     if (operation === "!=") {
-      node.add("{[not(", attrName, ") or not(", getClass(attrName, attributeValue), ")]}");
+      node.add("{not(", attrName, ") or not(", getClass(attrName, attributeValue), ")}");
     } else if (operation === "*=") {
-      node.add("[contains(", attrName, ", ", attributeValue, ")]");
+      node.add("contains(", attrName, ", ", attributeValue, ")");
     } else if (operation === "|=") {
       var attrValue1 = ignoreCase ? toLower(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
       var attrValue2 = ignoreCase ? toLower(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
-      node.add("{[", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), "]}");
+      node.add("{", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), "}");
     } else {
-      node.add("[", getClass(attrName, attributeValue), "]");
+      node.add(getClass(attrName, attributeValue));
     }
   }
   function getClass(attrName, attributeValue) {
@@ -762,70 +804,71 @@
       localName = 'local-name()';
     switch (name) {
       case "any-link":
-        node.add("[(", localName, " = 'a' or ", localName, " = 'area') and @href]");
+        node.add("(", localName, " = 'a' or ", localName, " = 'area') and @href");
         break;
       case "external":
-        node.add("{[(", localName, " = 'a' or ", localName, " = 'area') and (starts-with(@href, 'https://') or starts-with(@href, 'http://'))]}");
+        node.add("(", localName, " = 'a' or ", localName, " = 'area') and (starts-with(@href, 'https://') or starts-with(@href, 'http://'))");
         break;
       case "contains":
-        node.add("[contains(normalize-space(), ", normalizeArg(arg, name), ")]");
+        node.add("contains(normalize-space(), ", normalizeString(arg, name), ")");
         break;
       case "icontains":
-        node.add("[contains(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
+        node.add("contains(", toLower(), ", ", normalizeArg(arg), ")");
         break;
       case "empty":
-        node.add("[not(*) and not(text())]");
+        node.add("not(*) and not(text())");
         break;
       case "dir":
         val = normalizeQuotes(arg);
-        node.add("[", /ltr/.test(val) ? "not(ancestor-or-self::*[@dir]) or " : "", "ancestor-or-self::*[@dir]{[1]}[@dir = ", val, "]]");
+        var dft = /ltr/.test(val);
+        node.add(dft ? "{not(ancestor-or-self::*[@dir]) or " : "", "ancestor-or-self::*[@dir][1][@dir = ", val, "]", dft ? "}" : "");
         break;
       case "first-child":
         node.add(notSibling(precedingSibling));
         break;
       case "first":
-        if (not) node.add(arg ? getNot(precedingSibling, " <= ") : notSibling(precedingSibling));else node.add(arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]");
+        if (not) node.add(arg ? getNot(precedingSibling, " <= ") : notSibling(precedingSibling));else node.add(arg ? "position() <= " + parseNumber(arg, name) : "1", !arg);
         break;
       case "first-of-type":
         owner = getOwner(node, name);
         node.add(notSibling(precedingSibling, owner));
         break;
       case "gt":
-        if (not) node.add(getNot(precedingSibling, " > "));else node.add("[position() > ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " > "));else node.add("position() > ", parseNumber(arg, name));
         break;
       case "lt":
-        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("[position() < ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("position() < ", parseNumber(arg, name));
         break;
       case "eq":
       case "nth":
-        if (not) node.add(getNot(precedingSibling, " = "));else node.add("[", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " = "));else node.add(parseNumber(arg, name));
         break;
       case "last-child":
         node.add(notSibling(followingSibling));
         break;
       case "only-child":
-        node.add("[not(", precedingSibling, "*) and not(", followingSibling, "*)]");
+        node.add("not(", precedingSibling, "*) and not(", followingSibling, "*)");
         break;
       case "only-of-type":
         owner = getOwner(node, name);
-        node.add("[not(", precedingSibling, owner, ") and not(", followingSibling, owner, ")]");
+        node.add("not(", precedingSibling, owner, ") and not(", followingSibling, owner, ")");
         break;
       case "text":
-        node.add("[@type='text']");
+        node.add("@type='text'");
         break;
       case "starts-with":
-        node.add("[starts-with(normalize-space(), ", normalizeArg(arg, name), ")]");
+        node.add("starts-with(normalize-space(), ", normalizeString(arg, name), ")");
         break;
       case "istarts-with":
-        node.add("[starts-with(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
+        node.add("starts-with(", toLower(), ", ", normalizeArg(arg), ")");
         break;
       case "ends-with":
-        str = normalizeArg(arg, name);
+        str = normalizeString(arg, name);
         node.add(endsWith("normalize-space()", "normalize-space()", str, str));
         break;
       case "iends-with":
-        str = normalizeArg(arg, name);
-        node.add(endsWith(toLower(), "normalize-space()", str, translateToLower(str)));
+        str = normalizeArg(arg);
+        node.add(endsWith(toLower(), "normalize-space()", str, str));
         break;
       case "is":
       case "matches":
@@ -834,7 +877,7 @@
           predicate: true,
           name: name
         });
-        addToNode(nd, "[" + result + "]");
+        node.add(result);
         break;
       case "not":
         nd = node.clone();
@@ -843,7 +886,7 @@
         });
         if (result !== "self::node()") {
           result = transformNot(nd);
-          addToNode(nd, "[not(" + result + ")]");
+          node.add("not(" + result + ")");
         }
         break;
       case "has":
@@ -851,34 +894,34 @@
         result = convertArgument(nd, arg, ".//", null, {
           name: name
         });
-        addToNode(nd, "[" + result + "]");
+        node.add(result);
         break;
       case "has-sibling":
         nd = node.clone();
         var precedings = convertArgument(nd, arg, precedingSibling, null, {
           name: name
         });
-        if (nd.hasAxis('ancestor::')) {
+        if (nd.hasAxis(ancestor)) {
           precedings = transform(nd, precedingSibling);
         }
         nd = node.clone();
         var followings = convertArgument(nd, arg, followingSibling, null, {
           name: name
         });
-        if (nd.hasAxis('ancestor::')) {
+        if (nd.hasAxis(ancestor)) {
           followings = transform(nd, followingSibling);
         }
-        node.add("{[(", precedings, ") or (", followings, ")]}");
+        node.add("{(", precedings, ") or (", followings, ")}");
         break;
       case "has-parent":
         process("parent::");
         break;
       case "has-ancestor":
         nd = node.clone();
-        result = convertArgument(nd, arg, "ancestor::", null, {
+        result = convertArgument(nd, arg, ancestor, null, {
           name: name
         });
-        addToNode(nd, "[" + result + "]");
+        node.add(result);
         break;
       case "after":
         process("preceding::");
@@ -893,28 +936,27 @@
         process(followingSibling);
         break;
       case "last":
-        if (not) node.add(arg ? getNot(followingSibling, " <= ") : notSibling(followingSibling));else node.add(arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]");
+        if (not) node.add(arg ? getNot(followingSibling, " <= ") : notSibling(followingSibling));else node.add(arg ? "position() > last() - " + parseNumber(arg, name) + "" : "last()", !arg);
         break;
       case "last-of-type":
         owner = getOwner(node, name);
         node.add(notSibling(followingSibling, owner));
         break;
       case "skip":
-        if (not) node.add(getNot(precedingSibling, " > "));else node.add("[position() > ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " > "));else node.add("position() > ", parseNumber(arg, name));
         break;
       case "skip-first":
-        if (not) node.add(arg ? getNot(precedingSibling, " > ") : notSibling(precedingSibling));else node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
+        if (not) node.add(arg ? getNot(precedingSibling, " > ") : notSibling(precedingSibling));else node.add("position() > ", arg ? parseNumber(arg, name) : "1", !arg);
         break;
       case "skip-last":
-        if (not) node.add(arg ? getNot(followingSibling, " > ") : notSibling(followingSibling));else node.add("[position() < last()", arg ? " - " + (parseNumber(arg, name) - 1) : "", "]");
+        if (not) node.add(arg ? getNot(followingSibling, " > ") : notSibling(followingSibling));else node.add("position() < last()", arg ? " - " + (parseNumber(arg, name) - 1) : "");
         break;
       case "limit":
-        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("[position() <= ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("position() <= ", parseNumber(arg, name));
         break;
       case "lang":
-        str = translateToLower("@lang");
-        val = toLower(arg);
-        node.add("[ancestor-or-self::*[@lang]{[1]}[", str, " = ", val, " or starts-with(", str, ", concat(", val, ", '-'))", "]]");
+        str = processLang(name, arg);
+        if (str) node.add("{", str, "}");
         break;
       case "range":
         var splits = arg.split(',');
@@ -926,32 +968,30 @@
           str = addCount(precedingSibling, "*", {
             count: start - 1,
             comparison: " >= "
-          });
+          }) + " and ";
           str += addCount(precedingSibling, "*", {
             count: end - 1,
             comparison: " <= "
           });
-          node.add(str.replace("][", " and "));
-        } else node.add("[position() >= ", start, " and position() <= ", end, "]");
+          node.add(str);
+        } else {
+          node.add("position() >= ", start, " and position() <= ", end);
+        }
         break;
       case "target":
-        node.add("[starts-with(@href, '#')]");
+        node.add("starts-with(@href, '#')");
         break;
       case "disabled":
-        node.add("[@disabled]");
+        node.add("@disabled");
         break;
       case "enabled":
-        node.add("[not(@disabled)]");
+        node.add("not(@disabled)");
         break;
       case "selected":
-        node.add("[", localName, " = 'option' and @selected]");
+        node.add(localName, " = 'option' and @selected");
         break;
       case "checked":
-        node.add("[(", localName, " = 'input' and (@type='checkbox' or @type='radio') or ", localName, " = 'option') and @checked]");
-        break;
-      case 'read-only':
-      case 'read-write':
-        node.add('[@', name.replace('-', ''), ']');
+        node.add("(", localName, " = 'input' and (@type='checkbox' or @type='radio') or ", localName, " = 'option') and @checked");
         break;
       default:
         parseException(pseudo + name + "' is not implemented");
@@ -962,13 +1002,10 @@
       var result = convertArgument(nd, arg, axis, null, {
         name: name
       });
-      if (nd.hasAxis('ancestor::')) {
+      if (nd.hasAxis(ancestor)) {
         result = transform(nd, axis);
       }
-      addToNode(nd, "[" + result + "]");
-    }
-    function addToNode(nd, result) {
-      node.add(nd.hasOr() ? "{" + result + "}" : result);
+      node.add(result);
     }
     function getNot(sibling, comparison) {
       return addCount(sibling, "*", {
@@ -976,6 +1013,61 @@
         comparison: comparison
       });
     }
+    function normalizeArg(arg) {
+      var text = normalizeString(arg, name);
+      return opt.translate ? translateToLower(text) : text;
+    }
+  }
+  function processLang(name, arg) {
+    var lang = translateToLower("@lang", true),
+      array = arg.split(',');
+    var result = "";
+    for (var i = 0; i < array.length; i++) {
+      if (i > 0) result += " or ";
+      result += "ancestor-or-self::*[@lang][1][";
+      var rm = /^([a-z]+|\*)(?:-([a-z]+|\*))?(?:-([a-z]+|\*))?/i.exec(getStringContent(array[i].trim()));
+      if (rm) {
+        if (rm[1] === "*") {
+          if (isText(rm[2])) {
+            result += containOrEnd(rm[2] + (isText(rm[3]) ? "-" + rm[3] : ""));
+          } else if (isText(rm[3])) {
+            result += containOrEnd(rm[3]);
+          } else {
+            return "";
+          }
+        } else if (rm[2] === "*") {
+          var val = normalize(rm[1] + "-");
+          if (isText(rm[3])) {
+            result += "starts-with(" + lang + ", " + val + ") and (" + containOrEnd(rm[3]) + ")";
+          } else {
+            result += equalOrStart(rm[1]);
+          }
+        } else {
+          var text = rm[1] + (rm[2] ? "-" + rm[2] : "") + (isText(rm[3]) ? "-" + rm[3] : "");
+          result += equalOrStart(text);
+        }
+        result += "]";
+      } else {
+        argumentException(pseudo + name + "()' has wrong arguments");
+      }
+    }
+    function isText(gr) {
+      return gr && gr !== "*";
+    }
+    function equalOrStart(text) {
+      var val = normalize(text);
+      return lang + " = " + val + " or starts-with(" + lang + ", concat(" + val + ", '-'))";
+    }
+    function containOrEnd(text) {
+      var val = normalize("-" + text + "-");
+      var val2 = normalize("-" + text);
+      return "contains(substring(" + lang + ", string-length(substring-before(" + lang + ", " + val + "))), " + val + ") or " + endsWith(lang, "@lang", val2, val2);
+    }
+    function normalize(text) {
+      text = normalizeQuotes(text, name);
+      return opt.translate ? translateToLower(text, true) : text;
+    }
+    return result;
   }
   function transformNot(node) {
     var result = '';
@@ -994,8 +1086,8 @@
             str += nd.toString();
           } else {
             nd.separator = '';
-            str += '{[' + nd.toString();
-            end += ']}';
+            str += '[' + nd.toString();
+            end += ']';
           }
         }
         result += str + end;
@@ -1008,7 +1100,7 @@
   function transform(node, axis) {
     var result = '';
     node.childNodes.forEach(function (unitNode) {
-      if (unitNode.hasAxis('ancestor::')) {
+      if (unitNode.hasAxis(ancestor)) {
         var str = '';
         var last = unitNode.childNodes.length - 1;
         unitNode.childNodes.forEach(function (nd, i) {
@@ -1038,6 +1130,7 @@
         arg = obj.arg;
         owner = obj.owner;
         ofResult = obj.ofResult;
+        if (!ofResult) node.owner = owner;
       }
     }
     arg = arg.replace(/\s+/g, '');
@@ -1063,8 +1156,8 @@
         parseException(pseudo + name + "' is not implemented");
         break;
     }
-    if (ofResult) node.add(ofResult);
-    node.add(str);
+    if (ofResult) node.add(ofResult, true);
+    if (str) node.add(str);
   }
   function addNthToXpath(name, arg, sibling, owner, last) {
     var str = '';
@@ -1083,8 +1176,7 @@
       if (obj.valueA) {
         var _num = getNumber(obj.valueB);
         if (obj.type === 'mod') str = addModulo(sibling, owner, _num, obj.valueA, 0);else if (obj.type === 'cnt') str = addCount(sibling, owner, obj);else if (obj.type === 'both') {
-          str = addCount(sibling, owner, obj) + addModulo(sibling, owner, _num, obj.valueA, 0);
-          str = str.replace('][', ' and ');
+          str = addCount(sibling, owner, obj) + " and " + addModulo(sibling, owner, _num, obj.valueA, 0);
         }
       } else {
         str = addCount(sibling, owner, obj);
@@ -1128,17 +1220,17 @@
     regexException(0, "parseFnNotation", nthEquationReg, arg);
   }
   function addModulo(sibling, owner, num, mod, eq) {
-    return "[(count(".concat(sibling).concat(owner, ")").concat(num, ") mod ").concat(mod, " = ").concat(eq, "]");
+    return "(count(".concat(sibling).concat(owner, ")").concat(num, ") mod ").concat(mod, " = ").concat(eq);
   }
   function addCount(sibling, owner, obj) {
     if (obj.count === 0 && /^<?=$/.test(obj.comparison.trim())) {
       return notSibling(sibling, owner);
     } else {
-      return "[count(".concat(sibling).concat(owner, ")").concat(obj.comparison).concat(obj.count, "]");
+      return "count(".concat(sibling).concat(owner, ")").concat(obj.comparison).concat(obj.count);
     }
   }
   function notSibling(sibling, owner) {
-    return "[not(".concat(sibling).concat(owner || "*", ")]");
+    return "not(".concat(sibling).concat(owner || "*", ")");
   }
   function getNumber(val) {
     var num = 1 - val;
@@ -1167,27 +1259,28 @@
       rm = ofReg.exec(arg);
     if (rm !== null) {
       var nd = node.clone();
-      ofResult = convertArgument(nd, rm[1], null, "self::node()", {
+      ofResult = convertArgument(nd, rm[1], "self::", "node()", {
         predicate: true,
         name: name
       });
-      if (nd.childNodes.length === 1) {
-        var unitNode = nd.childNodes[0],
-          firstChild = unitNode.childNodes[0],
-          selfNode = firstChild.owner === "self::node()";
-        firstChild.owner = '';
-        var result = "{" + unitNode.toString() + "}";
-        if (selfNode) {
-          owner += result;
-          ofResult = result;
+      var result = '';
+      nd.childNodes.forEach(function (unitNode) {
+        var str = unitNode.toString();
+        if (unitNode.childNodes) {
+          var firstChild = unitNode.childNodes[0];
+          if (firstChild.owner === "node()") {
+            firstChild.axis = '';
+            firstChild.owner = '';
+            result += "\x01" + unitNode.toString() + "\x02";
+          } else {
+            result += str;
+          }
         } else {
-          owner = "{" + ofResult + "}";
-          ofResult = result;
+          result += str;
         }
-      } else {
-        ofResult = "{[" + ofResult + "]}";
-        owner += ofResult;
-      }
+      });
+      if (result !== ofResult) ofResult = result;
+      owner += "[" + ofResult + "]";
       return {
         arg: arg.replace(ofReg, ''),
         owner: owner,
@@ -1198,13 +1291,13 @@
   }
   function toLower(str) {
     str = str ? normalizeQuotes(str) : "normalize-space()";
-    return translateToLower(str);
+    return opt.translate ? translateToLower(str) : str;
   }
-  function translateToLower(str) {
+  function translateToLower(str, asii) {
     var letters = 'abcdefghjiklmnopqrstuvwxyz';
-    return "translate(" + str + ", '" + letters.toUpperCase() + uppercase + "', '" + letters + lowercase + "')";
+    return "translate(" + str + ", '" + letters.toUpperCase() + (asii ? "" : uppercase) + "', '" + letters + (asii ? "" : lowercase) + "')";
   }
-  function normalizeArg(str, name) {
+  function normalizeString(str, name) {
     if (!str) {
       argumentException(pseudo + name + "' has missing argument");
     }
@@ -1249,7 +1342,7 @@
     if (rm !== null) {
       var name = rm[1];
       if (rm[2] != null) {
-        var obj = getArgument(i + rm[0].length - 1, code, '(', ')');
+        var obj = parseArgument(i + rm[0].length - 1, code, name === "lang", "(", ")");
         if (obj) {
           return [obj.index, name, obj.content];
         }
@@ -1344,7 +1437,7 @@
     }
     return sb.join('');
   }
-  function getArgument(i, text, open, close) {
+  function parseArgument(i, text, original, open, close) {
     var first = true,
       start = i,
       n = 0;
@@ -1358,12 +1451,13 @@
         first = false;
       } else if (ch === '"' || ch === '\'') {
         while (++i < text.length && text[i] !== ch);
-        if (i >= text.length) characterException(i, ch, "function getArgument()", text);
+        if (i >= text.length) characterException(i, ch, "function parseArgument()", text);
       } else {
         if (ch === open) n++;else if (ch === close && --n === 0) {
+          var str = text.substring(start, i);
           return {
             index: i,
-            content: getStringContent(text.substring(start, i))
+            content: original ? str : getStringContent(str)
           };
         }
       }
@@ -1406,10 +1500,10 @@
     throw new ParserError(code, "?", message);
   }
   function characterException(i, ch, message, code) {
-    var text = message + ". Unexpected character '<b>" + ch + "</b>'\nposition <b>" + (i + 1) + "</b>\nstring - '<b>" + code + "</b>'";
+    var str = "Unexpected character '",
+      text = (opt.debug ? message + ". " : "") + str + "<b>" + ch + "</b>'\nposition <b>" + (i + 1) + "</b>\nstring - '<b>" + code + "</b>'";
     printError(text);
-    message = message + ". Unexpected character '" + ch + "'";
-    throw new ParserError(code, i + 1, message);
+    throw new ParserError(code, i + 1, message + str + ch + "'");
   }
   function regexException(i, fn, reg, arg) {
     var str = arg || code.substring(i),
@@ -1460,10 +1554,10 @@
 /*!****************************
 * data.js
 ******************************/
-const defaultHtmls={name:"Built-in HTMLs",page:{content:'<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <link rel="icon" type="image/png" href="static/favicon.png">\n    <link rel="stylesheet" href="static/main.css">\n    <script src="static/main.js"><\/script>\n  </head>\n  <body>\n    <header class="top-nav"> </header>\n    <div class="search-form">\n      <form class="search" action="../$search.html" method="get">\n        <input id="q" type="text" required placeholder="Search ..." />\n        <input class="submit" type="submit" />\n      </form>\n    </div>\n    <div id="wrapper" lang="en">\n      <div class="nav-wrap">\n        <nav class="sidebar">\n          <form class="nav-filter">\n            <span class="filter-img"></span>\n            <input id="fq" type="text" placeholder=". filter ... " />\n          </form>\n          <h4>Toc header</h4>\n          <div class="toc">\n            <ul>\n              <li><a href="url1.html">Item 1</a></li>\n              <li><a href="url2.html">Item 2</a></li>\n              <li><a href="url3.html">Item 3</a></li>\n              <li><a href="url4.html">Item 4</a></li>\n            </ul>\n          </div>\n        </nav>\n      </div>\n      <div class="content-wrap">\n        <div class="content main">\n          <form class="search-bar"></form>\n          <section title="Section one">\n            <article>\n              <h1>Header</h1>\n              <p class="p1">Paragraph one.</p>\n              <p class="p2">Paragraph two.</p>\n              <p>Test content.</p>\n            </article>\n          </section>\n          <section title="Section two">\n            <div>\n              <label><input type="checkbox" checked value="">checkbox</label>\n              <label><input type="radio" value="" checked> radio 1</label>\n              <label><input type="radio" value=""> radio 2</label>\n            </div>\n          </section>\n        </div>\n        <footer>\n          <span>Footer</span>\n          <a href="https://#">link</a>\n        </footer>\n      </div>\n    </div>\n  </body>\n</html>'},table:{content:'<div>\n  <table class="t1">\n    <tbody><tr>\n      <td>1.1</td>\n      <td>1.2</td>\n      <td>1.3</td>\n    </tr>\n    <tr>\n      <td>2.1</td>\n      <td>2.2</td>\n      <td>2.3</td>\n    </tr>\n    <tr>\n      <td>3.1</td>\n      <td>3.2</td>\n      <td>3.3</td>\n    </tr>\n    <tr>\n      <td>4.1</td>\n      <td>4.2</td>\n      <td>4.3</td>\n    </tr>\n  </tbody></table>\n</div>'},descriptionList:{content:"<div>\n  <dl>\n    <dt>First definition term</dt>\n      <dd>First definition</dd>\n    <dt>Second definition term</dt>\n      <dd>Second definition</dd>\n    <dt>Third definition term</dt>\n      <dd>Third definition</dd>\n    <dt>Fourth definition term</dt>\n      <dd>Fourth definition</dd>\n    <dt>Fifth definition term</dt>\n      <dd>Fifth definition</dd>\n    <dt>Sixth definition term</dt>\n      <dd>Sixth definition</dd>\n  </dl>\n</div>"},unorderedList:{content:'<ul>\n  <li class="noted">Diego</li>\n  <li>Shilpa</li>\n  <li class="noted">Caterina</li>\n  <li>Jayla</li>\n  <li>Tyrone</li>\n  <li>Ricardo</li>\n  <li class="noted">Gila</li>\n  <li>Sienna</li>\n  <li>Titilayo</li>\n  <li class="noted">Lexi</li>\n  <li>Aylin</li>\n  <li>Leo</li>\n  <li>Leyla</li>\n  <li class="noted">Bruce</li>\n  <li>Aisha</li>\n  <li>Veronica</li>\n  <li class="noted">Kyouko</li>\n  <li>Shireen</li>\n  <li>Tanya</li>\n  <li class="noted">Marlene</li>\n</ul>'},toc:{content:'<ul>\n  <li>\n    <div class="collapsed"></div>\n    <span>Header</span>\n    <ul style="display:none;">\n      <li><a href="#">Item </a></li>\n      <li><a href="#">Item </a></li>\n      <li><a href="#">Item </a></li>\n      <li>\n        <div class="collapsed"></div>\n        <span>Subheader</span>\n        <ul style="display:none;">\n          <li><a href="#">Item </a></li>\n          <li><a href="#">Item </a></li>\n          <li><a href="#">Item </a></li>\n        </ul>\n      </li>\n    </ul>\n  </li>\n  <li><a href="#">Item </a></li>\n  <li><a href="#">Item </a></li>\n  <li><a href="#">Item </a></li>\n  <li><a href="#">Item </a></li>\n  <li><a href="#">Item </a></li>\n</ul>'},nth:{content:"<div>\n\t<p class='c1'>1.</p>\n\t<h2>h2.</h2>\n\t<p class='c2'>2.</p>\n\t<p class='c3'>3.</p>\n\t<h2>h2.</h2>\n\t<p class='c4'>4</p>\n\t<p class='c5'>5</p>\n\t<p class='c6'>6</p>\n</div>\n\n<div id=div1>\n\t<p>The first p.</p>\n\t<p>The second p.</p>\n\t<p class=nth>The third p.</p>\n\t<p>The fourth p.</p>\n\n\t<p>The first p.</p>\n\t<p class=nth>The sixth p.</p>\n\t<p>The seventh p.</p>\n\t<p>The eighth p.</p>\n\n\t<p>The ninth p.</p>\n\t\x3c!-- <p>The tenth p.</p> --\x3e\n</div>\n<hr>\n\n<div id=first>\n\t<p>The first p.</p>\n\t<p>The second p.</p>\n\t<p class=nth>The third p.</p>\n\t<p>The fourth p.</p>\n\n\t<p>The first p.</p>\n\t<p class=nth>The sixth p.</p>\n\t<p>The seventh p.</p>\n\t<p>The eighth p.</p>\n\n\t<p>The ninth p.</p>\n\t<p>The tenth p.</p>\n\t<p>The eleventh p.</p>\n\t<p>The twelfth p.</p>\n\n    <p class='c4'>4</p>\n\t<p class='c5'>5</p>\n\t<p class='c6'>6</p>\n</div>\n\n<hr>\n\n<div id=second>\n    <p>The first p.</p>\n\t<p>The second p.</p>\n\t<p>The third p.</p>\n\t<p>The fourth p.</p>\n\n\t<p>The first p.</p>\n\t<p>The sixth p.</p>\n\t<p>The seventh p.</p>\n\t<p>The eighth p.</p>\n\t<b>The B element.</b>\n\n\t<p>The ninth p.</p>\n\t<p>The tenth p.</p>\n\t<p>The eleventh p.</p>\n\t<p>The twelfth p.</p>\n\n\t<p>The 1 p.</p>\n\t<b>The B element.</b>\n\t<p>The 2 p.</p>\n\t<p>The 3 p.</p>\n\t<b>The B element.</b>\n\t<b>The B element.</b>\n</div>\n\n<div id=third>\n\t<p>The 1 p.</p>\n\t<b>The B element.</b>\n\t<p>The 2 p.</p>\n\t<p>The 3 p.</p>\n\t<b>The B element.</b>\n\t<b>The B element.</b>\n\t<b>The B element.</b>\n</div>"}},exampleSelectors=[["$$Combinators",""],["ul > li","child"],["li !> ul","parent","0"],["h1 + p","adjacent following sibling"],["div !+ p","adjacent preceding sibling","0"],["div ^ p","first child"],["div !^ p","last child","0"],["div ~ p","following sibling"],["div !~ p","preceding sibling","0"],["p ! div","ancestors","0"],["$$Class, id",""],["div.content","contains class"],["#wrapper","id"],["$$Class attribute non-standard","Non-standard XPath behavior","It deals with individual classes instead of the whole className string"],["div[class='content']","contains class","","N"],["div[class!='content']","not contains class","","N"],["div[class='content' i]","contains class ignore case","1 2","N"],["div[class^='cont']","class starts with","","N"],["div[class$='tent']","class ends with","","N"],["div[class~='content']","contains class","","N"],["div[class*='ten']","contains class containing substring","","N"],["div[class|='content']","contains exactly or followed by a hyphen","","N"],["$$Attributes",""],["section[title='Section one']","equal"],["section[title!='Section one']","not equals"],["section[title^='Sect']","starts with"],["section[title$='two']","ends with"],["section[title*='on on']","contains within"],["*[lang|=EN]","exactly or followed by a hyphen"],["$$Attributes ignore case",""],["section[title='section one' i]","","1 2"],["section[title^='sect' i]","","1 2"],["section[title$='TWO' i]","","1 2"],["section[title~='One' i]","","1 2"],["section[title*='on On' i]","","1 2"],["$$Pseudo-classes",""],["div:not(.toc)",""],["div:not(:has(nav))",""],["div:has(h1, h2)",""],["div:has(.main)",""],["a:is([name], [href])",""],[":is(ol, ul) :is(ol, ul) ol",""],["li:after(div)","","0"],["p:after-sibling(h1)","","0"],["a:before(h1)","","0"],["p:before-sibling(p.p2)","","0"],["div:has-sibling(footer)","","0"],["form:has-parent(nav)","","0"],["input:has-ancestor(nav)","","0"],["p:contains('Test')","contains text","0"],["p:icontains('content')","","0 2"],["p:starts-with(Test)","","0"],["p:istarts-with('TEST')","","0 2"],["p:ends-with('tent.')","","0"],["p:iends-with('TENT.')","","0 2"],["ul>li:first","the first element","0"],["ul>li:first(2)","the first n elements","0"],["ul>li:last","the last element","0"],["ul>li:last(2)","the last n elements","0"],["li:nth(5)","element equal to n","0"],["li:eq(4)","element equal to n","0"],["li:gt(3)","elements greater than n","0"],["li:lt(4)","elements lesser than n","0"],["li:skip(4)","skip elements lesser than n","0"],["li:skip-first","skips the first element","0"],["li:skip-first(2)","skips the first n elements","0"],["li:skip-last","skips the last element","0"],["li:skip-last(2)","skips the last n elements","0"],["li:limit(5)","from to n inclusive","0"],["li:range(2, 5)","from n1 to n2 inclusive","0"],[":dir(ltr)","not handles auto"],["p:lang(en)",""],["a:external",""],["*:empty","empty elements"],[":checked",""],[":enabled",""],[":disabled",""],[":target",""],[":text",""],["$$'-child'",""],["li:first-child",""],["li:last-child",""],["p:only-child",""],["li:nth-child(3)",""],["li:nth-child(3n+2)",""],["li:nth-last-child(even)",""],["li:nth-last-child(3n+2 of .noted)",""],["$$'-of-type'","","Not works with universal selector '*'"],["div p:first-of-type",""],["div>p:last-of-type",""],["div p:only-of-type",""],["li:nth-of-type(3)",""],["li:nth-of-type(-3n+2)",""],["li:nth-last-of-type(odd)",""],["li:nth-last-of-type(3n+2)",""],["$$Spaces, comments",""],["ul   >   li:not (  .c1  )",""],["li:nth-child  (  -3n  +  4  )   ",""],["li !> ul:first /*parent*/\n!^   li      /*last child*/\n!+   li  /*previous siblings*/","A comments demo"],["$$namespaces","Not works in browsers",""],["|*","all elements without a namespace"],["*|*","all elements"],["ns|*","all elements in namespace ns"],["ns|p",""],["div ns|p",""],["div |*",""],["div *|*",""],["div ns|*",""],["div ns|p",""],["*:not(ns|p)",""],["a[xlink|href='...']","attributes with namespace"]],classAttributes=[["$$Class attribute","Standard XPath behavior","It deals with the whole className string"],["div[class='content']","className is equal"],["div[class='content' i]","className is equal ignore case"],["div[class^='cont']","className starts with"],["div[class$='tent']","className ends with"],["div[class~='content']","contains class; the same as 'div.content'"],["div[class*='ten']","className contains within"],["div[class|='content']","className is equal or followed by a hyphen"]],autocompleteCSS=[":after()",":after-sibling()",":any-link",":before()",":before-sibling()",":checked",":contains()",":dir()",":disabled",":empty",":enabled",":ends-with()",":eq()",":external",":first",":first()",":first-child",":first-of-type",":gt()",":has()",":has-ancestor()",":has-parent()",":has-sibling()",":icontains()",":iends-with()",":is()",":istarts-with()",":last",":lang()",":last()",":last-child",":last-of-type",":limit()",":lt()",":matches()",":not()",":nth()",":nth-child()",":nth-last-child()",":nth-last-of-type()",":nth-of-type()",":only-child",":only-of-type",":range()",":root",":selected",":skip()",":skip-first",":skip-first()",":skip-last",":skip-last()",":starts-with()",":target",":text","even","odd"],autocompleteXPath=["ancestor::","ancestor-or-self::","attribute::","child::","descendant::","descendant-or-self::","namespace::","following::","following-sibling::","parent::","preceding::","preceding-sibling::","self::","and","boolean()","ceiling()","concat()","contains()","count()","false()","floor()","id()","lang()","last()","local-name()","mod","name()","namespace-uri()","node()","normalize-space()","not()","or","position()","processing-instruction()","round()","starts-with()","string()","string-length()","substring()","substring-after()","substring-before()","sum()","text()","translate()","true()"],htmlAttributes=["@abbr","@accept","@accesskey","@action","@actuate","@align","@alink","@allowfullscreen","@allowpaymentrequest","@alt","@arcrole","@aria-","@async","@autocomplete","@autofocus","@autoplay","@axis","@background","@bgcolor","@body","@border","@cellpadding","@cellspacing","@challenge","@charset","@checked","@cite","@class","@clear","@codetype","@color","@cols","@colspan","@command","@compact","@content","@contenteditable","@contextmenu","@controls","@coords","@crossorigin","@data-","@datetime","@declare","@default","@defer","@dir","@direction","@dirname","@disabled","@download","@draggable","@dropzone","@encoding","@enctype","@event","@face","@for","@form","@formaction","@formenctype","@formmethod","@formnovalidate","@formtarget","@frame","@frameborder","@headers","@height","@hidden","@high","@href","@hreflang","@icon","@id","@integrity","@ismap","@keytype","@kind","@label","@lang","@language","@link","@list","@longdesc","@loop","@low","@manifest","@marginheight","@marginwidth","@max","@maxlength","@media","@mediagroup","@method","@min","@minlength","@multiple","@muted","@name","@nohref","@nonce","@noresize","@noshade","@novalidate","@nowrap","@open","@optimum","@pattern","@ping","@placeholder","@poster","@preload","@prompt","@radiogroup","@readonly","@referrerpolicy","@rel","@required","@rev","@reversed","@role","@rows","@rowspan","@rules","@sandbox","@scheme","@scope","@scoped","@scrolling","@seamless","@selected","@shape","@show","@size","@sizes","@slot","@space","@span","@spellcheck","@src","@srcdoc","@srclang","@srcset","@standalone","@start","@step","@style","@summary","@tabindex","@target","@text","@title","@translate","@type","@typemustmatch","@usemap","@valign","@value","@valuetype","@version","@vlink","@width","@window","@wrap"],htmlTags=["abbr","acronym","address","applet","area","article","aside","audio","base","basefont","bdi","bdo","bgsound","big","blink","blockquote","body","br","button","canvas","caption","center","cite","code","col","colgroup","command","comment","content","data","datalist","dd","del","details","dfn","dialog","dir","div","dl","dt","em","embed","fencedframe","fieldset","figcaption","figure","font","footer","form","frame","frameset","h1","h2","h3","h4","h5","h6","head","header","hgroup","hr","html","iframe","image","img","input","ins","isindex","kbd","keygen","label","legend","li","link","listing","main","map","mark","marquee","math","menu","menuitem","meta","meter","multicol","nobr","noembed","noframes","noscript","object","ol","optgroup","option","output","p","param","picture","plaintext","pre","progress","rb","rp","rt","rtc","ruby","samp","script","search","section","select","slot","small","source","spacer","span","strike","strong","style","sub","summary","sup","svg","table","tbody","td","template","textarea","tfoot","th","thead","time","title","tr","track","tt","u","ul","var","video","wbr","xmp"];
+const defaultHtmls={name:"Built-in HTMLs",page:{content:'<html lang="en">\n<head>\n<meta charset="utf-8" />\n<link rel="icon" type="image/png" href="static/favicon.png">\n<link rel="stylesheet" href="static/main.css">\n<script src="static/main.js"><\/script>\n</head>\n<body>\n<header class="top-nav"> </header>\n<div class="search-form">\n<form class="search" action="../$search.html" method="get">\n<input id="q" type="text" required placeholder="Search ..." />\n<input class="submit" type="submit" />\n</form>\n</div>\n<div id="wrapper" lang="en">\n<div class="nav-wrap">\n<nav class="sidebar">\n<form class="nav-filter">\n<span class="filter-img"></span>\n<input id="fq" type="text" placeholder=". filter ... " />\n</form>\n<h4>Toc header</h4>\n<div class="toc">\n<ul>\n<li><a href="url1.html">Item 1</a></li>\n<li><a href="url2.html">Item 2</a></li>\n<li><a href="url3.html">Item 3</a></li>\n<li><a href="url4.html">Item 4</a></li>\n</ul>\n</div>\n</nav>\n</div>\n<div class="content-wrap">\n<div class="content main">\n<form class="search-bar"></form>\n<section title="Section one">\n<article>\n<h1>Header</h1>\n<p class="p1">Paragraph one.</p>\n<p class="p2">Paragraph two.</p>\n<p>Test content.</p>\n<div dir="rtl">\n<span>test rtl</span>\n<div dir="ltr">\n<span>test1 ltr</span>\n<div dir="rtl">עִבְרִית rtl rtl<span>test2 rtl</span></div>\n<span>test3 ltr</span>\n<div dir="rtl"><span>test6 rtl</span></div>\n<div><span>test7 ltr</span></div>\n</div>\n<span>test8 rtl</span>\n</div>            </article>\n</section>\n<section title="Section two">\n<div>\n<label><input type="checkbox" checked value="">checkbox</label>\n<label><input type="radio" value="" checked> radio 1</label>\n<label><input type="radio" value=""> radio 2</label>\n</div>\n<div>\n<p lang=\'nl\'>Dit is een Nederlandse paragraaf.</p>\n<p lang=\'de\'>Dies ist ein deutscher Satz.</p> \n<p lang=\'en\'>This is an English sentence.</p> \n<p lang=\'en-GB\'>Matching the language range of English.</p> \n<p lang=\'fr\'>Ceci est un paragraphe français.</p>\n<p lang=\'fr-Latn-FR\'>Ceci est un paragraphe français en latin.</p>\n</div>\n</section>\n</div>\n<footer>\n<span>Footer</span>\n<a href="https://#">link</a>\n</footer>\n</div>\n</div>\n</body>\n</html>'},table:{content:'<div>\n<table class="t1">\n<tbody><tr>\n<td>1.1</td>\n<td>1.2</td>\n<td>1.3</td>\n</tr>\n<tr>\n<td>2.1</td>\n<td>2.2</td>\n<td>2.3</td>\n</tr>\n<tr>\n<td>3.1</td>\n<td>3.2</td>\n<td>3.3</td>\n</tr>\n<tr>\n<td>4.1</td>\n<td>4.2</td>\n<td>4.3</td>\n</tr>\n</tbody></table>\n</div>'},descriptionList:{content:"<div>\n<dl>\n<dt>First definition term</dt>\n<dd>First definition</dd>\n<dt>Second definition term</dt>\n<dd>Second definition</dd>\n<dt>Third definition term</dt>\n<dd>Third definition</dd>\n<dt>Fourth definition term</dt>\n<dd>Fourth definition</dd>\n<dt>Fifth definition term</dt>\n<dd>Fifth definition</dd>\n<dt>Sixth definition term</dt>\n<dd>Sixth definition</dd>\n</dl>\n</div>"},unorderedList:{content:'<ul>\n<li class="noted">Diego</li>\n<li>Shilpa</li>\n<li class="noted">Caterina</li>\n<li>Jayla</li>\n<li>Tyrone</li>\n<li>Ricardo</li>\n<li class="noted">Gila</li>\n<li>Sienna</li>\n<li>Titilayo</li>\n<li class="noted">Lexi</li>\n<li>Aylin</li>\n<li>Leo</li>\n<li>Leyla</li>\n<li class="noted">Bruce</li>\n<li>Aisha</li>\n<li>Veronica</li>\n<li class="noted">Kyouko</li>\n<li>Shireen</li>\n<li>Tanya</li>\n<li class="noted">Marlene</li>\n</ul>'},toc:{content:'<ul>\n<li>\n<div class="collapsed"></div>\n<span>Header</span>\n<ul style="display:none;">\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n<li>\n<div class="collapsed"></div>\n<span>Subheader</span>\n<ul style="display:none;">\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n</ul>\n</li>\n</ul>\n</li>\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n<li><a href="#">Item </a></li>\n</ul>'},nth:{content:"<div>\n\t<p class='c1'>1.</p>\n\t<h2>h2.</h2>\n\t<p class='c2'>2.</p>\n\t<p class='c3'>3.</p>\n\t<h2>h2.</h2>\n\t<p class='c4'>4</p>\n\t<p class='c5'>5</p>\n\t<p class='c6'>6</p>\n</div>\n\n<div id=div1>\n\t<p>The first p.</p>\n\t<p>The second p.</p>\n\t<p class=nth>The third p.</p>\n\t<p>The fourth p.</p>\n\n\t<p>The first p.</p>\n\t<p class=nth>The sixth p.</p>\n\t<p>The seventh p.</p>\n\t<p>The eighth p.</p>\n\n\t<p>The ninth p.</p>\n\t\x3c!-- <p>The tenth p.</p> --\x3e\n</div>\n<hr>\n\n<div id=first>\n\t<p>The first p.</p>\n\t<p>The second p.</p>\n\t<p class=nth>The third p.</p>\n\t<p>The fourth p.</p>\n\n\t<p>The first p.</p>\n\t<p class=nth>The sixth p.</p>\n\t<p>The seventh p.</p>\n\t<p>The eighth p.</p>\n\n\t<p>The ninth p.</p>\n\t<p>The tenth p.</p>\n\t<p>The eleventh p.</p>\n\t<p>The twelfth p.</p>\n\n<p class='c4'>4</p>\n\t<p class='c5'>5</p>\n\t<p class='c6'>6</p>\n</div>\n\n<hr>\n\n<div id=second>\n<p>The first p.</p>\n\t<p>The second p.</p>\n\t<p>The third p.</p>\n\t<p>The fourth p.</p>\n\n\t<p>The first p.</p>\n\t<p>The sixth p.</p>\n\t<p>The seventh p.</p>\n\t<p>The eighth p.</p>\n\t<b>The B element.</b>\n\n\t<p>The ninth p.</p>\n\t<p>The tenth p.</p>\n\t<p>The eleventh p.</p>\n\t<p>The twelfth p.</p>\n\n\t<p>The 1 p.</p>\n\t<b>The B element.</b>\n\t<p>The 2 p.</p>\n\t<p>The 3 p.</p>\n\t<b>The B element.</b>\n\t<b>The B element.</b>\n</div>\n\n<div id=third>\n\t<p>The 1 p.</p>\n\t<b>The B element.</b>\n\t<p>The 2 p.</p>\n\t<p>The 3 p.</p>\n\t<b>The B element.</b>\n\t<b>The B element.</b>\n\t<b>The B element.</b>\n</div>"}},exampleSelectors=[["$$Combinators",""],["ul > li","child"],["li !> ul","parent","0"],["h1 + p","adjacent following sibling"],["div !+ p","adjacent preceding sibling","0"],["div ^ p","first child"],["div !^ p","last child","0"],["div ~ p","following sibling"],["div !~ p","preceding sibling","0"],["p ! div","ancestors","0"],["$$Class, id",""],["div.content","contains class"],["#wrapper","id"],["$$Class attribute non-standard","Non-standard XPath behavior","It deals with individual classes instead of the whole className string"],["div[class='content']","contains class","","N"],["div[class!='content']","not contains class","","N"],["div[class='content' i]","contains class ignore case","1 2","N"],["div[class^='cont']","class starts with","","N"],["div[class$='tent']","class ends with","","N"],["div[class~='content']","contains class","","N"],["div[class*='ten']","contains class containing substring","","N"],["div[class|='content']","contains exactly or followed by a hyphen","","N"],["$$Attributes",""],["section[title='Section one']","equal"],["section[title!='Section one']","not equals"],["section[title^='Sect']","starts with"],["section[title$='two']","ends with"],["section[title*='on on']","contains within"],["*[lang|=EN]","exactly or followed by a hyphen"],["$$Attributes ignore case",""],["section[title='section one' i]","","1 2"],["section[title^='sect' i]","","1 2"],["section[title$='TWO' i]","","1 2"],["section[title~='One' i]","","1 2"],["section[title*='on On' i]","","1 2"],["$$Pseudo-classes",""],["div:not(.toc)",""],["div:not(:has(nav))",""],["div:has(h1, h2)",""],["div:has(.main)",""],["a:is([name], [href])",""],[":is(ol, ul) :is(ol, ul) ol",""],["li:after(div)","","0"],["p:after-sibling(h1)","","0"],["a:before(h1)","","0"],["p:before-sibling(p.p2)","","0"],["div:has-sibling(footer)","","0"],["form:has-parent(nav)","","0"],["input:has-ancestor(nav)","","0"],["p:contains('Test')","contains text","0"],["p:icontains('content')","","0 2"],["p:starts-with(Test)","","0"],["p:istarts-with('TEST')","","0 2"],["p:ends-with('tent.')","","0"],["p:iends-with('TENT.')","","0 2"],["ul>li:first","the first element","0"],["ul>li:first(2)","the first n elements","0"],["ul>li:last","the last element","0"],["ul>li:last(2)","the last n elements","0"],["li:nth(5)","element equal to n","0"],["li:eq(4)","element equal to n","0"],["li:gt(3)","elements greater than n","0"],["li:lt(4)","elements lesser than n","0"],["li:skip(4)","skip elements lesser than n","0"],["li:skip-first","skips the first element","0"],["li:skip-first(2)","skips the first n elements","0"],["li:skip-last","skips the last element","0"],["li:skip-last(2)","skips the last n elements","0"],["li:limit(5)","from to n inclusive","0"],["li:range(2, 5)","from n1 to n2 inclusive","0"],[":dir(ltr)","not handle auto"],["p:lang(en)",""],["a:external",""],["*:empty","empty elements"],[":checked",""],[":enabled",""],[":disabled",""],[":target",""],[":text",""],["$$'-child'",""],["li:first-child",""],["li:last-child",""],["p:only-child",""],["li:nth-child(3)",""],["li:nth-child(3n+2)",""],["li:nth-last-child(even)",""],["li:nth-last-child(3n+2 of .noted)",""],["$$'-of-type'","","Not works with universal selector '*'"],["div p:first-of-type",""],["div>p:last-of-type",""],["div p:only-of-type",""],["li:nth-of-type(3)",""],["li:nth-of-type(-3n+2)",""],["li:nth-last-of-type(odd)",""],["li:nth-last-of-type(3n+2)",""],["$$Spaces, comments",""],["ul   >   li:not (  .c1  )",""],["li:nth-child  (  -3n  +  4  )   ",""],["li !> ul:first /*parent*/\n!^   li      /*last child*/\n!+   li  /*previous siblings*/","A comments demo"],["$$namespaces","Not works in browsers",""],["|*","all elements without a namespace"],["*|*","all elements"],["ns|*","all elements in namespace ns"],["ns|p",""],["div ns|p",""],["div |*",""],["div *|*",""],["div ns|*",""],["div ns|p",""],["*:not(ns|p)",""],["a[xlink|href='...']","attributes with namespace"]],classAttributes=[["$$Class attribute","Standard XPath behavior","It deals with the whole className string"],["div[class='content']","className is equal"],["div[class='content' i]","className is equal ignore case"],["div[class^='cont']","className starts with"],["div[class$='tent']","className ends with"],["div[class~='content']","contains class; the same as 'div.content'"],["div[class*='ten']","className contains within"],["div[class|='content']","className is equal or followed by a hyphen"]],autocompleteCSS=[":after()",":after-sibling()",":any-link",":before()",":before-sibling()",":checked",":contains()",":dir()",":disabled",":empty",":enabled",":ends-with()",":eq()",":external",":first",":first()",":first-child",":first-of-type",":gt()",":has()",":has-ancestor()",":has-parent()",":has-sibling()",":icontains()",":iends-with()",":is()",":istarts-with()",":lang()",":last",":last()",":last-child",":last-of-type",":limit()",":lt()",":matches()",":not()",":nth()",":nth-child()",":nth-last-child()",":nth-last-of-type()",":nth-of-type()",":only-child",":only-of-type",":range()",":root",":selected",":skip()",":skip-first",":skip-first()",":skip-last",":skip-last()",":starts-with()",":target",":text","even","odd","ltr","rtl"],autocompleteXPath=["ancestor::","ancestor-or-self::","attribute::","child::","descendant::","descendant-or-self::","namespace::","following::","following-sibling::","parent::","preceding::","preceding-sibling::","self::","and","boolean()","ceiling()","concat()","contains()","count()","false()","floor()","id()","lang()","last()","local-name()","mod","name()","namespace-uri()","node()","normalize-space()","not()","or","position()","processing-instruction()","round()","starts-with()","string()","string-length()","substring()","substring-after()","substring-before()","sum()","text()","translate()","true()"],htmlAttributes=["@abbr","@accept","@accesskey","@action","@actuate","@align","@alink","@allowfullscreen","@allowpaymentrequest","@alt","@arcrole","@aria-","@async","@autocomplete","@autofocus","@autoplay","@axis","@background","@bgcolor","@body","@border","@cellpadding","@cellspacing","@challenge","@charset","@checked","@cite","@class","@clear","@codetype","@color","@cols","@colspan","@command","@compact","@content","@contenteditable","@contextmenu","@controls","@coords","@crossorigin","@data-","@datetime","@declare","@default","@defer","@dir","@direction","@dirname","@disabled","@download","@draggable","@dropzone","@encoding","@enctype","@event","@face","@for","@form","@formaction","@formenctype","@formmethod","@formnovalidate","@formtarget","@frame","@frameborder","@headers","@height","@hidden","@high","@href","@hreflang","@icon","@id","@integrity","@ismap","@keytype","@kind","@label","@lang","@language","@link","@list","@longdesc","@loop","@low","@manifest","@marginheight","@marginwidth","@max","@maxlength","@media","@mediagroup","@method","@min","@minlength","@multiple","@muted","@name","@nohref","@nonce","@noresize","@noshade","@novalidate","@nowrap","@open","@optimum","@pattern","@ping","@placeholder","@poster","@preload","@prompt","@radiogroup","@readonly","@referrerpolicy","@rel","@required","@rev","@reversed","@role","@rows","@rowspan","@rules","@sandbox","@scheme","@scope","@scoped","@scrolling","@seamless","@selected","@shape","@show","@size","@sizes","@slot","@space","@span","@spellcheck","@src","@srcdoc","@srclang","@srcset","@standalone","@start","@step","@style","@summary","@tabindex","@target","@text","@title","@translate","@type","@typemustmatch","@usemap","@valign","@value","@valuetype","@version","@vlink","@width","@window","@wrap"],htmlTags=["abbr","acronym","address","applet","area","article","aside","audio","base","basefont","bdi","bdo","bgsound","big","blink","blockquote","body","br","button","canvas","caption","center","cite","code","col","colgroup","command","comment","content","data","datalist","dd","del","details","dfn","dialog","dir","div","dl","dt","em","embed","fencedframe","fieldset","figcaption","figure","font","footer","form","frame","frameset","h1","h2","h3","h4","h5","h6","head","header","hgroup","hr","html","iframe","image","img","input","ins","isindex","kbd","keygen","label","legend","li","link","listing","main","map","mark","marquee","math","menu","menuitem","meta","meter","multicol","nobr","noembed","noframes","noscript","object","ol","optgroup","option","output","p","param","picture","plaintext","pre","progress","rb","rp","rt","rtc","ruby","samp","script","search","section","select","slot","small","source","spacer","span","strike","strong","style","sub","summary","sup","svg","table","tbody","td","template","textarea","tfoot","th","thead","time","title","tr","track","tt","u","ul","var","video","wbr","xmp"];
 
 /*!****************************
 * playground.js
 ******************************/
-!function(e,t){"function"==typeof define&&define.amd?define([],t(e)):"object"==typeof exports?module.exports=t(e):e.initConverter=t(e)}("undefined"!=typeof global?global:this.window||this.global,(function(e){"use strict";const t={selectors:[],standard:!1,lowercase:"",uppercase:"",html:"",showHtmlBox:!1,save:function(){this.saveValue("selectors",JSON.stringify(t))},load:function(){const e=this.loadValue("selectors");if(e){const t=JSON.parse(e);t&&(this.selectors=t.selectors,this.html=t.html,this.showHtmlBox=t.showHtmlBox)}},loadValue:function(e){try{return localStorage.getItem(e)}catch(e){}return null},saveValue:function(e,t){try{t!==localStorage.getItem(e)&&localStorage.setItem(e,t)}catch(e){}}},n=document.getElementById("debug"),o=document.getElementById("up-btn"),c=document.getElementById("down-btn"),s=document.getElementById("css-box"),r=(document.getElementsByTagName("body")[0],document.getElementById("convert")),l=document.getElementById("clear-css"),a=document.getElementById("axis"),i=document.getElementById("console-use"),d=document.getElementById("selector-history"),u=document.getElementById("lowercase"),m=document.getElementById("to-lowercase"),h=document.getElementById("uppercase"),f=document.getElementById("to-uppercase"),p=document.getElementById("xpath-box"),g=document.getElementById("copy-code"),y=document.getElementById("message-box"),E=document.querySelector("details.html"),v=document.getElementById("html-box"),b=document.getElementById("run-xpath"),x=document.getElementById("run-css"),w=document.getElementById("html-list"),I=document.getElementById("clear-html");new autoComplete(s,{suggestions:[autocompleteCSS,htmlTags,htmlAttributes.map((e=>e.replace("@","[")))],regex:/(^|[\s"'*./:=>+~^!@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,threshold:2,startsWith:!0,listItem:(e,t)=>{A(e)},debug:!n.checked}),new autoComplete(p,{suggestions:[autocompleteXPath,htmlTags,htmlAttributes],regex:/(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,threshold:2,startsWith:!0,highlight:!0,listItem:(e,t)=>{A(e)},debug:!n.checked});const L=CodeJar(s,null,{tab:"  "}),C=CodeJar(p,null,{tab:"  "}),B=CodeJar(v,null,{tab:"  "}),k={axis:".//",standard:!1,uppercaseLetters:"",lowercaseLetters:"",printError:e=>p.innerHTML='<span class="errors">'+e+"</span>"};let S=!1,H="",T=0;function A(e){const t=(e=e.querySelector("mark")||e).textContent;/^[@:[]/.test(t)&&(e.textContent=t.substr(1))}function N(){try{const e=JSON.parse(d.value);e&&(L.updateCode(e.selector),a.value=e.axis||".//",h.value=e.uppercase||"",u.value=e.lowercase||"")}catch(e){}}function M(e){p.focus(),C.recordHistory(),C.updateCode(""),e&&p.blur()}function O(e){p.focus(),C.recordHistory(),C.updateCode(e),p.blur()}function P(){y.innerHTML="",y.className="hide",new Mark(v).unmark()}function R(){P();const e=H||s.textContent.trim();if(!e)return;H="",O("");const o=a.value;k.axis=o,k.standard=i.checked,k.consoleUse=i.checked,k.debug=!!n.className||n.checked,k.uppercaseLetters=h.value.trim(),k.lowercaseLetters=u.value.trim(),k.debug=!n.checked;const{xpath:c,css:r,warning:l,error:d}=toXPath(e,k);var m;if(l&&(m=l,y.style.color="red",y.innerHTML=m.trim(),y.className=""),c&&O(i.checked?'$x("'+c+'")':c),E.hasAttribute("open")&&c){const t=function(e,t){let n,o="",c=!0,s=[],r=[];const{doc:l}=$();if(!l)return"";try{s=l.querySelectorAll(e)}catch(e){o+="Selector is not valid; ",c=!1}c&&(o+="Selector: count = "+s.length+"; ");c=!0;try{const e=l.evaluate(t,l,null,XPathResult.ORDERED_NODE_ITERATOR_TYPE,null);for(;n=e.iterateNext();)r.push(n)}catch(e){o+="XPath is not valid; ",c=!1}c&&(o+="XPath: count = "+r.length+";");if(s.length&&r.length){let e=0,t=0;for(let n=0;n<s.length;n++)s[n]===r[n]?e++:t++;t&&(o+=" Elements are <b>not reference equals</b>:<br>equals = "+e+"; not equals = "+t)}return o.replaceAll("; ",";<br>")}(e,c);X(c),t&&(y.innerHTML=t)}return d?void 0:(V(e,o),S&&(t.save(),S=!1),z(),c)}function q(e){const t=window.getSelection();return t&&e.contains(t.anchorNode)?t.toString().trim():""}function X(e,n){P();const{doc:o,htmlString:c,indexes:s}=$();if(!o)return;let r,l;try{l=o.evaluate(e,o,null,XPathResult.ORDERED_NODE_ITERATOR_TYPE,null)}catch(e){return void J(e)}const a=[];for(;r=l.iterateNext();)for(let e=0;e<s.length;e++)if(r===s[e].node){a.push(s[e].startIndex);break}B.updateCode(c),D(a,"XPath: "),t.html=c}function $(){let e=v.textContent;if(!e.trim())return{};const t=(new DOMParser).parseFromString(e,"text/html"),n=t.documentElement.outerHTML,o=function(e,t){const n=e.querySelectorAll("*"),o=[];let c=0;return n.forEach((e=>{const n=e.outerHTML,s=t.indexOf(n,c);-1!==s&&(o.push({node:e,startIndex:s}),c=s+3)})),o}(t,n);return{doc:t,htmlString:n,indexes:o}}function D(e,t){const o=e.length;if(_(t+"count = "+o),!o)return;const c=new Mark(v),s=/<[A-Za-z][\w:-]*(?:[^>"']+|"[^"]*"|'[^']*')*>/y;let r=0;if(s.lastIndex=e[r],c.unmark().markRegExp(s,{acrossElements:!0,each:()=>{++r<o?s.lastIndex=e[r]:s.lastIndex=1/0},done:(e,t)=>{t!==o&&_("main.js: Indexes count "+o+" !== "+t+" number of highlighted elements")}}),!n.checked)return;const l=v.querySelector("mark");l&&(l.scrollIntoView({block:"center"}),document.getElementById("demo")?.scrollIntoView(),scrollBy(0,-10))}function J(e){y.style.color="red",y.innerHTML=e.message||"Error",y.className="",console.error(e)}function _(e){y.style.color="black ",y.innerHTML=e,y.className=""}function V(e,n){e=e.replace(/'/g,"&#39;");const o=t.selectors.length;t.selectors=t.selectors.filter((t=>t.selector&&t.selector!==e)),o===t.selectors.length&&(S=!0);const c=h.value.trim(),s=u.value.trim();t.selectors.unshift({selector:e,axis:n,lowercase:s,uppercase:c}),t.selectors.length>30&&t.selectors.pop()}function z(){let e="";t.selectors.forEach((t=>{if(!t.selector)return!0;e+="<option value='"+JSON.stringify(t)+"'>"+t.selector+"</option>"})),d.innerHTML=e}function U(e,t){const n=['<a href="#info-1">[1]</a> ','<a href="#info-2">[2]</a> ','<a href="#info-3">[3]</a> '],o=[];return o.push('<table><thead><tr><th>Description</th><th>CSS</th><th class="thead-xpath">XPath</th></tr></thead><tbody>'),e.forEach((e=>{if(/^\$\$/.test(e[0])){let t=e[0].substring(2);const n=t.replace(/\W+/g,"_").toLowerCase();t=t.replace(" non-standard",""),o.push('<tr class="group"><td id="',n,'">',t,"</td><td>"+(e[1]||"")+'</td><td><span class="example-info">'+(e[2]||"")+"</span></td></tr>")}else{let c=e[2]?e[2].split(" ").map((e=>n[e])).join(""):"";k.standard=void 0===e[3];let{xpath:s,css:r,warning:l,error:a}=toXPath(e[0],k);if(s){s=s.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g,"ABC...").replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g,"abc...");let n=e[1]?e[1].replace(/ (n\d?)(?= |$)/g," <i>$1</i>"):" - ";o.push('<tr><td class="name">',c,n,"</td>"),t?o.push('<td class="css"><code class="css" data-selector="',e[0],'">',e[0].replace(/ +/g,"&nbsp;"),"</code></td>"):o.push('<td class="css"><code>',e[0].replace(/ +/g,"&nbsp;"),"</code></td>"),o.push('<td><code class="xpath">',s,"</code></td></tr>")}a&&console.log(e[0],a)}})),o.push("</tbody></table>"),o.join("")}"file:"===location.protocol&&(n.className=""),async function(){await async function(){return new Promise((e=>{const t=document.getElementById("examples");t.innerHTML=U(exampleSelectors,!0),t.querySelectorAll("code.css").forEach((e=>{e.addEventListener("click",(function(e){!function(e){l.click();const t=e.getAttribute("data-selector");var n;n=t,s.focus(),L.recordHistory(),L.updateCode(n),s.blur(),e.classList.add("visited"),scrollBy(0,-90)}(this)})),e.addEventListener("mouseover",(function(e){!function(e){T=e.getBoundingClientRect().top+window.scrollY}(this)}))})),document.getElementById("attribute-table").innerHTML=U(classAttributes),e()}))}()}(),function(){let e='<option value="">'+defaultHtmls.name+"</option>";for(const e in defaultHtmls)t(e,defaultHtmls);function t(t,n){if("name"!==t){let n=t.replace(/^[a-z]/,(e=>e.toUpperCase())).replace(/[a-z](?=[A-Z])/g,"$& ");n=n.replace(/( [A-Z])([a-z]+)/g,((e,t,n)=>t.toLowerCase()+n)),e+=`<option value="${t}">${n}</option>`}}w.innerHTML=e}(),t.load(),t.selectors&&t.selectors.length&&(z(),N(d.value)),t.html&&t.html.length&&(B.updateCode(t.html),t.showHtmlBox&&E.setAttribute("open",!0)),L.onUpdate((()=>{S=!0})),B.onUpdate((()=>{S=!0})),window.addEventListener("beforeunload",(function(e){if(S){const e=s.innerText.trim();e&&V(e,a.value);const n=v.textContent;n.trim()&&(t.html=n),t.save()}})),w.addEventListener("change",(function(e){const t=defaultHtmls[this.value]?.content;t&&(v.focus(),B.updateCode(function(e){try{return html_beautify(e)}catch(t){return e}}(t)),B.recordHistory(),v.blur())})),d.addEventListener("change",(function(e){N(this.value),setTimeout((function(){R()}),100)})),s.addEventListener("paste",(function(e){setTimeout((function(){R()}),100)})),n.addEventListener("click",(function(){R()})),i.addEventListener("click",(function(){R()})),g.addEventListener("click",(function(){document.getSelection().selectAllChildren(this.parentNode),document.execCommand("copy"),document.getSelection().removeAllRanges()})),a.addEventListener("change",(function(e){R()})),m.addEventListener("click",(function(){const e=h.value.trim();e&&(u.value=e.toLowerCase())})),f.addEventListener("click",(function(){const e=u.value.trim();e&&(h.value=e.toUpperCase())})),o.addEventListener("click",(function(){window.scrollTo(0,0)})),c.addEventListener("click",(function(){const e=window.pageYOffset,t=e+screen.height-150,n=screen.height/7;0===T||T<t&&T>e?window.scrollTo(0,1e4):(window.scrollTo(0,T),window.scrollBy(0,-n))})),r.addEventListener("click",(function(){H=q(s),P(),M(!0),setTimeout((function(){R()}),10)})),E.addEventListener("toggle",(function(){const e=this.hasAttribute("open");t.showHtmlBox=e,S=!0,P(),e&&(v.focus(),B.recordHistory(),v.textContent.trim()||B.updateCode(defaultHtmls.page.content),v.blur())})),b.addEventListener("click",(function(){let e=q(p)||p.textContent.trim();if(e)X(e);else{if(!s.textContent.trim())return;R()}})),x.addEventListener("click",(function(){!function(){P();const e=q(s)||s.innerText.trim();if(!e)return;const{doc:n,htmlString:o,indexes:c}=$();if(!n)return;let r;try{r=n.querySelectorAll(e)}catch(e){return void J(e)}const l=[];for(let e=0;e<r.length;e++)for(let t=0;t<c.length;t++)if(r[e]===c[t].node){l.push(c[t].startIndex);break}B.updateCode(o),D(l,"CSS: "),t.html=o}()})),l.addEventListener("click",(function(){var e;s.focus(),L.recordHistory(),L.updateCode(""),e&&s.blur(),M(!0),P(),s.focus(),S=!0})),I.addEventListener("click",(function(){v.focus(),B.recordHistory(),B.updateCode(""),S=!0}))}));
+!function(e,t){"function"==typeof define&&define.amd?define([],t(e)):"object"==typeof exports?module.exports=t(e):e.initConverter=t(e)}("undefined"!=typeof global?global:this.window||this.global,(function(e){"use strict";const t={selectors:[],standard:!1,lowercase:"",uppercase:"",html:"",showHtmlBox:!1,save:function(){this.saveValue("selectors",JSON.stringify(t))},load:function(){const e=this.loadValue("selectors");if(e){const t=JSON.parse(e);t&&(this.selectors=t.selectors,this.html=t.html,this.showHtmlBox=t.showHtmlBox)}},loadValue:function(e){try{return localStorage.getItem(e)}catch(e){}return null},saveValue:function(e,t){try{t!==localStorage.getItem(e)&&localStorage.setItem(e,t)}catch(e){}}},n=document.getElementById("debug"),o=document.getElementById("up-btn"),c=document.getElementById("down-btn"),s=document.getElementById("css-box"),r=(document.getElementsByTagName("body")[0],document.getElementById("convert")),l=document.getElementById("clear-css"),a=document.getElementById("axis"),i=document.getElementById("translate"),d=document.getElementById("selector-history"),u=document.getElementById("lowercase"),m=document.getElementById("to-lowercase"),h=document.getElementById("uppercase"),f=document.getElementById("to-uppercase"),p=document.getElementById("console-use"),g=document.getElementById("xpath-box"),y=document.getElementById("copy-code"),E=document.getElementById("message-box"),v=document.querySelector("details.html"),b=document.getElementById("html-box"),x=document.getElementById("run-xpath"),w=document.getElementById("run-css"),I=document.getElementById("html-list"),L=document.getElementById("clear-html");new autoComplete(s,{suggestions:[autocompleteCSS,htmlTags,htmlAttributes.map((e=>e.replace("@","[")))],regex:/(^|[\s"'*./:=>+~^!@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,threshold:2,startsWith:!0,listItem:(e,t)=>{M(e)},debug:!n.checked}),new autoComplete(g,{suggestions:[autocompleteXPath,htmlTags,htmlAttributes],regex:/(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,threshold:2,startsWith:!0,highlight:!0,listItem:(e,t)=>{M(e)},debug:!n.checked});const C=CodeJar(s,null,{tab:"  "}),k=CodeJar(g,null,{tab:"  "}),B=CodeJar(b,null,{tab:"  "}),S={axis:".//",standard:!1,uppercaseLetters:"",lowercaseLetters:"",printError:e=>g.innerHTML='<span class="errors">'+e+"</span>"};let H=!1,T=!1,A="",N=0;function M(e){const t=(e=e.querySelector("mark")||e).textContent;/^[@:[]/.test(t)&&(e.textContent=t.substr(1))}function O(e){try{return html_beautify(e)}catch(t){return e}}function P(){try{const e=JSON.parse(d.value);e&&(C.updateCode(e.selector),a.value=e.axis||".//",h.value=e.uppercase||"",u.value=e.lowercase||"")}catch(e){}}function R(e){g.focus(),k.recordHistory(),k.updateCode(""),e&&g.blur()}function q(e){g.focus(),k.recordHistory(),k.updateCode(e),g.blur()}function X(){E.innerHTML="",E.className="hide",new Mark(b).unmark()}function $(){X();const e=A||s.textContent.trim();if(!e)return;A="",q("");const o=a.value;S.axis=o,S.standard=p.checked,S.consoleUse=p.checked,S.translate=i.checked,S.postprocess=!!n.className||n.checked,S.uppercaseLetters=h.value.trim(),S.lowercaseLetters=u.value.trim(),S.debug=!n.checked;const{xpath:c,css:r,warning:l,error:d}=toXPath(e,S);var m;if(l&&(m=l,E.style.color="red",E.innerHTML=m.trim(),E.className=""),c&&q(p.checked?'$x("'+c+'")':c),v.hasAttribute("open")&&c){const t=function(e,t){let n,o="",c=!0,s=[],r=[];const{doc:l}=_();if(!l)return"";try{s=l.querySelectorAll(e)}catch(e){o+="Selector is not valid; ",c=!1}c&&(o+="Selector: count = "+s.length+"; ");c=!0;try{const e=l.evaluate(t,l,null,XPathResult.ORDERED_NODE_ITERATOR_TYPE,null);for(;n=e.iterateNext();)r.push(n)}catch(e){o+="XPath is not valid; ",c=!1}c&&(o+="XPath: count = "+r.length+";");if(s.length&&r.length){let e=0,t=0;for(let n=0;n<s.length;n++)s[n]===r[n]?e++:t++;t&&(o+=" Elements are <b>not reference equals</b>:<br>equals = "+e+"; not equals = "+t)}s.length!==r.length&&!S.translate&&/translate\(/.test(t)&&(o+="\n<b>Note</b> that <b>translate</b> checkbox is unchecked.");return o.replaceAll("; ",";<br>")}(e,c);J(c),t&&(E.innerHTML=t)}return d?void 0:(j(e,o),H&&(t.save(),H=!1),Y(),c)}function D(e){const t=window.getSelection();return t&&e.contains(t.anchorNode)?t.toString().trim():""}function J(e,n){X();const{doc:o,htmlString:c,indexes:s}=_();if(!o)return;let r,l;try{l=o.evaluate(e,o,null,XPathResult.ORDERED_NODE_ITERATOR_TYPE,null)}catch(e){return void z(e)}const a=[];for(;r=l.iterateNext();)for(let e=0;e<s.length;e++)if(r===s[e].node){a.push(s[e].startIndex);break}B.updateCode(c),V(a,"XPath: "),t.html=c}function _(){let e=b.textContent;if(!e.trim())return{};const t=(new DOMParser).parseFromString(e,"text/html"),n=t.documentElement.outerHTML,o=function(e,t){const n=e.querySelectorAll("*"),o=[];let c=0;return n.forEach((e=>{const n=e.outerHTML,s=t.indexOf(n,c);-1!==s&&(o.push({node:e,startIndex:s}),c=s+3)})),o}(t,n);return{doc:t,htmlString:n,indexes:o}}function V(e,t){const o=e.length;if(U(t+"count = "+o),!o)return;const c=new Mark(b),s=/<[A-Za-z][\w:-]*(?:[^>"']+|"[^"]*"|'[^']*')*>/y;let r=0;if(s.lastIndex=e[r],c.unmark().markRegExp(s,{acrossElements:!0,each:()=>{++r<o?s.lastIndex=e[r]:s.lastIndex=1/0},done:(e,t)=>{t!==o&&U("main.js: Indexes count "+o+" !== "+t+" number of highlighted elements")}}),!n.checked)return;const l=b.querySelector("mark");l&&(l.scrollIntoView({block:"center"}),document.getElementById("demo")?.scrollIntoView(),scrollBy(0,-10))}function z(e){E.style.color="red",E.innerHTML=e.message||"Error",E.className="",console.error(e)}function U(e){E.style.color="black ",E.innerHTML=e,E.className=""}function j(e,n){e=e.replace(/'/g,"&#39;");const o=t.selectors.length;t.selectors=t.selectors.filter((t=>t.selector&&t.selector!==e)),o===t.selectors.length&&(H=!0);const c=h.value.trim(),s=u.value.trim();t.selectors.unshift({selector:e,axis:n,lowercase:s,uppercase:c}),t.selectors.length>30&&t.selectors.pop()}function Y(){let e="";t.selectors.forEach((t=>{if(!t.selector)return!0;e+="<option value='"+JSON.stringify(t)+"'>"+t.selector+"</option>"})),d.innerHTML=e}function W(e,t){const n=['<a href="#info-1">[1]</a> ','<a href="#info-2">[2]</a> ','<a href="#info-3">[3]</a> '],o=[];return o.push('<table><thead><tr><th>Description</th><th>CSS</th><th class="thead-xpath">XPath</th></tr></thead><tbody>'),e.forEach((e=>{if(/^\$\$/.test(e[0])){let t=e[0].substring(2);const n=t.replace(/\W+/g,"_").toLowerCase();t=t.replace(" non-standard",""),o.push('<tr class="group"><td id="',n,'">',t,"</td><td>"+(e[1]||"")+'</td><td><span class="example-info">'+(e[2]||"")+"</span></td></tr>")}else{let c=e[2]?e[2].split(" ").map((e=>n[e])).join(""):"";S.standard=void 0===e[3];let{xpath:s,css:r,warning:l,error:a}=toXPath(e[0],S);if(s){s=s.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g,"ABC...").replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g,"abc...");let n=e[1]?e[1].replace(/ (n\d?)(?= |$)/g," <i>$1</i>"):" - ";o.push('<tr><td class="name">',c,n,"</td>"),t?o.push('<td class="css"><code class="css" data-selector="',e[0],'">',e[0].replace(/ +/g,"&nbsp;"),"</code></td>"):o.push('<td class="css"><code>',e[0].replace(/ +/g,"&nbsp;"),"</code></td>"),o.push('<td><code class="xpath">',s,"</code></td></tr>")}a&&console.log(e[0],a)}})),o.push("</tbody></table>"),o.join("")}"file:"===location.protocol&&(n.className=""),async function(){await async function(){return new Promise((e=>{const t=document.getElementById("examples");t.innerHTML=W(exampleSelectors,!0),t.querySelectorAll("code.css").forEach((e=>{e.addEventListener("click",(function(e){!function(e){l.click();const t=e.getAttribute("data-selector");var n;n=t,s.focus(),C.recordHistory(),C.updateCode(n),s.blur(),e.classList.add("visited"),scrollBy(0,-90)}(this)})),e.addEventListener("mouseover",(function(e){!function(e){N=e.getBoundingClientRect().top+window.scrollY}(this)}))})),document.getElementById("attribute-table").innerHTML=W(classAttributes),e()}))}()}(),function(){let e='<option value="">'+defaultHtmls.name+"</option>";for(const e in defaultHtmls)t(e,defaultHtmls);function t(t,n){if("name"!==t){let n=t.replace(/^[a-z]/,(e=>e.toUpperCase())).replace(/[a-z](?=[A-Z])/g,"$& ");n=n.replace(/( [A-Z])([a-z]+)/g,((e,t,n)=>t.toLowerCase()+n)),e+=`<option value="${t}">${n}</option>`}}I.innerHTML=e}(),t.load(),t.selectors&&t.selectors.length&&(Y(),P(d.value)),t.html&&t.html.length&&(B.updateCode(t.html),t.showHtmlBox&&v.setAttribute("open",!0)),C.onUpdate((()=>{H=!0})),B.onUpdate(((e,t)=>{H=!0,T&&t&&("paste"===t.type||"drop"===t.type)&&B.updateCode(O(e)),T=!1})),window.addEventListener("beforeunload",(function(e){if(H){const e=s.innerText.trim();e&&j(e,a.value);const n=b.textContent;n.trim()&&(t.html=n),t.save()}})),I.addEventListener("change",(function(e){const t=defaultHtmls[this.value]?.content;t&&(b.focus(),B.updateCode(O(t)),B.recordHistory(),b.blur())})),d.addEventListener("change",(function(e){P(this.value),setTimeout((function(){$()}),100)})),s.addEventListener("paste",(function(e){setTimeout((function(){$()}),100)})),n.addEventListener("click",(function(){$()})),i.addEventListener("click",(function(){$()})),p.addEventListener("click",(function(){$()})),y.addEventListener("click",(function(){document.getSelection().selectAllChildren(this.parentNode),document.execCommand("copy"),document.getSelection().removeAllRanges()})),a.addEventListener("change",(function(e){$()})),m.addEventListener("click",(function(){const e=h.value.trim();e&&(u.value=e.toLowerCase())})),f.addEventListener("click",(function(){const e=u.value.trim();e&&(h.value=e.toUpperCase())})),o.addEventListener("click",(function(){window.scrollTo(0,0)})),c.addEventListener("click",(function(){const e=window.pageYOffset,t=e+screen.height-150,n=screen.height/7;0===N||N<t&&N>e?window.scrollTo(0,1e4):(window.scrollTo(0,N),window.scrollBy(0,-n))})),r.addEventListener("click",(function(){A=D(s),X(),R(!0),setTimeout((function(){$()}),10)})),v.addEventListener("toggle",(function(){const e=this.hasAttribute("open");t.showHtmlBox=e,H=!0,X(),e&&(b.focus(),B.recordHistory(),b.textContent.trim()||B.updateCode(defaultHtmls.page.content),b.blur())})),x.addEventListener("click",(function(){let e=D(g)||g.textContent.trim();if(e)J(e);else{if(!s.textContent.trim())return;$()}})),w.addEventListener("click",(function(){!function(){X();const e=D(s)||s.innerText.trim();if(!e)return;const{doc:n,htmlString:o,indexes:c}=_();if(!n)return;let r;try{r=n.querySelectorAll(e)}catch(e){return void z(e)}const l=[];for(let e=0;e<r.length;e++)for(let t=0;t<c.length;t++)if(r[e]===c[t].node){l.push(c[t].startIndex);break}B.updateCode(o),V(l,"CSS: "),t.html=o}()})),l.addEventListener("click",(function(){var e;s.focus(),C.recordHistory(),C.updateCode(""),e&&s.blur(),R(!0),X(),s.focus(),H=!0})),L.addEventListener("click",(function(){b.focus(),B.recordHistory(),B.updateCode(""),T=H=!0}))}));
 

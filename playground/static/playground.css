@@ -33,7 +33,6 @@ a.test-results { margin-right: 60px; }
 #clear-css:hover, #clear-html:hover { background: #c0c0c0; }
 #axis { padding: 1px 5px; margin: 0 0 20px 20px; cursor: pointer; }
 
-#console-use { margin: 5px 0 20px 0; cursor: pointer; }
 #selector-history { padding: 1px 5px; font-family: Consolas, monospace; font-size: 0.875em; margin: 0 0 20px 0; max-width: 250px; cursor: pointer; }
 
 .label-saved, .label-axis, .label-console, .label-library { padding: 10px; margin: 11px 0 0 0; }
@@ -101,10 +100,13 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 /*#copy-code { position: relative; float: right; padding: 12px; margin: 0; background: url(img/copy.png) center center no-repeat; opacity: 0.6; cursor: pointer; }*/
 #copy-code:hover { opacity: 1; }
 
-.letters { margin: 20px 0 10px; }
-#uppercase, #lowercase { font-size: 1em; padding: 5px; width: 80%; height: 20px; background-color: #f8f8f8; border: #ccc 1px solid; }
-#uppercase { margin-top: 10px; }
-#to-lowercase, #to-uppercase { position: relative; height: 20px; left: 10px; bottom: 10px; cursor: pointer; }
+.letters { margin: 0; }
+.uppercase, .lowercase { width: 750px; margin-right: 20px; }
+#uppercase, #lowercase { font-size: 1em; padding: 5px; width: 100%; height: 20px; background-color: #f8f8f8; border: #ccc 1px solid; }
+#to-lowercase, #to-uppercase { position: relative; float: right; margin-top: 17px; height: 20px; left: 10px; bottom: 10px; cursor: pointer; }
+
+.console { margin: 0; float: right; }
+#console-use { margin: 0; cursor: pointer; }
 
 .table>summary { width: 300px; }
 
@@ -114,16 +116,18 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 @media only screen and (max-width: 1260px) {
 	div.buttons { display: none; }
 	#article { padding-right: 10px; }
+	.uppercase, .lowercase { width: 700px; }
 }
 
 @media only screen and (max-width: 980px) {
 	.console { display: none; }
+	.uppercase, .lowercase { width: 550px; }
 }
 
 @media screen and (max-width: 800px) {
-	/*td.thead-xpath, code.xpath, .example-info { display: none; }*/
 	td:nth-of-type(3) { display: none; }
 	#axis { margin-left: 20px; }
+	.uppercase, .lowercase { width: 420px; }
 }
 
 @media only screen and (max-width: 600px) {
@@ -131,6 +135,7 @@ code.xpath { width: 100%; font-size: 0.875em; color: #000; display: inline-block
 	#run-css { margin-left: 10px; }
 	#to-lowercase, #to-uppercase { display: none; }
 	#uppercase, #lowercase { width: 100%; }
+	.uppercase, .lowercase { width: 400px; }
 }
 
 @media only screen and (max-width: 500px) {

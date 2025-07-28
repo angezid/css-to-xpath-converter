@@ -72,7 +72,6 @@
     this.axis = '';
     this.separator = '';
     this.owner = '';
-    this.isClone = false;
     this.parentNode = node;
     this.previousNode;
     this.childNodes;
@@ -82,29 +81,22 @@
       this.childNodes.push(nd);
     };
     this.add = function () {
-      var str = '';
+      var str = '',
+        forbid = false;
       for (var i = 0; i < arguments.length; i++) {
-        str += arguments[i];
+        if (i === arguments.length - 1 && typeof arguments[i] === 'boolean') forbid = true;else str += arguments[i];
       }
       if (!this.content) this.content = [];
-      this.content.push(str);
+      this.content.push({
+        str: str,
+        forbid: forbid
+      });
     };
     this.hasAxis = function (axis) {
       if (this.axis === axis) return true;
       if (this.childNodes) {
         for (var i = 0; i < this.childNodes.length; i++) {
           if (this.childNodes[i].hasAxis(axis)) return true;
-        }
-      }
-      return false;
-    };
-    this.hasOr = function () {
-      if (this.content && this.content.some(function (str) {
-        return str === ' or ' || str === ' | ';
-      })) return true;
-      if (this.childNodes) {
-        for (var i = 0; i < this.childNodes.length; i++) {
-          if (this.childNodes[i].hasOr()) return true;
         }
       }
       return false;
@@ -120,13 +112,39 @@
       if (!this.isClone) {
         text = this.separator + this.axis + this.owner;
         if (this.content) {
-          text += this.content.join('');
+          var len = this.content.length;
+          if (len === 1) {
+            text += this.or ? this.content[0].str : '[' + removeBrackets(this.content[0].str) + ']';
+          } else {
+            var join = false;
+            for (var i = 0; i < len; i++) {
+              var obj = this.content[i],
+                str = removeBrackets(obj.str),
+                last = i + 1 === len;
+              if (!obj.forbid) {
+                text += (join ? ' and ' : '[') + str;
+                if (i + 1 < len && !this.content[i + 1].forbid) {
+                  text += last ? ']' : '';
+                  join = true;
+                } else {
+                  text += ']';
+                  join = false;
+                }
+              } else {
+                text += '[' + str + ']';
+                join = false;
+              }
+            }
+          }
         }
       }
       if (this.childNodes) {
         this.childNodes.forEach(function (node) {
           text += node.toString(text);
         });
+      }
+      function removeBrackets(str) {
+        return str.replace(/\x01\[((?:[^"'\x01\x02]|"[^"]*"|'[^']*')+)\]\x02/g, '$1');
       }
       return text;
     };
@@ -173,6 +191,7 @@
   var pseudo = "Pseudo-class ':";
   var precedingSibling = "preceding-sibling::";
   var followingSibling = "following-sibling::";
+  var ancestor = "ancestor::";
   var navWarning = "\nSystem.Xml.XPath.XPathNavigator doesn't support '*' as a namespace.";
   var opt, warning, error, uppercase, lowercase, stack, code, position, length;
   function toXPath(selector, options) {
@@ -185,6 +204,7 @@
       uppercaseLetters: '',
       lowercaseLetters: '',
       postprocess: true,
+      translate: true,
       debug: false
     }, options);
     warning = '';
@@ -197,7 +217,7 @@
       uppercase = opt.uppercaseLetters ? opt.uppercaseLetters.trim() : '';
       lowercase = opt.lowercaseLetters ? opt.lowercaseLetters.trim() : '';
       if (uppercase.length !== lowercase.length) {
-        argumentException("Custom upper and lower case letters have different length");
+        argumentException("Custom letters have different length");
       }
       normalized = normalizeWhiteSpaces(selector);
       xpath = convert(node, normalized, opt.axis, null);
@@ -241,19 +261,42 @@
           return gr || gr2 || '';
         });
       }
-      xpath = xpath.replace(/([([]| or )self::node\(\)\[((?:[^'"[\]]|"[^"]*"|'[^']*')+)\](?!\[| *\|)/g, '$1$2');
-      xpath = xpath.replace(/((?:[^'"[\]]|"[^"]*"|'[^']*')+)|\]\[(?![[(])/g, function (m, gr) {
-        return gr || ' and ';
-      });
-      xpath = xpath.replace(/\[\(((?:[^'"()]|"[^"]*"|'[^']*')+)\)]/g, function (m, gr) {
-        return '[' + gr + ']';
-      });
+      var array = xpath.split(/(?<!\| *)(\bself::node\(\)\[)/g);
+      xpath = '';
+      for (var i = 0; i < array.length; i++) {
+        if (array[i] === "self::node()[") {
+          var str = array[i + 1],
+            obj = parseArgument(0, "[" + str, true, "[", "]");
+          if (obj) {
+            var content = obj.content,
+              end = str.substr(obj.index);
+            if (!hasOr(content) && !(/^(?:\[| *\|)/.test(end) && !content.endsWith("]"))) {
+              xpath += content + end;
+              i++;
+            } else {
+              xpath += array[i];
+            }
+          }
+        } else {
+          xpath += array[i];
+        }
+      }
+      xpath = xpath.replace(/([[(])\{((?:[^'"{}]|"[^"]*"|'[^']*')+)\}([\])])/g, '$1$2$3');
+      xpath = xpath.replace(/([/:])\*\[self::(\w+)(\[(?:[^"'[\]]|"[^"]*"|'[^']*')+\])?\]/g, "$1$2$3");
       xpath = xpath.replace(/\/child::/g, '/');
     }
-    xpath = xpath.replace(/((?:[^'"{}]|"[^"]*"|'[^']*')+)|[{}]/g, function (m, gr) {
-      return gr || '';
+    xpath = xpath.replace(/(?:[^'"{}]|"[^"]*"|'[^']*')+|([{}])/g, function (m, gr) {
+      return gr ? gr === "{" ? "(" : ")" : m;
     });
     return xpath;
+  }
+  function hasOr(xpath) {
+    var reg = /(?:[^'" ]|"[^"]*"|'[^']*')+|( or )/g;
+    var rm;
+    while (rm = reg.exec(xpath)) {
+      if (rm[1]) return true;
+    }
+    return false;
   }
   function convert(rootNode, selector, axis, owner, argumentInfo) {
     checkSelector(selector);
@@ -295,7 +338,7 @@
         }
         switch (ch) {
           case '.':
-            var str = '[';
+            var str = '';
             do {
               var _parseClassValue = parseClassValue(i + 1);
               var _parseClassValue2 = _slicedToArray(_parseClassValue, 2);
@@ -307,7 +350,7 @@
                 str += " and ";
               } else break;
             } while (++i < length);
-            node.add(str + "]");
+            node.add(str);
             check = false;
             break;
           case '#':
@@ -315,7 +358,7 @@
             var _parseClassValue4 = _slicedToArray(_parseClassValue3, 2);
             i = _parseClassValue4[0];
             value = _parseClassValue4[1];
-            node.add("[@id=", normalizeQuotes(value), "]");
+            node.add("@id=", normalizeQuotes(value));
             check = false;
             break;
           case '>':
@@ -323,7 +366,7 @@
             check = true;
             break;
           case '+':
-            if (not) node = addTwoNodes(unitNode, node, precedingSibling, "*", "{[1]}");else node = addTwoNodes(unitNode, node, followingSibling, "*", "{[1]}");
+            if (not) node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");else node = addTwoNodes(unitNode, node, followingSibling, "*", "1");
             check = true;
             break;
           case '~':
@@ -331,15 +374,15 @@
             check = true;
             break;
           case '^':
-            if (not) node = addNode(unitNode, node, "parent::", notSibling(precedingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "[1]");
+            if (not) node = addNode(unitNode, node, "parent::", notSibling(precedingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "1");
             check = true;
             break;
           case '!':
             if (nextChar(i, '^')) {
-              if (not) node = addNode(unitNode, node, "parent::", notSibling(followingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "[last()]");
+              if (not) node = addNode(unitNode, node, "parent::", notSibling(followingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "last()");
               i++;
             } else if (nextChar(i, '+')) {
-              if (not) node = addTwoNodes(unitNode, node, followingSibling, "*", "{[1]}");else node = addTwoNodes(unitNode, node, precedingSibling, "*", "[1]");
+              if (not) node = addTwoNodes(unitNode, node, followingSibling, "*", "1");else node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");
               i++;
             } else if (nextChar(i, '>')) {
               if (not) node = addNode(unitNode, node, "child::");else node = newNode(unitNode, node, "parent::", "/");
@@ -366,6 +409,7 @@
           case ',':
             if (i + 1 >= length) exception();
             unitNode = newNode(rootNode, unitNode);
+            unitNode.or = true;
             unitNode.add(predicate ? " or " : " | ");
             unitNode = newNode(rootNode, unitNode);
             node = newNode(unitNode, null, argumentInfo ? "" : axis);
@@ -386,19 +430,19 @@
           case ' ':
             if (argumentInfo) {
               if (name === 'has-ancestor') {
-                node = newNode(unitNode, node, 'ancestor::', " and ");
+                node = newNode(unitNode, node, ancestor, " and ");
               } else if (['has-parent', 'before', 'after'].includes(name) || name.endsWith('-sibling')) {
                 if (!node.previousNode) {
-                  node.axis = 'ancestor::';
+                  node.axis = ancestor;
                   node.separator = '';
                 }
-                node = newNode(unitNode, node, 'ancestor::', " and ");
+                node = newNode(unitNode, node, ancestor, " and ");
               } else if (name === 'not' && node.axis === 'self::') {
-                if (node.previousNode && node.previousNode.axis === 'ancestor::') {
+                if (node.previousNode && node.previousNode.axis === ancestor) {
                   node.separator = ' and ';
                 }
                 node.and = true;
-                node = addNode(unitNode, node, "ancestor::");
+                node = addNode(unitNode, node, ancestor);
               } else {
                 node = newNode(unitNode, node, null, "//");
               }
@@ -411,10 +455,10 @@
             if (nextChar(i, '|')) {
               exception(1);
             } else {
-              var _handleNamespace = handleNamespace(i, axis, first, unitNode, node);
-              var _handleNamespace2 = _slicedToArray(_handleNamespace, 2);
-              i = _handleNamespace2[0];
-              node = _handleNamespace2[1];
+              var _parseNamespace = parseNamespace(i, axis, first, unitNode, node);
+              var _parseNamespace2 = _slicedToArray(_parseNamespace, 2);
+              i = _parseNamespace2[0];
+              node = _parseNamespace2[1];
             }
             check = false;
             break;
@@ -463,7 +507,7 @@
             break;
           case ']':
             if (!attrName) parseException("attrName is null or empty.'");
-            node.add("[@" + attrName + "]");
+            node.add("@" + attrName);
             state = State.Text;
             check = false;
             break;
@@ -514,7 +558,7 @@
           node.axis = '//';
           node = newNode(unitNode, node, "ancestor-or-self::");
           node.owner = "*";
-          node.add("[last()]");
+          node.add("last()");
         } else {
           addOwner(owner, node);
           if (_name.startsWith("nth-")) {
@@ -557,20 +601,15 @@
   function addTwoNodes(unitNode, node, axis, owner, content) {
     var nd = newNode(unitNode, node, axis, "/");
     nd.owner = owner;
-    nd.add(content);
+    nd.add(content, true);
     return newNode(unitNode, nd, "self::", "/");
   }
   function addAxes(axis, node, argumentInfo) {
     if (!axis || node.axis || axis === "self::" && !argumentInfo) return;
     var text = node.parentNode.toString().trim(),
       len = text.length;
-    if (len == 0 || / (?:or|\|)$/.test(text)) {
+    if (len == 0 || endByOr(text)) {
       node.axis = axis;
-    } else {
-      var ch = text[len - 1];
-      if (ch == ':' || ch == '|') {
-        node.axis = axis;
-      }
     }
   }
   function addOwner(owner, node) {
@@ -581,7 +620,7 @@
     } else {
       var text = node.parentNode.toString().trim();
       if (text.length) {
-        if (/(?: or|\|)$/.test(text)) {
+        if (endByOr(text)) {
           result = owner || "*";
         } else {
           var ch = text[text.length - 1];
@@ -593,7 +632,10 @@
     }
     node.owner = result;
   }
-  function handleNamespace(i, axis, first, unitNode, node) {
+  function endByOr(text) {
+    return /(?: or|\|)$/.test(text);
+  }
+  function parseNamespace(i, axis, first, unitNode, node) {
     if (node.owner == "*") {
       if (nextChar(i, '*')) {
         node.owner = "*:*";
@@ -607,7 +649,7 @@
       if (nextChar(i, '*')) {
         if (!node.owner) {
           node.owner = "*";
-          node.add("[not(contains(name(), ':'))]");
+          node.add("not(contains(name(), ':'))");
         } else {
           node.owner += ":*";
         }
@@ -627,7 +669,7 @@
     var text = node.parentNode.toString().trim();
     if (text.length === 0) {
       if (argumentInfo) axis = "";
-    } else if (/ (?:or|\|)$/.test(text)) {
+    } else if (endByOr(text)) {
       axis = "";
     } else {
       var ch = text[text.length - 1];
@@ -645,13 +687,13 @@
   function processAttribute(attrName, attrValue, operation, modifier, node) {
     if (!attrValue.trim()) {
       if (operation === "=") {
-        node.add("[@", attrName, " = '']");
+        node.add("@", attrName, " = ''");
       } else if (operation === "!=") {
-        node.add("{[not(@", attrName, ") or @", attrName, " != '']}");
+        node.add("{not(@", attrName, ") or @", attrName, " != ''}");
       } else if (operation === "|=") {
-        node.add("{[@", attrName, " = '' or starts-with(@", attrName, ", '-')]}");
+        node.add("{@", attrName, " = '' or starts-with(@", attrName, ", '-')}");
       } else {
-        node.add("[false()]");
+        node.add("false()", true);
       }
       return;
     }
@@ -665,37 +707,37 @@
     switch (operation) {
       case "=":
         if (ignoreCase) {
-          node.add("[", lowerCaseValue, " = ", toLower(attrValue), "]");
+          node.add(lowerCaseValue, " = ", toLower(attrValue));
         } else {
-          node.add("[@", attrName, "=", value, "]");
+          node.add("@", attrName, "=", value);
         }
         break;
       case "!=":
         if (ignoreCase) {
-          node.add("{[not(@", attrName, ") or ", lowerCaseValue, "!=", toLower(attrValue), "]}");
+          node.add("{not(@", attrName, ") or ", lowerCaseValue, "!=", toLower(attrValue), "}");
         } else {
-          node.add("{[not(@", attrName, ") or @", attrName, "!=", value, "]}");
+          node.add("{not(@", attrName, ") or @", attrName, "!=", value, "}");
         }
         break;
       case "~=":
         if (ignoreCase) {
-          node.add("[contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', normalize-space(", toLower(attrValue), "), ' '))]");
+          node.add("contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', normalize-space(", toLower(attrValue), "), ' '))");
         } else {
-          node.add("[contains(concat(' ', normalize-space(@", attrName, "), ' '), concat(' ', normalize-space(", value, "), ' '))]");
+          node.add("contains(concat(' ', normalize-space(@", attrName, "), ' '), concat(' ', normalize-space(", value, "), ' '))");
         }
         break;
       case "|=":
         if (ignoreCase) {
-          node.add("{[", lowerCaseValue, " = ", toLower(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLower(attrValue), ", '-'))]}");
+          node.add("{", lowerCaseValue, " = ", toLower(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLower(attrValue), ", '-'))}");
         } else {
-          node.add("{[@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), ")]}");
+          node.add("{@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), ")}");
         }
         break;
       case "^=":
         if (ignoreCase) {
-          node.add("[starts-with(", lowerCaseValue, ", ", toLower(attrValue), ")]");
+          node.add("starts-with(", lowerCaseValue, ", ", toLower(attrValue), ")");
         } else {
-          node.add("[starts-with(@", attrName, ", ", value, ")]");
+          node.add("starts-with(@", attrName, ", ", value, ")");
         }
         break;
       case "$=":
@@ -707,15 +749,15 @@
         break;
       case "*=":
         if (ignoreCase) {
-          node.add("[contains(", lowerCaseValue, ", ", toLower(attrValue), ")]");
+          node.add("contains(", lowerCaseValue, ", ", toLower(attrValue), ")");
         } else {
-          node.add("[contains(@", attrName, ", ", value, ")]");
+          node.add("contains(@", attrName, ", ", value, ")");
         }
         break;
     }
   }
   function endsWith(str, str2, str3, str4) {
-    return "[substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4 + "]";
+    return "substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4;
   }
   function processClass(attrValue, operation, ignoreCase, node) {
     var attrName = ignoreCase ? translateToLower("@class") : "@class";
@@ -739,15 +781,15 @@
       attributeValue = normalizeQuotes(attributeValue);
     }
     if (operation === "!=") {
-      node.add("{[not(", attrName, ") or not(", getClass(attrName, attributeValue), ")]}");
+      node.add("{not(", attrName, ") or not(", getClass(attrName, attributeValue), ")}");
     } else if (operation === "*=") {
-      node.add("[contains(", attrName, ", ", attributeValue, ")]");
+      node.add("contains(", attrName, ", ", attributeValue, ")");
     } else if (operation === "|=") {
       var attrValue1 = ignoreCase ? toLower(' ' + attrValue + ' ') : normalizeQuotes(' ' + attrValue + ' ');
       var attrValue2 = ignoreCase ? toLower(' ' + attrValue + '-') : normalizeQuotes(' ' + attrValue + '-');
-      node.add("{[", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), "]}");
+      node.add("{", getClass(attrName, attrValue1), " or ", getClass(attrName, attrValue2), "}");
     } else {
-      node.add("[", getClass(attrName, attributeValue), "]");
+      node.add(getClass(attrName, attributeValue));
     }
   }
   function getClass(attrName, attributeValue) {
@@ -762,70 +804,71 @@
       localName = 'local-name()';
     switch (name) {
       case "any-link":
-        node.add("[(", localName, " = 'a' or ", localName, " = 'area') and @href]");
+        node.add("(", localName, " = 'a' or ", localName, " = 'area') and @href");
         break;
       case "external":
-        node.add("{[(", localName, " = 'a' or ", localName, " = 'area') and (starts-with(@href, 'https://') or starts-with(@href, 'http://'))]}");
+        node.add("(", localName, " = 'a' or ", localName, " = 'area') and (starts-with(@href, 'https://') or starts-with(@href, 'http://'))");
         break;
       case "contains":
-        node.add("[contains(normalize-space(), ", normalizeArg(arg, name), ")]");
+        node.add("contains(normalize-space(), ", normalizeString(arg, name), ")");
         break;
       case "icontains":
-        node.add("[contains(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
+        node.add("contains(", toLower(), ", ", normalizeArg(arg), ")");
         break;
       case "empty":
-        node.add("[not(*) and not(text())]");
+        node.add("not(*) and not(text())");
         break;
       case "dir":
         val = normalizeQuotes(arg);
-        node.add("[", /ltr/.test(val) ? "not(ancestor-or-self::*[@dir]) or " : "", "ancestor-or-self::*[@dir]{[1]}[@dir = ", val, "]]");
+        var dft = /ltr/.test(val);
+        node.add(dft ? "{not(ancestor-or-self::*[@dir]) or " : "", "ancestor-or-self::*[@dir][1][@dir = ", val, "]", dft ? "}" : "");
         break;
       case "first-child":
         node.add(notSibling(precedingSibling));
         break;
       case "first":
-        if (not) node.add(arg ? getNot(precedingSibling, " <= ") : notSibling(precedingSibling));else node.add(arg ? "[position() <= " + parseNumber(arg, name) + "]" : "[1]");
+        if (not) node.add(arg ? getNot(precedingSibling, " <= ") : notSibling(precedingSibling));else node.add(arg ? "position() <= " + parseNumber(arg, name) : "1", !arg);
         break;
       case "first-of-type":
         owner = getOwner(node, name);
         node.add(notSibling(precedingSibling, owner));
         break;
       case "gt":
-        if (not) node.add(getNot(precedingSibling, " > "));else node.add("[position() > ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " > "));else node.add("position() > ", parseNumber(arg, name));
         break;
       case "lt":
-        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("[position() < ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("position() < ", parseNumber(arg, name));
         break;
       case "eq":
       case "nth":
-        if (not) node.add(getNot(precedingSibling, " = "));else node.add("[", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " = "));else node.add(parseNumber(arg, name));
         break;
       case "last-child":
         node.add(notSibling(followingSibling));
         break;
       case "only-child":
-        node.add("[not(", precedingSibling, "*) and not(", followingSibling, "*)]");
+        node.add("not(", precedingSibling, "*) and not(", followingSibling, "*)");
         break;
       case "only-of-type":
         owner = getOwner(node, name);
-        node.add("[not(", precedingSibling, owner, ") and not(", followingSibling, owner, ")]");
+        node.add("not(", precedingSibling, owner, ") and not(", followingSibling, owner, ")");
         break;
       case "text":
-        node.add("[@type='text']");
+        node.add("@type='text'");
         break;
       case "starts-with":
-        node.add("[starts-with(normalize-space(), ", normalizeArg(arg, name), ")]");
+        node.add("starts-with(normalize-space(), ", normalizeString(arg, name), ")");
         break;
       case "istarts-with":
-        node.add("[starts-with(", toLower(), ", ", translateToLower(normalizeArg(arg, name)), ")]");
+        node.add("starts-with(", toLower(), ", ", normalizeArg(arg), ")");
         break;
       case "ends-with":
-        str = normalizeArg(arg, name);
+        str = normalizeString(arg, name);
         node.add(endsWith("normalize-space()", "normalize-space()", str, str));
         break;
       case "iends-with":
-        str = normalizeArg(arg, name);
-        node.add(endsWith(toLower(), "normalize-space()", str, translateToLower(str)));
+        str = normalizeArg(arg);
+        node.add(endsWith(toLower(), "normalize-space()", str, str));
         break;
       case "is":
       case "matches":
@@ -834,7 +877,7 @@
           predicate: true,
           name: name
         });
-        addToNode(nd, "[" + result + "]");
+        node.add(result);
         break;
       case "not":
         nd = node.clone();
@@ -843,7 +886,7 @@
         });
         if (result !== "self::node()") {
           result = transformNot(nd);
-          addToNode(nd, "[not(" + result + ")]");
+          node.add("not(" + result + ")");
         }
         break;
       case "has":
@@ -851,34 +894,34 @@
         result = convertArgument(nd, arg, ".//", null, {
           name: name
         });
-        addToNode(nd, "[" + result + "]");
+        node.add(result);
         break;
       case "has-sibling":
         nd = node.clone();
         var precedings = convertArgument(nd, arg, precedingSibling, null, {
           name: name
         });
-        if (nd.hasAxis('ancestor::')) {
+        if (nd.hasAxis(ancestor)) {
           precedings = transform(nd, precedingSibling);
         }
         nd = node.clone();
         var followings = convertArgument(nd, arg, followingSibling, null, {
           name: name
         });
-        if (nd.hasAxis('ancestor::')) {
+        if (nd.hasAxis(ancestor)) {
           followings = transform(nd, followingSibling);
         }
-        node.add("{[(", precedings, ") or (", followings, ")]}");
+        node.add("{(", precedings, ") or (", followings, ")}");
         break;
       case "has-parent":
         process("parent::");
         break;
       case "has-ancestor":
         nd = node.clone();
-        result = convertArgument(nd, arg, "ancestor::", null, {
+        result = convertArgument(nd, arg, ancestor, null, {
           name: name
         });
-        addToNode(nd, "[" + result + "]");
+        node.add(result);
         break;
       case "after":
         process("preceding::");
@@ -893,28 +936,27 @@
         process(followingSibling);
         break;
       case "last":
-        if (not) node.add(arg ? getNot(followingSibling, " <= ") : notSibling(followingSibling));else node.add(arg ? "[position() > last() - " + parseNumber(arg, name) + "]" : "[last()]");
+        if (not) node.add(arg ? getNot(followingSibling, " <= ") : notSibling(followingSibling));else node.add(arg ? "position() > last() - " + parseNumber(arg, name) + "" : "last()", !arg);
         break;
       case "last-of-type":
         owner = getOwner(node, name);
         node.add(notSibling(followingSibling, owner));
         break;
       case "skip":
-        if (not) node.add(getNot(precedingSibling, " > "));else node.add("[position() > ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " > "));else node.add("position() > ", parseNumber(arg, name));
         break;
       case "skip-first":
-        if (not) node.add(arg ? getNot(precedingSibling, " > ") : notSibling(precedingSibling));else node.add("[position() > ", arg ? parseNumber(arg, name) : "1", "]");
+        if (not) node.add(arg ? getNot(precedingSibling, " > ") : notSibling(precedingSibling));else node.add("position() > ", arg ? parseNumber(arg, name) : "1", !arg);
         break;
       case "skip-last":
-        if (not) node.add(arg ? getNot(followingSibling, " > ") : notSibling(followingSibling));else node.add("[position() < last()", arg ? " - " + (parseNumber(arg, name) - 1) : "", "]");
+        if (not) node.add(arg ? getNot(followingSibling, " > ") : notSibling(followingSibling));else node.add("position() < last()", arg ? " - " + (parseNumber(arg, name) - 1) : "");
         break;
       case "limit":
-        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("[position() <= ", parseNumber(arg, name), "]");
+        if (not) node.add(getNot(precedingSibling, " <= "));else node.add("position() <= ", parseNumber(arg, name));
         break;
       case "lang":
-        str = translateToLower("@lang");
-        val = toLower(arg);
-        node.add("[ancestor-or-self::*[@lang]{[1]}[", str, " = ", val, " or starts-with(", str, ", concat(", val, ", '-'))", "]]");
+        str = processLang(name, arg);
+        if (str) node.add("{", str, "}");
         break;
       case "range":
         var splits = arg.split(',');
@@ -926,32 +968,30 @@
           str = addCount(precedingSibling, "*", {
             count: start - 1,
             comparison: " >= "
-          });
+          }) + " and ";
           str += addCount(precedingSibling, "*", {
             count: end - 1,
             comparison: " <= "
           });
-          node.add(str.replace("][", " and "));
-        } else node.add("[position() >= ", start, " and position() <= ", end, "]");
+          node.add(str);
+        } else {
+          node.add("position() >= ", start, " and position() <= ", end);
+        }
         break;
       case "target":
-        node.add("[starts-with(@href, '#')]");
+        node.add("starts-with(@href, '#')");
         break;
       case "disabled":
-        node.add("[@disabled]");
+        node.add("@disabled");
         break;
       case "enabled":
-        node.add("[not(@disabled)]");
+        node.add("not(@disabled)");
         break;
       case "selected":
-        node.add("[", localName, " = 'option' and @selected]");
+        node.add(localName, " = 'option' and @selected");
         break;
       case "checked":
-        node.add("[(", localName, " = 'input' and (@type='checkbox' or @type='radio') or ", localName, " = 'option') and @checked]");
-        break;
-      case 'read-only':
-      case 'read-write':
-        node.add('[@', name.replace('-', ''), ']');
+        node.add("(", localName, " = 'input' and (@type='checkbox' or @type='radio') or ", localName, " = 'option') and @checked");
         break;
       default:
         parseException(pseudo + name + "' is not implemented");
@@ -962,13 +1002,10 @@
       var result = convertArgument(nd, arg, axis, null, {
         name: name
       });
-      if (nd.hasAxis('ancestor::')) {
+      if (nd.hasAxis(ancestor)) {
         result = transform(nd, axis);
       }
-      addToNode(nd, "[" + result + "]");
-    }
-    function addToNode(nd, result) {
-      node.add(nd.hasOr() ? "{" + result + "}" : result);
+      node.add(result);
     }
     function getNot(sibling, comparison) {
       return addCount(sibling, "*", {
@@ -976,6 +1013,61 @@
         comparison: comparison
       });
     }
+    function normalizeArg(arg) {
+      var text = normalizeString(arg, name);
+      return opt.translate ? translateToLower(text) : text;
+    }
+  }
+  function processLang(name, arg) {
+    var lang = translateToLower("@lang", true),
+      array = arg.split(',');
+    var result = "";
+    for (var i = 0; i < array.length; i++) {
+      if (i > 0) result += " or ";
+      result += "ancestor-or-self::*[@lang][1][";
+      var rm = /^([a-z]+|\*)(?:-([a-z]+|\*))?(?:-([a-z]+|\*))?/i.exec(getStringContent(array[i].trim()));
+      if (rm) {
+        if (rm[1] === "*") {
+          if (isText(rm[2])) {
+            result += containOrEnd(rm[2] + (isText(rm[3]) ? "-" + rm[3] : ""));
+          } else if (isText(rm[3])) {
+            result += containOrEnd(rm[3]);
+          } else {
+            return "";
+          }
+        } else if (rm[2] === "*") {
+          var val = normalize(rm[1] + "-");
+          if (isText(rm[3])) {
+            result += "starts-with(" + lang + ", " + val + ") and (" + containOrEnd(rm[3]) + ")";
+          } else {
+            result += equalOrStart(rm[1]);
+          }
+        } else {
+          var text = rm[1] + (rm[2] ? "-" + rm[2] : "") + (isText(rm[3]) ? "-" + rm[3] : "");
+          result += equalOrStart(text);
+        }
+        result += "]";
+      } else {
+        argumentException(pseudo + name + "()' has wrong arguments");
+      }
+    }
+    function isText(gr) {
+      return gr && gr !== "*";
+    }
+    function equalOrStart(text) {
+      var val = normalize(text);
+      return lang + " = " + val + " or starts-with(" + lang + ", concat(" + val + ", '-'))";
+    }
+    function containOrEnd(text) {
+      var val = normalize("-" + text + "-");
+      var val2 = normalize("-" + text);
+      return "contains(substring(" + lang + ", string-length(substring-before(" + lang + ", " + val + "))), " + val + ") or " + endsWith(lang, "@lang", val2, val2);
+    }
+    function normalize(text) {
+      text = normalizeQuotes(text, name);
+      return opt.translate ? translateToLower(text, true) : text;
+    }
+    return result;
   }
   function transformNot(node) {
     var result = '';
@@ -994,8 +1086,8 @@
             str += nd.toString();
           } else {
             nd.separator = '';
-            str += '{[' + nd.toString();
-            end += ']}';
+            str += '[' + nd.toString();
+            end += ']';
           }
         }
         result += str + end;
@@ -1008,7 +1100,7 @@
   function transform(node, axis) {
     var result = '';
     node.childNodes.forEach(function (unitNode) {
-      if (unitNode.hasAxis('ancestor::')) {
+      if (unitNode.hasAxis(ancestor)) {
         var str = '';
         var last = unitNode.childNodes.length - 1;
         unitNode.childNodes.forEach(function (nd, i) {
@@ -1038,6 +1130,7 @@
         arg = obj.arg;
         owner = obj.owner;
         ofResult = obj.ofResult;
+        if (!ofResult) node.owner = owner;
       }
     }
     arg = arg.replace(/\s+/g, '');
@@ -1063,8 +1156,8 @@
         parseException(pseudo + name + "' is not implemented");
         break;
     }
-    if (ofResult) node.add(ofResult);
-    node.add(str);
+    if (ofResult) node.add(ofResult, true);
+    if (str) node.add(str);
   }
   function addNthToXpath(name, arg, sibling, owner, last) {
     var str = '';
@@ -1083,8 +1176,7 @@
       if (obj.valueA) {
         var _num = getNumber(obj.valueB);
         if (obj.type === 'mod') str = addModulo(sibling, owner, _num, obj.valueA, 0);else if (obj.type === 'cnt') str = addCount(sibling, owner, obj);else if (obj.type === 'both') {
-          str = addCount(sibling, owner, obj) + addModulo(sibling, owner, _num, obj.valueA, 0);
-          str = str.replace('][', ' and ');
+          str = addCount(sibling, owner, obj) + " and " + addModulo(sibling, owner, _num, obj.valueA, 0);
         }
       } else {
         str = addCount(sibling, owner, obj);
@@ -1128,17 +1220,17 @@
     regexException(0, "parseFnNotation", nthEquationReg, arg);
   }
   function addModulo(sibling, owner, num, mod, eq) {
-    return "[(count(".concat(sibling).concat(owner, ")").concat(num, ") mod ").concat(mod, " = ").concat(eq, "]");
+    return "(count(".concat(sibling).concat(owner, ")").concat(num, ") mod ").concat(mod, " = ").concat(eq);
   }
   function addCount(sibling, owner, obj) {
     if (obj.count === 0 && /^<?=$/.test(obj.comparison.trim())) {
       return notSibling(sibling, owner);
     } else {
-      return "[count(".concat(sibling).concat(owner, ")").concat(obj.comparison).concat(obj.count, "]");
+      return "count(".concat(sibling).concat(owner, ")").concat(obj.comparison).concat(obj.count);
     }
   }
   function notSibling(sibling, owner) {
-    return "[not(".concat(sibling).concat(owner || "*", ")]");
+    return "not(".concat(sibling).concat(owner || "*", ")");
   }
   function getNumber(val) {
     var num = 1 - val;
@@ -1167,27 +1259,28 @@
       rm = ofReg.exec(arg);
     if (rm !== null) {
       var nd = node.clone();
-      ofResult = convertArgument(nd, rm[1], null, "self::node()", {
+      ofResult = convertArgument(nd, rm[1], "self::", "node()", {
         predicate: true,
         name: name
       });
-      if (nd.childNodes.length === 1) {
-        var unitNode = nd.childNodes[0],
-          firstChild = unitNode.childNodes[0],
-          selfNode = firstChild.owner === "self::node()";
-        firstChild.owner = '';
-        var result = "{" + unitNode.toString() + "}";
-        if (selfNode) {
-          owner += result;
-          ofResult = result;
+      var result = '';
+      nd.childNodes.forEach(function (unitNode) {
+        var str = unitNode.toString();
+        if (unitNode.childNodes) {
+          var firstChild = unitNode.childNodes[0];
+          if (firstChild.owner === "node()") {
+            firstChild.axis = '';
+            firstChild.owner = '';
+            result += "\x01" + unitNode.toString() + "\x02";
+          } else {
+            result += str;
+          }
         } else {
-          owner = "{" + ofResult + "}";
-          ofResult = result;
+          result += str;
         }
-      } else {
-        ofResult = "{[" + ofResult + "]}";
-        owner += ofResult;
-      }
+      });
+      if (result !== ofResult) ofResult = result;
+      owner += "[" + ofResult + "]";
       return {
         arg: arg.replace(ofReg, ''),
         owner: owner,
@@ -1198,13 +1291,13 @@
   }
   function toLower(str) {
     str = str ? normalizeQuotes(str) : "normalize-space()";
-    return translateToLower(str);
+    return opt.translate ? translateToLower(str) : str;
   }
-  function translateToLower(str) {
+  function translateToLower(str, asii) {
     var letters = 'abcdefghjiklmnopqrstuvwxyz';
-    return "translate(" + str + ", '" + letters.toUpperCase() + uppercase + "', '" + letters + lowercase + "')";
+    return "translate(" + str + ", '" + letters.toUpperCase() + (asii ? "" : uppercase) + "', '" + letters + (asii ? "" : lowercase) + "')";
   }
-  function normalizeArg(str, name) {
+  function normalizeString(str, name) {
     if (!str) {
       argumentException(pseudo + name + "' has missing argument");
     }
@@ -1249,7 +1342,7 @@
     if (rm !== null) {
       var name = rm[1];
       if (rm[2] != null) {
-        var obj = getArgument(i + rm[0].length - 1, code, '(', ')');
+        var obj = parseArgument(i + rm[0].length - 1, code, name === "lang", "(", ")");
         if (obj) {
           return [obj.index, name, obj.content];
         }
@@ -1344,7 +1437,7 @@
     }
     return sb.join('');
   }
-  function getArgument(i, text, open, close) {
+  function parseArgument(i, text, original, open, close) {
     var first = true,
       start = i,
       n = 0;
@@ -1358,12 +1451,13 @@
         first = false;
       } else if (ch === '"' || ch === '\'') {
         while (++i < text.length && text[i] !== ch);
-        if (i >= text.length) characterException(i, ch, "function getArgument()", text);
+        if (i >= text.length) characterException(i, ch, "function parseArgument()", text);
       } else {
         if (ch === open) n++;else if (ch === close && --n === 0) {
+          var str = text.substring(start, i);
           return {
             index: i,
-            content: getStringContent(text.substring(start, i))
+            content: original ? str : getStringContent(str)
           };
         }
       }
@@ -1406,10 +1500,10 @@
     throw new ParserError(code, "?", message);
   }
   function characterException(i, ch, message, code) {
-    var text = message + ". Unexpected character '<b>" + ch + "</b>'\nposition <b>" + (i + 1) + "</b>\nstring - '<b>" + code + "</b>'";
+    var str = "Unexpected character '",
+      text = (opt.debug ? message + ". " : "") + str + "<b>" + ch + "</b>'\nposition <b>" + (i + 1) + "</b>\nstring - '<b>" + code + "</b>'";
     printError(text);
-    message = message + ". Unexpected character '" + ch + "'";
-    throw new ParserError(code, i + 1, message);
+    throw new ParserError(code, i + 1, message + str + ch + "'");
   }
   function regexException(i, fn, reg, arg) {
     var str = arg || code.substring(i),

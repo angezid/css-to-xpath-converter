@@ -105,6 +105,10 @@ const cssSelectors = {
       ":not(div ~ div > :dir(ltr))",
       ":not(div > [class] span + b)",
       ":not(:has(div + p:nth-last-child(1)))",
+      ":nth-child(even of p)",
+      ":nth-child(even of li, p)",
+      ":nth-last-child(even of p)",
+      ":nth-last-child(even of li, p)",
       ":nth-child(even of :not(.noted ~ li))",
       ":nth-child(even of :not(.noted > span))",
       ":nth-child(even of :not(.noted + li span))",
@@ -223,9 +227,9 @@ const cssSelectors = {
       "ul:last > li:last",
       "ul:last li:last(3)",
       "body[lang|=En i]",
-      "div > p:lang(En)",
       "div[class='diV' i]",
       "div[class*='iv' i]",
+      "div > p:lang(en-us)",
       "div[class!='div' i]",
       "div[class|='last' i]",
       "div + div > :lang(fr)",
@@ -234,10 +238,18 @@ const cssSelectors = {
       "div[class~='parent' i]",
       "div:icontains('content')",
       "div:istarts-with('TEST')",
-      ":lang(EN-US)",
-      ":not(:lang(en))",
+      ":lang(en)",
+      ":lang('*-*-*')",
+      ":lang('*', fr)",
+      ":not(:lang(de-latn, 'fr'))",
       ":not(div + div > :lang(fr))",
       "p:iends-with('xpath Convertor')",
+      "p:lang('*-fr')",
+      "p:lang(fr-latn)",
+      "p:lang('*-latn')",
+      "p:lang('*-*-fr')",
+      "p:lang('fr-*-*')",
+      "p:lang('fr-*-fr')",
       "ul>li[title$='one' i]",
       "ul>li[title~='two' i]",
       "ul>li[title^='item' i]",
@@ -556,66 +568,66 @@ const cssSelectors = {
       "nth-child-of-selector.html"
     ],
     "selectors": [
-      "li.c1:nth-child(n+5)",
-      "li.c1:nth-child(1n+0)",
-      "li.c1:nth-child(1n-4)",
-      "li.c1:nth-child(4n+0)",
-      "li.c1:nth-child(4n-5)",
-      "li.c1:nth-child(-4n+2)",
-      "li:not(:nth-child(1 of .c1))",
-      "li:not(:nth-child(n+2 of .c2))",
-      "li:not(:nth-child(2n+2 of .c1))",
-      "li:not(:nth-child(3n+4 of .c1))",
-      "li:not(:nth-child(3n-2 of .c2))",
-      "li:not(:nth-child(4n-4 of .c1))",
-      "li:not(:nth-child(5n-3 of .c2))",
-      "li:not(:nth-child(-n+5 of .c2))",
-      "li:not(:nth-child(-0n+2 of .c1))",
-      "li:not(:nth-child(-0n+3 of .c2))",
-      "li:not(:nth-child(-3n+1 of .c1))",
-      "li:not(:nth-child(-4n+1 of .c2))",
-      "li:not(:nth-child(-4n+3 of .c1))",
-      "li:not(:nth-child(-5n+1 of .c1))",
-      "li:not(:nth-child(4 of .c2, .c1))",
-      "li:not(:nth-child(4n of .c2, .c1))",
-      "li:not(:nth-child(n+4 of .c2, .c1))",
+      "li.c1:nth-child(3)",
+      "li.c1:nth-child(3n+2)",
+      "li:not(:nth-child(2n+3 of li))",
+      "li:not(:nth-child(-1n+4 of .c1))",
+      "li:not(:nth-child(-2n+3 of .c1))",
+      "li:not(:nth-child(0n+1 of li, p))",
+      "li:not(:nth-child(1n+3 of li, p))",
+      "li:not(:nth-child(2n-2 of li.c2))",
+      "li:not(:nth-child(3n-3 of li, p))",
+      "li:not(:nth-child(3n-3 of li.c2))",
+      "li:not(:nth-child(4n+4 of li, p))",
+      "li:not(:nth-child(5n-4 of li, p))",
+      "li:not(:nth-child(-0n+3 of p.c2))",
       "li:not(:nth-child(1n+3 of .c2, .c1))",
-      "li:not(:nth-child(1n+5 of .c2, .c1))",
-      "li:not(:nth-child(2n-0 of .c2, .c1))",
-      "li:not(:nth-child(3n-3 of .c2, .c1))",
-      "li:not(:nth-child(4n-1 of .c2, .c1))",
-      "li:not(:nth-child(4n-2 of .c2, .c1))",
-      "li:not(:nth-child(5n-3 of .c2, .c1))",
-      "li:not(:nth-child(-2n+3 of .c1, .c2))",
-      "li:not(:nth-child(-3n+3 of .c1, .c2))",
-      "li:nth-child(5n of .c1)",
-      "li:nth-child(n+0 of .c2)",
-      "li:nth-child(n-0 of .c2)",
-      "li:nth-child(n-4 of .c1)",
-      "li:nth-child(0n+3 of .c1)",
-      "li:nth-child(1n+2 of .c1)",
-      "li:nth-child(1n+2 of .c2)",
-      "li:nth-child(2n+5 of .c1)",
-      "li:nth-child(3n+3 of .c2)",
-      "li:nth-child(3n-0 of .c2)",
-      "li:nth-child(4n+0 of .c2)",
-      "li:nth-child(4n-2 of .c1)",
-      "li:nth-child(5n+0 of .c1)",
-      "li:nth-child(5n-3 of .c1)",
-      "li:nth-child(-0n+3 of .c2)",
-      "li:nth-child(-1n+3 of .c2)",
-      "li:nth-child(-2n+4 of .c1)",
-      "li:nth-child(-4n+1 of .c1)",
-      "li:nth-child(1 of .c1, .c2)",
-      "li:nth-child(5 of .c1, .c2)",
-      "li:nth-child(n-3 of .c2, .c1)",
-      "li:nth-child(odd of .c2, .c1)",
-      "li:nth-child(2n+4 of .c2, .c1)",
-      "li:nth-child(4n+3 of .c2, .c1)",
-      "li:nth-child(4n+5 of .c2, .c1)",
-      "li:nth-child(even of .c2, .c1)",
-      "li:nth-child(-2n+1 of :not(.c1))",
-      "li:nth-child(-3n+4 of :not(.c1))"
+      "li:not(:nth-child(-1n+2 of li.c1, p.c1))",
+      "li:nth-child(2 of .c1)",
+      "li:nth-child(n-5 of li)",
+      "li:nth-child(1n-4 of li)",
+      "li:nth-child(4n+1 of li)",
+      "li:nth-child(4n-4 of li)",
+      "li:nth-child(5n-1 of li)",
+      "li:nth-child(n-5 of .c1)",
+      "li:nth-child(2n-0 of .c1)",
+      "li:nth-child(3n+4 of .c1)",
+      "li:nth-child(4n+0 of .c1)",
+      "li:nth-child(5n-5 of .c1)",
+      "li:nth-child(-2n+2 of .c1)",
+      "li:nth-child(-5n+2 of .c1)",
+      "li:nth-child(1n+0 of li.c2)",
+      "li:nth-child(2n+3 of li.c2)",
+      "li:nth-child(4n-0 of li.c2)",
+      "li:nth-child(4n-1 of li.c2)",
+      ":not(:nth-child(4 of li, p))",
+      ":not(:nth-child(4n+3 of .c1))",
+      ":not(:nth-child(-0n+4 of .c1))",
+      ":not(:nth-child(3 of .c2, .c1))",
+      ":not(:nth-child(4n+0 of li.c2))",
+      ":not(:nth-child(4n-2 of li.c2))",
+      ":not(:nth-child(even of li, p))",
+      ":nth-child(n-4 of .c1)",
+      ":nth-child(2n-0 of .c1)",
+      ":nth-child(5n+0 of .c1)",
+      ":nth-child(5n-0 of .c1)",
+      ":nth-child(n+5 of li, p)",
+      ":nth-child(1 of .c2, .c1)",
+      ":nth-child(4n+4 of li, p)",
+      ":nth-child(4n+5 of li, p)",
+      ":nth-child(-3n+1 of p.c2)",
+      ":nth-child(-3n+2 of p.c2)",
+      ":nth-child(-5n+2 of p.c2)",
+      ":nth-child(1n-5 of .c2, .c1)",
+      ":nth-child(-0n+4 of li.c1, p.c1)",
+      ":nth-child(-5n+2 of li.c1, p.c1)",
+      "p.c1:nth-child(2)",
+      "p.c1:nth-child(-1n+1)",
+      "p:not(:nth-child(4n of li, p))",
+      "p:not(:nth-child(n+2 of li.c2))",
+      "p:not(:nth-child(4n+5 of .c2, .c1))",
+      "p:not(:nth-child(-0n+2 of li.c1, p.c1))",
+      "p:not(:nth-child(-5n+1 of li.c1, p.c1))"
     ]
   },
   "nth-last-child": {
@@ -690,66 +702,66 @@ const cssSelectors = {
       "nth-child-of-selector.html"
     ],
     "selectors": [
-      "li.c1:nth-last-child(n-0)",
-      "li.c1:nth-last-child(n-3)",
-      "li.c1:nth-last-child(0n+5)",
-      "li.c1:nth-last-child(4n+1)",
-      "li.c1:nth-last-child(-n+2)",
-      "li.c1:nth-last-child(-0n+1)",
-      "li.c1:nth-last-child(-0n+4)",
-      "li.c1:nth-last-child(-4n+5)",
-      "li:not(:nth-child(2n of .c1))",
-      "li:not(:nth-child(0n+3 of .c1))",
-      "li:not(:nth-child(3n-0 of .c1))",
-      "li:not(:nth-child(4n+0 of .c1))",
-      "li:not(:nth-child(4n-0 of .c2))",
-      "li:not(:nth-child(4n-1 of .c1))",
-      "li:not(:nth-child(5n+3 of .c1))",
-      "li:not(:nth-child(even of .c1))",
-      "li:not(:nth-child(-1n+2 of .c1))",
-      "li:not(:nth-child(-2n+3 of .c2))",
-      "li:not(:nth-child(-5n+2 of .c1))",
-      "li:not(:nth-child(4 of .c2, .c1))",
-      "li:not(:nth-last-child(n+3 of .c1))",
-      "li:not(:nth-child(4n+4 of .c2, .c1))",
-      "li:not(:nth-last-child(2n+4 of .c2))",
-      "li:not(:nth-last-child(2n-3 of .c1))",
-      "li:not(:nth-last-child(3n-0 of .c2))",
-      "li:not(:nth-last-child(3n-1 of .c2))",
+      "li.c1:nth-last-child(1n-5)",
+      "li.c1:nth-last-child(4n-4)",
+      "li:not(:nth-child(2n-2 of li))",
+      "li:not(:nth-child(-4n+1 of .c1))",
+      "li:not(:nth-child(2n+1 of li.c2))",
+      "li:not(:nth-child(3n+4 of li.c2))",
+      "li:not(:nth-child(4n+4 of li, p))",
+      "li:not(:nth-last-child(4n of li))",
+      "li:not(:nth-child(4n-5 of .c2, .c1))",
       "li:not(:nth-last-child(3n-3 of .c1))",
-      "li:not(:nth-last-child(5n-5 of .c2))",
-      "li:not(:nth-child(-2n+2 of .c1, .c2))",
-      "li:not(:nth-child(-4n+5 of .c1, .c2))",
-      "li:not(:nth-last-child(-2n+3 of .c1))",
-      "li:not(:nth-last-child(-5n+1 of .c1))",
-      "li:not(:nth-last-child(1 of .c1, .c2))",
-      "li:not(:nth-last-child(4n of .c2, .c1))",
+      "li:not(:nth-last-child(even of .c1))",
+      "li:not(:nth-last-child(-n+1 of .c1))",
+      "li:not(:nth-last-child(-n+4 of .c1))",
+      "li:not(:nth-last-child(-5n+3 of p.c2))",
       "li:not(:nth-last-child(2n+4 of .c2, .c1))",
-      "li:not(:nth-last-child(2n-3 of .c2, .c1))",
-      "li:not(:nth-last-child(4n-5 of .c2, .c1))",
-      "li:not(:nth-last-child(5n-2 of .c2, .c1))",
-      "li:not(:nth-last-child(even of .c1, .c2))",
-      "li:nth-last-child(n+2 of .c2)",
-      "li:nth-last-child(n-1 of .c1)",
-      "li:nth-last-child(2n-5 of .c1)",
-      "li:nth-last-child(3n+2 of .c2)",
-      "li:nth-last-child(4n+3 of .c2)",
-      "li:nth-last-child(5n-4 of .c1)",
-      "li:nth-last-child(-0n+3 of .c2)",
-      "li:nth-last-child(-0n+5 of .c1)",
-      "li:nth-last-child(-1n+1 of .c1)",
-      "li:nth-last-child(-5n+5 of .c1)",
-      "li:nth-last-child(4 of .c1, .c2)",
-      "li:nth-last-child(1 of :not(.c1))",
-      "li:nth-last-child(n-3 of .c2, .c1)",
-      "li:nth-last-child(1n+5 of .c2, .c1)",
-      "li:nth-last-child(1n-1 of .c2, .c1)",
-      "li:nth-last-child(5n-0 of .c2, .c1)",
-      "li:nth-last-child(5n-5 of .c2, .c1)",
-      "li:nth-last-child(-2n+5 of .c1, .c2)",
-      "li:nth-last-child(-4n+5 of .c1, .c2)",
-      "li:nth-last-child(-n+4 of :not(.c1))",
-      "li:nth-last-child(-5n+1 of :not(.c1))"
+      "li:nth-last-child(4 of .c1)",
+      "li:nth-last-child(3n-5 of li)",
+      "li:nth-last-child(4n+4 of li)",
+      "li:nth-last-child(1n-5 of .c1)",
+      "li:nth-last-child(4n-5 of .c1)",
+      "li:nth-last-child(-3n+1 of .c1)",
+      "li:nth-last-child(3n+3 of li.c2)",
+      "li:nth-last-child(5n-2 of li.c2)",
+      ":not(:nth-child(1n+3 of .c1))",
+      ":not(:nth-child(-n+1 of p.c2))",
+      ":not(:nth-child(-n+3 of p.c2))",
+      ":not(:nth-child(2n-4 of li.c2))",
+      ":not(:nth-child(5n+2 of li.c2))",
+      ":not(:nth-last-child(5 of .c1))",
+      ":not(:nth-last-child(4n+5 of li))",
+      ":not(:nth-last-child(n+4 of .c1))",
+      ":not(:nth-last-child(-n+3 of .c1))",
+      ":not(:nth-last-child(-n+4 of .c1))",
+      ":not(:nth-last-child(3n+3 of li, p))",
+      ":not(:nth-last-child(2n-4 of .c2, .c1))",
+      ":not(:nth-last-child(-1n+2 of li.c1, p.c1))",
+      ":nth-last-child(3 of .c1)",
+      ":nth-last-child(3n-2 of .c1)",
+      ":nth-last-child(3n-3 of .c1)",
+      ":nth-last-child(5n-5 of .c1)",
+      ":nth-last-child(4n+5 of li, p)",
+      ":nth-last-child(n-3 of .c2, .c1)",
+      ":nth-last-child(3n-1 of .c2, .c1)",
+      ":nth-last-child(5n+1 of .c2, .c1)",
+      ":nth-last-child(5n+4 of .c2, .c1)",
+      ":nth-last-child(-0n+1 of :not(.c1))",
+      ":nth-last-child(-0n+5 of li.c1, p.c1)",
+      ":nth-last-child(-4n+3 of li.c1, p.c1)",
+      "p.c1:nth-last-child(-n+1)",
+      "p.c1:nth-last-child(-5n+5)",
+      "p:not(:nth-child(3n of .c1))",
+      "p:not(:nth-child(1 of li.c2))",
+      "p:not(:nth-child(3n+0 of li))",
+      "p:not(:nth-child(4n+1 of li))",
+      "p:not(:nth-child(n+5 of .c1))",
+      "p:not(:nth-child(3n-1 of .c2, .c1))",
+      "p:not(:nth-child(5n+4 of .c2, .c1))",
+      "p:not(:nth-last-child(4n+3 of .c1))",
+      "p:not(:nth-last-child(-5n+4 of .c1))",
+      "p:not(:nth-last-child(-2n+3 of li.c1, p.c1))"
     ]
   },
   "nth-of-type": {
@@ -2360,12 +2372,20 @@ first letter should be included."></p>
 </article>
 <article lang='fr'>
 <div>
-<p class='p1'>1.</p>
+<p class='p1'>5.</p>
 </div>
 <div>
-<p class='p2'>2.</p>
-<p class='p3'>3.</p>
+<p class='p2'>6.</p>
+<p class='p3'>7.</p>
 </div>
+<p lang='de-Latn-DE-1996'>8.</p>
+<p lang='en-GB'>10.</p>
+<p lang='fr-Latn-FR'>12.</p>
+<p lang='de'>8.</p>
+<p lang='en'>9.</p>
+<p lang='en-GB'>10.</p>
+<p lang='fr'>11.</p>
+<p lang='fr-Latn-FR'>12.</p>
 </article>
 <div>
 <p class='c1'>1.</p>
@@ -2502,6 +2522,18 @@ first letter should be included."></p>
 <li><span>Tanya</span></li>
 <li class="noted">Marlene</li>
 </ul>
+<div>
+<p class='noted'>1.</p>
+<p>2.</p>
+<p class='noted'>3.</p>
+<p> 4.</p>
+<p class='noted'>5.</p>
+<p class='noted'>6.</p>
+<p>7.</p>
+<p>8.</p>
+<p class='noted'>9.</p>
+<p class='noted'>10.</p>
+</div>
 <div>
 <p class='non-escaped'>non-escaped.</p>
 <p class='1escaped'>escaped.</p>
@@ -3932,6 +3964,34 @@ T</div>
 		<li>ape</li>
 		<li class="c1 c2">parrotfish</li>
 	</ul>
+	<div>
+		<p class='c1'>1</p>
+		<p>2</p>
+		<p class='c2'>3</p>
+		<p class='c1 c2'>4</p>
+		<p>5</p>
+		<p class='c2 c1'>6</p>
+		<p class='c2'>7</p>
+		<p class='c2 c1'>8</p>
+		<p>9</p>
+		<p class='c1 c2'>10</p>
+	</div>
+	<div>
+		<p>2</p>
+		<p class='c2'>14</p>
+		<p class='c1'>1</p>
+		<p class='c1 c2'>4</p>
+		<p class='c2'>3</p>
+		<p>5</p>
+		<p class='c2 c1'>6</p>
+		<p class='c1'>12</p>
+		<p class='c2'>7</p>
+		<p class='c2 c1'>8</p>
+		<p>9</p>
+		<p class='c1 c2'>10</p>
+		<p class='c1'>11</p>
+		<p class='c2'>13</p>
+	</div>
 </div>
 </body>
 </html>`,

@@ -60,13 +60,14 @@
 		convertButton = document.getElementById('convert'),
 		clearCSSButton = document.getElementById('clear-css'),
 		axesSelector = document.getElementById('axis'),
-		consoleUse = document.getElementById('console-use'),
+		translate = document.getElementById('translate'),
 		selectorHistory = document.getElementById('selector-history'),
 
 		lowercase = document.getElementById('lowercase'),
 		toLowercase = document.getElementById('to-lowercase'),
 		uppercase = document.getElementById('uppercase'),
 		toUppercase = document.getElementById('to-uppercase'),
+		consoleUse = document.getElementById('console-use'),
 
 		xpathBox = document.getElementById('xpath-box'),
 		copy = document.getElementById('copy-code'),
@@ -117,6 +118,7 @@
 	};
 
 	let changed = false,
+		isEmpty = false,
 		selection = '',
 		position = 0;
 
@@ -191,7 +193,15 @@
 
 	function registerEvents() {
 		cssEditor.onUpdate(() => { changed = true; });
-		htmlEditor.onUpdate(() => { changed = true; });
+
+		htmlEditor.onUpdate((code, event) => {
+			changed = true;
+
+			if (isEmpty && event && (event.type === 'paste' || event.type === 'drop')) {
+				htmlEditor.updateCode(beautify(code));
+			}
+			isEmpty = false;
+		});
 
 		window.addEventListener('beforeunload', function(e) {
 			if (changed) {
@@ -235,6 +245,10 @@
 		});
 
 		debug.addEventListener('click', function() {
+			convert();
+		});
+
+		translate.addEventListener('click', function() {
 			convert();
 		});
 
@@ -340,7 +354,7 @@
 			htmlBox.focus();
 			htmlEditor.recordHistory();
 			htmlEditor.updateCode('');
-			changed = true;
+			isEmpty = changed = true;
 		});
 	}
 
@@ -393,7 +407,8 @@
 		options.axis = axis;
 		options.standard = consoleUse.checked;
 		options.consoleUse = consoleUse.checked;
-		options.debug = debug.className ? true : debug.checked;
+		options.translate = translate.checked;
+		options.postprocess = debug.className ? true : debug.checked;
 		options.uppercaseLetters = uppercase.value.trim();
 		options.lowercaseLetters = lowercase.value.trim();
 		options.debug = !debug.checked;
@@ -614,7 +629,7 @@
 		if (success) {
 			result += 'XPath: count = ' + xpathElems.length + ';';
 		}
-		
+
 		if (cssElems.length && xpathElems.length) {
 			let equals = 0,
 				notEquals = 0;
@@ -628,26 +643,13 @@
 				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + equals + '; not equals = ' + notEquals;
 			}
 		}
-		return result.replaceAll('; ', ';<br>');
-
-		/*if (cssElems.length !== xpathElems.length || xpathElems.length === 0) {
-			return result.replaceAll('; ', ';<br>');
-
-		} else if (cssElems.length) {
-			let equals = 0,
-				notEquals = 0;
-
-			for (let i = 0; i < cssElems.length; i++) {
-				if (cssElems[i] === xpathElems[i]) equals++;
-				else notEquals++;
-			}
-
-			if (notEquals) {
-				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + equals + '; not equals = ' + notEquals;
-				return result.replaceAll('; ', ';<br>');
+		if (cssElems.length !== xpathElems.length) {
+			if ( !options.translate && /translate\(/.test(xpath)) {
+				result += '\n<b>Note</b> that <b>translate</b> checkbox is unchecked.'
 			}
 		}
-		return '';*/
+
+		return result.replaceAll('; ', ';<br>');
 	}
 
 	function showError(error) {

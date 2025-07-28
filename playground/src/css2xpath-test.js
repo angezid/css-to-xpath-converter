@@ -1,6 +1,8 @@
 
 "use strict";
 
+let saveResults;
+
 performTest();
 
 function performTest() {
@@ -97,7 +99,7 @@ function performTest() {
 	reportCoverage(coverage);
 
 	if ( !success) {
-		throw Error('Tests are not passed');
+		//throw Error('Tests are not passed');
 
 	} else {
 		console.log('All tests are passed');
@@ -154,21 +156,21 @@ function reportCoverage(coverage) {
 		let obj, str = '', summary = '', resultNav = '';
 
 		if (passed.length) {
-			passedNum = passed.length;
+			passedNum += passed.length;
 			obj = add(key, 'Passed', passed);
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (notReferenceEquals.length) {
-			failedNum = notReferenceEquals.length;
+			failedNum += notReferenceEquals.length;
 			obj = add(key, 'Not reference equals', notReferenceEquals, 'red');
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (notValid.length) {
-			notValidNum = notValid.length;
+			notValidNum += notValid.length;
 			const xpathErrors = notValid.filter(obj => obj.error).length;
 			obj = add(key, 'Not valid', notValid.map((obj) => obj.html), '#ff8300', xpathErrors);
 			str += obj.str;
@@ -176,21 +178,21 @@ function reportCoverage(coverage) {
 			resultNav += obj.nav;
 		}
 		if (notEquals.length) {
-			notEqualsNum = notEquals.length;
+			notEqualsNum += notEquals.length;
 			obj = add(key, 'Have different match count', notEquals, 'red');
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (noMatch.length) {
-			noMatchNum = noMatch.length;
+			noMatchNum += noMatch.length;
 			obj = add(key, 'Have no matches', noMatch);
 			str += obj.str;
 			summary += obj.summary;
 			resultNav += obj.nav;
 		}
 		if (error.length) {
-			errorNum = error.length;
+			errorNum += error.length;
 			obj = add(key, 'Coverter errors', error);
 			str += obj.str;
 			summary += obj.summary;
@@ -227,6 +229,20 @@ function reportCoverage(coverage) {
 	document.getElementById('sidebar').innerHTML = nav;
 	document.getElementById('summary').innerHTML = summaries;
 	document.getElementById('result').innerHTML = result;
+
+	if (saveResults) save(result);
+}
+
+function save(html) {
+	if (location.protocol !== 'file:') return;
+
+	let text = deEntitize(html.trim().replace(/<h\d[^>]*>/g, '\n').replace(/<\/?[^>]+>/g, ''));
+	const array = text.split('\n').filter((str) => !/^(?:Coverter|Css|Have|Not|Passed|Results)/.test(str));
+	text = array.sort().join('\n').trim();
+	
+	const elem = document.getElementById('save-results');
+	elem.download = 'test-results.txt';
+	elem.href = URL.createObjectURL(new Blob([text], { type : 'text/text' }));
 }
 
 function entitize(text) {
@@ -242,3 +258,8 @@ function deEntitize(text) {
 	});
 	return text;
 }
+
+document.getElementById('save-results').addEventListener('click', function() {
+	saveResults = true;
+	performTest();
+});

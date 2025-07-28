@@ -54,7 +54,7 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 |   ":before-sibling(s)"   |  select siblings that appear before specified element    |                        |
 |   ":contains(t)"         |   select elements that have text contains string         |                        |
 |   ":icontains(t)"        |   the same as `:contains()` but case-insensitive         |                        |
-|   ":dir()"               |                                                          | not handle `auto` value |
+|   ":dir()"               |                                                          | not handle `auto` value|
 |   ":disabled"            |                                                          |                        |
 |   ":empty"               |   select empty elements                                  |                        |
 |   ":enabled"             |                                                          |                        |
@@ -74,7 +74,7 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 |   ":has-sibling(s)"      |                                                          |                        |
 |   ":is(s)"               |                                                          |                        |
 |   ":matches(s)"          |                                                          |                        |
-|   ":lang()"              |                                                          |                        |
+|   ":lang(t)"             |                                                          |                        |
 |   ":last"                |   select the last element                                |                        |
 |   ":last(n)"             |   select the last `n` element                            |                        |
 |   ":last-child"          |                                                          |                        |
@@ -127,6 +127,8 @@ if (xpath) console.log(xpath);
   * `standard` - this option change the XPath generation of a class attribute selector '[class operation value]'. See [Class attribute non-standard](https://angezid.github.io/css-to-xpath-converter/index.html#class_attribute_non_standard) and [Class attribute standard](https://angezid.github.io/css-to-xpath-converter/index.html#class_attribute_standard). Non-standard implementation is more practical because it deals with individual classes instead of a whole `className` string.
   * `removeXPathSpaces` - strips unnecessary space characters from the XPath (they are added for readability).
   * `printError` - the callback to send error message that the converter is detected, e.g. in online [converter][converter] it is printed in the XPath editor.
+  * `translate` - whether to translate to lowercase attribute values and string arguments when using selectors which perform case insensitive operations.  
+    When it set to `false`, the generated XPath will be smaller, but it forces using lowercase letters for attribute values and string arguments.
   * `debug` - log the converter errors to the console (the converter catches its errors internally).
   
   * `uppercaseLetters` - custom uppercase letters string, using by converter to perform case-insensitive attribute value and text operations.  
@@ -138,13 +140,14 @@ if (xpath) console.log(xpath);
   The default options:
   ``` js
   const options = {
-    axis : '//',
-    standard : false,
-    removeXPathSpaces : false,
-    uppercaseLetters : '',
-    lowercaseLetters : '',
-    printError : (message) => {}
-    debug : false
+    axis: '//',
+    standard: false,
+    removeXPathSpaces: false,
+    uppercaseLetters: '',
+    lowercaseLetters: '',
+    printError : (message) => {},
+    translate: true,
+    debug: false
   };
   ```
 
