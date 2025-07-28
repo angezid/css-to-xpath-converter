@@ -13,21 +13,20 @@
 		#summary p, #info p { margin-left: 20px; }
 		section p { margin: 6px 20px; }
 		section p b { margin: 0 15px; }
+		#save-results { color: #000; text-decoration: none; }
 	</style>
-	<script src="static/css2xpath-data.js"></script>
-	<script src="static/converter.js"></script>
 </head>
 <body>
 	<aside id=sidebar>
 	</aside>
 	<main>
-		<h1>Test results</h1>
+		<h1><a id="save-results" href="#">Test results</a></h1>
 		<div id=info>
 			<h2>About tests</h2>
 			<p>All tests are run in your current browser.</p>
 			<p>Tests <b>Passed</b> mean that the elements selected by CSS selector are <b>reference equal</b> (not just only by count) to the elements selected by the generated XPath.</p>
 			<p><b>Note</b> that XPath implementation for the class attribute is the standard one (like other attributes). See <a href="index.html#class_attribute_non_standard">Non-standard XPath behavior of class attribute</a></p>
-			<p><b>Not valid</b> selectors are mostly from an extended set of selectors that the browser doesn't support, but are converted to valid XPath.</p>
+			<p><b style="color:#ff8300">Not valid</b> selectors are mostly from an extended set of selectors that the browser doesn't support, but are converted to valid XPath.</p>
 		</div>
 		<div id=summary>
 		</div>
