@@ -536,7 +536,7 @@
             break;
           default:
             if (attrValue) {
-              parseException("attrValue '" + attrValue + "' is already parse: " + code.substring(i));
+              parseException("attrValue '" + attrValue + "' is already parse: " + code.substr(i));
             }
             var _parseAttributeValue = parseAttributeValue(i);
             var _parseAttributeValue2 = _slicedToArray(_parseAttributeValue, 3);
@@ -691,7 +691,7 @@
       } else if (operation === "!=") {
         node.add("{not(@", attrName, ") or @", attrName, " != ''}");
       } else if (operation === "|=") {
-        node.add("{@", attrName, " = '' or starts-with(@", attrName, ", '-')}");
+        node.add("@", attrName, " = ''");
       } else {
         node.add("false()", true);
       }
@@ -702,62 +702,32 @@
       processClass(attrValue, operation, ignoreCase, node);
       return;
     }
-    var lowerCaseValue = ignoreCase ? translateToLower("@" + attrName) : null;
-    var value = normalizeQuotes(attrValue);
+    var attr = ignoreCase ? translateToLower("@" + attrName) : "@" + attrName;
+    var value = ignoreCase ? toLower(attrValue) : normalizeQuotes(attrValue);
     switch (operation) {
       case "=":
-        if (ignoreCase) {
-          node.add(lowerCaseValue, " = ", toLower(attrValue));
-        } else {
-          node.add("@", attrName, "=", value);
-        }
+        node.add(attr, " = ", value);
         break;
       case "!=":
-        if (ignoreCase) {
-          node.add("{not(@", attrName, ") or ", lowerCaseValue, "!=", toLower(attrValue), "}");
-        } else {
-          node.add("{not(@", attrName, ") or @", attrName, "!=", value, "}");
-        }
+        node.add("{not(@", attrName, ") or ", attr, "!=", value, "}");
         break;
       case "~=":
-        if (ignoreCase) {
-          node.add("contains(concat(' ', normalize-space(", lowerCaseValue, "), ' '), concat(' ', normalize-space(", toLower(attrValue), "), ' '))");
-        } else {
-          node.add("contains(concat(' ', normalize-space(@", attrName, "), ' '), concat(' ', normalize-space(", value, "), ' '))");
-        }
+        node.add("contains(concat(' ', normalize-space(", attr, "), ' '), concat(' ', normalize-space(", value, "), ' '))");
         break;
       case "|=":
-        if (ignoreCase) {
-          node.add("{", lowerCaseValue, " = ", toLower(attrValue), " or starts-with(", lowerCaseValue, ", concat(", toLower(attrValue), ", '-'))}");
-        } else {
-          node.add("{@", attrName, " = ", value, " or starts-with(@", attrName, ", ", normalizeQuotes(attrValue + '-'), ")}");
-        }
+        var value2 = ignoreCase ? "concat(" + value + ", '-')" : normalizeQuotes(attrValue + '-');
+        node.add("{", attr, " = ", value, " or starts-with(", attr, ", ", value2, ")}");
         break;
       case "^=":
-        if (ignoreCase) {
-          node.add("starts-with(", lowerCaseValue, ", ", toLower(attrValue), ")");
-        } else {
-          node.add("starts-with(@", attrName, ", ", value, ")");
-        }
+        node.add("starts-with(", attr, ", ", value, ")");
         break;
       case "$=":
-        if (ignoreCase) {
-          node.add(endsWith(lowerCaseValue, "@" + attrName, value, toLower(attrValue)));
-        } else {
-          node.add(endsWith("@" + attrName, "@" + attrName, value, value));
-        }
+        node.add(endsWith(attr, "@" + attrName, normalizeQuotes(attrValue), value));
         break;
       case "*=":
-        if (ignoreCase) {
-          node.add("contains(", lowerCaseValue, ", ", toLower(attrValue), ")");
-        } else {
-          node.add("contains(@", attrName, ", ", value, ")");
-        }
+        node.add("contains(", attr, ", ", value, ")");
         break;
     }
-  }
-  function endsWith(str, str2, str3, str4) {
-    return "substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4;
   }
   function processClass(attrValue, operation, ignoreCase, node) {
     var attrName = ignoreCase ? translateToLower("@class") : "@class";
@@ -868,7 +838,7 @@
         break;
       case "iends-with":
         str = normalizeArg(arg);
-        node.add(endsWith(toLower(), "normalize-space()", str, str));
+        node.add(endsWith(toLower(), "normalize-space()", normalizeString(arg, name), str));
         break;
       case "is":
       case "matches":
@@ -1025,7 +995,7 @@
     for (var i = 0; i < array.length; i++) {
       if (i > 0) result += " or ";
       result += "ancestor-or-self::*[@lang][1][";
-      var rm = /^([a-z]+|\*)(?:-([a-z]+|\*))?(?:-([a-z]+|\*))?/i.exec(getStringContent(array[i].trim()));
+      var rm = /^([a-z]+\b|\*)(?:-([a-z]+\b|\*))?(?:-([^-]+))?/i.exec(getStringContent(array[i].trim()));
       if (rm) {
         if (rm[1] === "*") {
           if (isText(rm[2])) {
@@ -1048,7 +1018,7 @@
         }
         result += "]";
       } else {
-        argumentException(pseudo + name + "()' has wrong arguments");
+        argumentException(pseudo + name + "()' has wrong argument(s)");
       }
     }
     function isText(gr) {
@@ -1068,6 +1038,9 @@
       return opt.translate ? translateToLower(text, true) : text;
     }
     return result;
+  }
+  function endsWith(str, str2, str3, str4) {
+    return "substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4;
   }
   function transformNot(node) {
     var result = '';
@@ -1506,7 +1479,7 @@
     throw new ParserError(code, i + 1, message + str + ch + "'");
   }
   function regexException(i, fn, reg, arg) {
-    var str = arg || code.substring(i),
+    var str = arg || code.substr(i),
       msg = " failed to match the string: ";
     var text = '';
     if (opt.debug) {
