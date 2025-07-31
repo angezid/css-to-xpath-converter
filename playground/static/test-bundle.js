@@ -68,6 +68,15 @@
     }
   }
 
+  function hasOr(xpath, union) {
+    var reg = union ? /(?:[^'" |]|"[^"]*"|'[^']*')+|( or |\|)/g : /(?:[^'" ]|'[^']*'|"[^"]*")+|( or )/g;
+    var rm;
+    while (rm = reg.exec(xpath)) {
+      if (rm[1]) return true;
+    }
+    return false;
+  }
+
   function xNode(node) {
     this.axis = '';
     this.separator = '';
@@ -82,9 +91,13 @@
     };
     this.add = function () {
       var str = '',
+        arg = arguments,
         forbid = false;
-      for (var i = 0; i < arguments.length; i++) {
-        if (i === arguments.length - 1 && typeof arguments[i] === 'boolean') forbid = true;else str += arguments[i];
+      for (var i = 0; i < arg.length; i++) {
+        if (i === arg.length - 1 && typeof arg[i] === 'boolean') forbid = true;else if (hasOr(arg[i], true)) {
+          str += arg[i];
+          forbid = true;
+        } else str += arg[i];
       }
       if (!this.content) this.content = [];
       this.content.push({
@@ -111,19 +124,20 @@
       var text = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "";
       if (!this.isClone) {
         text = this.separator + this.axis + this.owner;
-        if (this.content) {
-          var len = this.content.length;
+        var array = this.content;
+        if (array) {
+          var len = array.length;
           if (len === 1) {
-            text += this.or ? this.content[0].str : '[' + removeBrackets(this.content[0].str) + ']';
+            text += this.or ? array[0].str : '[' + removeBrackets(array[0].str) + ']';
           } else {
             var join = false;
             for (var i = 0; i < len; i++) {
-              var obj = this.content[i],
+              var obj = array[i],
                 str = removeBrackets(obj.str),
                 last = i + 1 === len;
               if (!obj.forbid) {
                 text += (join ? ' and ' : '[') + str;
-                if (i + 1 < len && !this.content[i + 1].forbid) {
+                if (i + 1 < len && !array[i + 1].forbid) {
                   text += last ? ']' : '';
                   join = true;
                 } else {
@@ -281,22 +295,14 @@
           xpath += array[i];
         }
       }
-      xpath = xpath.replace(/([[(])\{((?:[^'"{}]|"[^"]*"|'[^']*')+)\}([\])])/g, '$1$2$3');
-      xpath = xpath.replace(/([/:])\*\[self::(\w+)(\[(?:[^"'[\]]|"[^"]*"|'[^']*')+\])?\]/g, "$1$2$3");
+      xpath = xpath.replace(/([[(])\{((?:[^'"{}]|'[^']*'|"[^"]*")+)\}([\])])/g, '$1$2$3');
+      xpath = xpath.replace(/([/:])\*\[self::(\w+)(\[(?:[^"'[\]]|'[^']*'|"[^"]*")+\])?\]/g, "$1$2$3");
       xpath = xpath.replace(/\/child::/g, '/');
     }
-    xpath = xpath.replace(/(?:[^'"{}]|"[^"]*"|'[^']*')+|([{}])/g, function (m, gr) {
+    xpath = xpath.replace(/(?:[^'"{}]|'[^']*'|"[^"]*")+|([{}])/g, function (m, gr) {
       return gr ? gr === "{" ? "(" : ")" : m;
     });
     return xpath;
-  }
-  function hasOr(xpath) {
-    var reg = /(?:[^'" ]|"[^"]*"|'[^']*')+|( or )/g;
-    var rm;
-    while (rm = reg.exec(xpath)) {
-      if (rm[1]) return true;
-    }
-    return false;
   }
   function convert(rootNode, selector, axis, owner, argumentInfo) {
     checkSelector(selector);
@@ -811,7 +817,7 @@
         break;
       case "eq":
       case "nth":
-        if (not) node.add(getNot(precedingSibling, " = "));else node.add(parseNumber(arg, name));
+        if (not) node.add(getNot(precedingSibling, " = "));else node.add(parseNumber(arg, name), true);
         break;
       case "last-child":
         node.add(notSibling(followingSibling));

@@ -1,5 +1,6 @@
 
 import xNode from "../src/xnode";
+import { hasOr } from "../src/util";
 import ParserError from "../src/parser-error";
 
 'use strict';
@@ -126,25 +127,17 @@ function postprocess(xpath) {
 			}
 		}
 		// removes pairs of curly braces; they were added to prevent joining predicates containing ' or ' by ' and '
-		xpath = xpath.replace(/([[(])\{((?:[^'"{}]|"[^"]*"|'[^']*')+)\}([\])])/g, '$1$2$3');
+		xpath = xpath.replace(/([[(])\{((?:[^'"{}]|'[^']*'|"[^"]*")+)\}([\])])/g, '$1$2$3');
 		// simplifies self axis construct (occurs in 'of' selectors)
-		xpath = xpath.replace(/([/:])\*\[self::(\w+)(\[(?:[^"'[\]]|"[^"]*"|'[^']*')+\])?\]/g,  "$1$2$3");
+		xpath = xpath.replace(/([/:])\*\[self::(\w+)(\[(?:[^"'[\]]|'[^']*'|"[^"]*")+\])?\]/g,  "$1$2$3");
 		// removes unnecessary child:: axis
 		xpath = xpath.replace(/\/child::/g, '/');
 	}
 
 	// replaces remaining curly braces
-	xpath = xpath.replace(/(?:[^'"{}]|"[^"]*"|'[^']*')+|([{}])/g, (m, gr) => gr ? (gr === "{" ? "(" : ")") : m);
-	return xpath;
-}
+	xpath = xpath.replace(/(?:[^'"{}]|'[^']*'|"[^"]*")+|([{}])/g, (m, gr) => gr ? (gr === "{" ? "(" : ")") : m);
 
-function hasOr(xpath) {
-	const reg = /(?:[^'" ]|"[^"]*"|'[^']*')+|( or )/g;
-	let rm;
-	while (rm = reg.exec(xpath)) {
-		if (rm[1]) return true;
-	}
-	return false;
+	return xpath;
 }
 
 function convert(rootNode, selector, axis, owner, argumentInfo) {
@@ -790,7 +783,7 @@ function processPseudoClass(name, arg, not, node) {
 		case "eq" :
 		case "nth" :
 			if (not) node.add(getNot(precedingSibling, " = "));
-			else node.add(parseNumber(arg, name));
+			else node.add(parseNumber(arg, name), true);
 			break;
 
 		case "last-child" :

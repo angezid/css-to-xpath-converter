@@ -643,7 +643,7 @@
 				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + equals + '; not equals = ' + notEquals;
 			}
 		}
-		if (cssElems.length !== xpathElems.length) {
+		if (success && (xpathElems.length === 0 || cssElems.length !== xpathElems.length)) {
 			if ( !options.translate && /translate\(/.test(xpath)) {
 				result += '\n<b>Note</b> that <b>translate</b> checkbox is unchecked.'
 			}
