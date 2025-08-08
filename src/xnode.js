@@ -24,11 +24,10 @@ export default function xNode(node) {
 
 		for (let i = 0; i < arg.length; i++) {
 			if (i === arg.length - 1 && typeof arg[i] === 'boolean') forbid = true;
-			else if(hasOr(arg[i], true)) {
+			else {
+				if(hasOr(arg[i], true)) forbid = true;
 				str += arg[i];
-				forbid = true;
-
-			} else str += arg[i];
+			} 
 		}
 		if ( !this.content) this.content = [];
 		this.content.push({ str, forbid });

@@ -249,7 +249,9 @@ const cssSelectors = {
       "p:lang('*-latn')",
       "p:lang('*-*-fr')",
       "p:lang('fr-*-*')",
-      "p:lang('fr-*-fr')",
+      "p:lang('*-1996')",
+      "p:lang('fr-*-1996')",
+      "p:lang('fr-*-*-1996')",
       "ul>li[title$='one' i]",
       "ul>li[title~='two' i]",
       "ul>li[title^='item' i]",
@@ -2386,6 +2388,7 @@ first letter should be included."></p>
 <p lang='en-GB'>10.</p>
 <p lang='fr'>11.</p>
 <p lang='fr-Latn-FR'>12.</p>
+<p lang='fr-Latn-FR-1996'>12.</p>
 </article>
 <div>
 <p class='c1'>1.</p>

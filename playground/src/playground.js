@@ -643,7 +643,7 @@
 				result += ' Elements are <b>not reference equals</b>:<br>equals = ' + equals + '; not equals = ' + notEquals;
 			}
 		}
-		if (success && (xpathElems.length === 0 || cssElems.length !== xpathElems.length)) {
+		if (success && (xpathElems.length === 0 && cssElems.length > 0 || cssElems.length !== xpathElems.length)) {
 			if ( !options.translate && /translate\(/.test(xpath)) {
 				result += '\n<b>Note</b> that <b>translate</b> checkbox is unchecked.'
 			}
@@ -751,7 +751,7 @@
 				sb.push('<tr class="group"><td id="', id, '">', title, '</td><td>' + (item[1] || '') + '</td><td><span class="example-info">' + (item[2] || '') + '</span></td></tr>');
 
 			} else {
-				let href = item[2] ? item[2].split(' ').map(n => hrefs[n]).join('') : '';
+				const href = item[2] ? item[2].split(' ').map(n => hrefs[n]).join('') : '';
 
 				options.standard = typeof item[3] === 'undefined';
 
@@ -759,7 +759,7 @@
 				if (xpath) {
 					xpath = xpath.replace(/ABCDEFGHJIKLMNOPQRSTUVWXYZ[^']*/g, 'ABC...').replace(/abcdefghjiklmnopqrstuvwxyz[^']*/g, 'abc...');
 
-					let description = item[1] ? item[1].replace(/ (n\d?)(?= |$)/g, ' <i>$1</i>') : ' - ';
+					const description = item[1] ? item[1].replace(/ (n\d?)(?= |$)/g, ' <i>$1</i>') : ' - ';
 
 					sb.push('<tr><td class="name">', href, description, '</td>');
 

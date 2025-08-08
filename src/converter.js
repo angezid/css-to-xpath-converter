@@ -631,15 +631,16 @@ function processAttribute(attrName, attrValue, operation, modifier, node) {
 		return;
 	}
 
-	const ignoreCase = modifier === "i" || attrName === 'lang' || attrName === 'type' && getOwner(node) == "input";
+	const asii = attrName === 'lang' || attrName === 'type' && getOwner(node) == "input", 
+		ignoreCase = modifier === "i" || asii;
 
 	if ( !opt.standard && attrName === "class") {
 		processClass(attrValue, operation, ignoreCase, node);
 		return;
 	}
 
-	const attr = ignoreCase ? translateToLower("@" + attrName) : "@" + attrName;
-	const value = ignoreCase ? toLower(attrValue) : normalizeQuotes(attrValue);
+	const attr = ignoreCase ? translateToLower("@" + attrName, asii) : "@" + attrName;
+	const value = ignoreCase ? toLower(attrValue, asii) : normalizeQuotes(attrValue);
 
 	switch (operation) {
 		case "=" :    // equals
@@ -726,7 +727,7 @@ function getClass(attrName, attributeValue) {
 }
 
 function processPseudoClass(name, arg, not, node) {
-	let nd, result, owner, num, str = '', val, localName = 'local-name()';
+	let nd, result, owner, num, str = '', val, psName = pseudo + name, localName = 'local-name()';
 
 	switch (name) {
 		case "any-link" :
@@ -738,7 +739,7 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "contains" :
-			node.add("contains(normalize-space(), ", normalizeString(arg, name), ")");
+			node.add("contains(normalize-space(), ", normalizeString(arg, psName), ")");
 			break;
 
 		case "icontains" :
@@ -762,7 +763,7 @@ function processPseudoClass(name, arg, not, node) {
 
 		case "first" :
 			if (not) node.add(arg ? getNot(precedingSibling, " <= ") : notSibling(precedingSibling));
-			else node.add(arg ? "position() <= " + parseNumber(arg, name) : "1", !arg);
+			else node.add(arg ? "position() <= " + parseNumber(arg, psName) : "1", !arg);
 			break;
 
 		case "first-of-type" :
@@ -772,18 +773,18 @@ function processPseudoClass(name, arg, not, node) {
 
 		case "gt" :
 			if (not) node.add(getNot(precedingSibling, " > "));
-			else node.add("position() > ", parseNumber(arg, name));
+			else node.add("position() > ", parseNumber(arg, psName));
 			break;
 
 		case "lt" :
 			if (not) node.add(getNot(precedingSibling, " <= "));
-			else node.add("position() < ", parseNumber(arg, name));
+			else node.add("position() < ", parseNumber(arg, psName));
 			break;
 
 		case "eq" :
 		case "nth" :
 			if (not) node.add(getNot(precedingSibling, " = "));
-			else node.add(parseNumber(arg, name), true);
+			else node.add(parseNumber(arg, psName), true);
 			break;
 
 		case "last-child" :
@@ -804,7 +805,7 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "starts-with" :
-			node.add("starts-with(normalize-space(), ", normalizeString(arg, name), ")");
+			node.add("starts-with(normalize-space(), ", normalizeString(arg, psName), ")");
 			break;
 
 		case "istarts-with" :
@@ -812,13 +813,13 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		case "ends-with" :
-			str = normalizeString(arg, name);
+			str = normalizeString(arg, psName);
 			node.add(endsWith("normalize-space()", "normalize-space()", str, str));
 			break;
 
 		case "iends-with" :
 			str = normalizeArg(arg);
-			node.add(endsWith(toLower(), "normalize-space()", normalizeString(arg, name), str));
+			node.add(endsWith(toLower(), "normalize-space()", normalizeString(arg, psName), str));
 			break;
 
 		case "is" :
@@ -887,7 +888,7 @@ function processPseudoClass(name, arg, not, node) {
 
 		case "last" :
 			if (not) node.add(arg ? getNot(followingSibling, " <= ") : notSibling(followingSibling));
-			else node.add(arg ? "position() > last() - " + parseNumber(arg, name) + "" : "last()", !arg);
+			else node.add(arg ? "position() > last() - " + parseNumber(arg, psName) + "" : "last()", !arg);
 			break;
 
 		case "last-of-type" :
@@ -897,38 +898,38 @@ function processPseudoClass(name, arg, not, node) {
 
 		case "skip" :
 			if (not) node.add(getNot(precedingSibling, " > "));
-			else node.add("position() > ", parseNumber(arg, name));
+			else node.add("position() > ", parseNumber(arg, psName));
 			break;
 
 		case "skip-first" :
 			if (not) node.add(arg ? getNot(precedingSibling, " > ") : notSibling(precedingSibling));
-			else node.add("position() > ", arg ? parseNumber(arg, name) : "1", !arg);
+			else node.add("position() > ", arg ? parseNumber(arg, psName) : "1", !arg);
 			break;
 
 		case "skip-last" :
 			if (not) node.add(arg ? getNot(followingSibling, " > ") : notSibling(followingSibling));
-			else node.add("position() < last()", arg ? " - " + (parseNumber(arg, name) - 1) : "");
+			else node.add("position() < last()", arg ? " - " + (parseNumber(arg, psName) - 1) : "");
 			break;
 
 		case "limit" :
 			if (not) node.add(getNot(precedingSibling, " <= "));
-			else node.add("position() <= ", parseNumber(arg, name));
+			else node.add("position() <= ", parseNumber(arg, psName));
 			break;
 
 		case "lang":
-			str = processLang(name, arg);
+			str = processLang(arg, psName);
 			if (str) node.add("{", str, "}");
 			break;
 
 		case "range" :
 			const splits = arg.split(',');
 
-			if (splits.length !== 2) argumentException(pseudo + name + "(,)' is required two numbers");
+			if (splits.length !== 2) argumentException(psName + "(,)' is required two numbers");
 
-			const start = parseNumber(splits[0], name);
-			const end = parseNumber(splits[1], name);
+			const start = parseNumber(splits[0], psName);
+			const end = parseNumber(splits[1], psName);
 
-			if (start >= end) argumentException(pseudo + name + "(" + start + ", " + end + ")' have wrong arguments");
+			if (start >= end) argumentException(psName + "(" + start + ", " + end + ")' have wrong arguments");
 
 			if (not) {
 				str = addCount(precedingSibling, "*", { count: start - 1, comparison: " >= " }) + " and ";
@@ -961,7 +962,7 @@ function processPseudoClass(name, arg, not, node) {
 			break;
 
 		default :
-			parseException(pseudo + name + "' is not implemented");
+			parseException(psName + "' is not implemented");
 			break;
 	}
 
@@ -976,84 +977,80 @@ function processPseudoClass(name, arg, not, node) {
 	}
 
 	function getNot(sibling, comparison) {
-		return addCount(sibling, "*", { count: parseNumber(arg, name) - 1, comparison });
+		return addCount(sibling, "*", { count: parseNumber(arg, psName) - 1, comparison });
 	}
 
 	function normalizeArg(arg) {
-		const text = normalizeString(arg, name);
+		const text = normalizeString(arg, psName);
 		return opt.translate ? translateToLower(text) : text;
 	}
 }
 
-function processLang(name, arg) {
-	const lang = translateToLower("@lang", true),
-		array = arg.split(',');
+function processLang(arg, psName) {
+	const ancestor = "ancestor-or-self::*[@lang][1][",
+		lang = translateToLower("@lang", true),
+		splits = arg.split(',');
 	let result = "";
 
-	for (let i = 0; i <array.length; i++) {
-		if (i > 0) result += " or ";
-		//result += "ancestor-or-self::*[@lang][1][not(contains(@"lang", ' ')) and (";
-		result += "ancestor-or-self::*[@lang][1][";
+	for (let i = 0; i <splits.length; i++) {
+		const str = getStringContent(splits[i]).replace(/(?:-\*)+$/, "");
 
-		const rm = /^([a-z]+\b|\*)(?:-([a-z]+\b|\*))?(?:-([^-]+))?/i.exec(getStringContent(array[i].trim()));
-		if (rm) {
-			if (rm[1] === "*") {
-				if (isText(rm[2])) {
-					result += containOrEnd(rm[2] + (isText(rm[3]) ? "-" + rm[3] : ""));
+		if ( !str) argumentException(psName + "()' has no argument");
 
-				} else if (isText(rm[3])) {
-					result += containOrEnd(rm[3]);
+		const array = str.split('-'),
+			arr = str.replace(/^\*(?:-\*)*/g, "").split(/(?:-\*)+/),
+			len = arr.length;
 
-				} else {
-					return "";
-				}
+		if (len > 2) argumentException(psName + "()' support max two wildcards");
 
-			} else if (rm[2] === "*") {
-				const val = normalize(rm[1] + "-");
+		result += (i > 0 ? " or " : "") + ancestor;
 
-				if(isText(rm[3])) {
-					result += "starts-with(" + lang + ", " + val + ") and (" + containOrEnd(rm[3]) + ")";
+		if (array[0] === "*") {
+			if (len > 1) {
+				result += contains(arr[0]) + " and " + ends(arr[1]); // *-w-*-w
 
-				} else {
-					result += equalOrStart(rm[1]);
-				}
+			} else if (arr[0]) {
+				result += contains(arr[0]) + " or " + ends(arr[0]);     // *-w, *-w-w, *-w-w-w
 
 			} else {
-				const text = rm[1] + (rm[2] ? "-" + rm[2] : "") + (isText(rm[3]) ? "-" + rm[3] : "");
-				result += equalOrStart(text);
+				return ancestor + "string-length(@lang) > 0]"; // any lang
 			}
-			result +=  "]";
 
 		} else {
-			argumentException(pseudo + name + "()' has wrong argument(s)");
+			const starts = "starts-with(" + lang + ", " + normalize(arr[0] + "-") + ")";
+
+			if (len > 1) { // w-*-w, w-*-w-w, w-*-*-w
+				result += starts  + " and ";
+				result += "(" + contains(arr[1], arr[0]) + " or " + ends(arr[1]) + ")";
+
+			} else { // w, w-w, w-w-w, w-w-w-w
+				result += lang + " = " + normalize(arr[0]) + " or " + starts;
+			}
 		}
+		result +=  "]";
 	}
 
-	function isText(gr) {
-		return gr && gr !== "*";
+	function contains(text, text2) {
+		const val = normalize(text + "-"),
+			attr = text2 ? "substring(" + lang + ", string-length(" + normalizeQuotes(text2, psName) + "))" : lang;
+		return "contains(" + attr + ", " + val + ")";
 	}
 
-	function equalOrStart(text) {
+	function ends(text) {
 		const val = normalize(text);
-		return lang + " = " + val + " or starts-with(" + lang + ", concat(" + val + ", '-'))";
-	}
-
-	function containOrEnd(text) {
-		const val = normalize("-" + text + "-");
-		const val2 = normalize("-" + text);
-		return "contains(substring(" + lang + ", string-length(substring-before(" + lang + ", " + val + "))), " + val + ") or " + endsWith(lang, "@lang", val2, val2);
+		return endsWith(lang, "@lang", val, val);
 	}
 
 	function normalize(text) {
-		text = normalizeQuotes(text, name);
+		text = normalizeQuotes(text, psName);
 		return opt.translate ? translateToLower(text, true) : text;
 	}
 
 	return result;
 }
 
-function endsWith(str, str2, str3, str4) {
-	return "substring(" + str + ", string-length(" + str2 + ") - (string-length(" + str3 + ") - 1)) = " + str4;
+function endsWith(attr, attr2, val, val2) {
+	return "substring(" + attr + ", string-length(" + attr2 + ") - (string-length(" + val + ") - 1)) = " + val2;
 }
 
 function transformNot(node) {
@@ -1161,7 +1158,7 @@ function processNth(name, arg, info, node) {
 			break;
 
 		default :
-			parseException(pseudo + name + "' is not implemented");
+			parseException(psName + "' is not implemented");
 			break;
 	}
 
@@ -1326,9 +1323,9 @@ function checkOfSelector(name, arg, node) {
 	return null;
 }
 
-function toLower(str) {
+function toLower(str, asii) {
 	str = str ? normalizeQuotes(str) : "normalize-space()";
-	return opt.translate ? translateToLower(str) : str;
+	return opt.translate ? translateToLower(str, asii) : str;
 }
 
 function translateToLower(str, asii) {
@@ -1336,32 +1333,32 @@ function translateToLower(str, asii) {
 	return "translate(" + str + ", '" + letters.toUpperCase() + (asii ? "" : uppercase) + "', '" + letters + (asii ? "" : lowercase) + "')";
 }
 
-function normalizeString(str, name) {
+function normalizeString(str, psName) {
 	if ( !str) {
-		argumentException(pseudo + name + "' has missing argument");
+		argumentException(psName + "' has missing argument");
 	}
-	str = normalizeQuotes(str, name);
+	str = normalizeQuotes(str, psName);
 
 	return "normalize-space(" + str + ")";
 }
 
-function normalizeQuotes(text, name) {
+function normalizeQuotes(text, psName) {
 	text = text.replace(/\\(?=.)/g, '');
 
 	if (text.includes("'")) {
 		if ( !text.includes("\"")) return '"' + text + '"';
 
-		argumentException((name ? pseudo + name + "' string argument" : 'string') + " contains both '\"' and '\'' quotes");
+		argumentException((psName ? psName + "' string argument" : 'string') + " contains both '\"' and '\'' quotes");
 	}
 	return '\'' + text + '\'';
 }
 
-function parseNumber(str, name) {
+function parseNumber(str, psName) {
 	const num = parseInt(str);
 	if (Number.isInteger(num)) return num;
 
 	const msg = !str ? "' has missing argument" : "' argument '" + str + "' is not an integer";
-	argumentException(pseudo + name + msg);
+	argumentException(psName + msg);
 }
 
 function parseTagName(i, node) {
@@ -1562,7 +1559,7 @@ function getStringContent(text) {
 		const start = text[0], end = text[len - 1];
 
 		if (start === '\'' && end === '\'' || start === '"' && end === '"') {
-			if (len > 2) text = text.substr(1, len - 2);
+			text = text.substr(1, len - 2);
 		}
 	}
 	return text;

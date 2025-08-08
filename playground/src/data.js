@@ -98,7 +98,7 @@ const exampleSelectors = [
 	["li:limit(5)", "from to n inclusive", "0"],
 	["li:range(2, 5)", "from n1 to n2 inclusive", "0"],
 	[":dir(ltr)", "not handle auto"],
-	["p:lang(en)", ""],
+	["p:lang(en)", "support wildcard (limited)"],
 	["a:external", ""],
 	["*:empty", "empty elements"],
 	[":checked", ""],

@@ -74,15 +74,15 @@ See online [converter / playground](https://angezid.github.io/css-to-xpath-conve
 |   ":has-sibling(s)"      |                                                          |                        |
 |   ":is(s)"               |                                                          |                        |
 |   ":matches(s)"          |                                                          |                        |
-|   ":lang(t)"             |                                                          |                        |
+|   ":lang(t)"             |                                                          | support wildcard (limited) |
 |   ":last"                |   select the last element                                |                        |
 |   ":last(n)"             |   select the last `n` element                            |                        |
 |   ":last-child"          |                                                          |                        |
 |   ":last-of-type"        |                                                          |                        |
 |   ":limit(n)"            |   select specified number of elements                    |                        |
 |   ":not(s)"              |                                                          |                        |
-|   ":nth-child()"         |                                                          | supports `of` selector |
-|   ":nth-last-child()"    |                                                          | supports `of` selector |
+|   ":nth-child()"         |                                                          | support `of` selector  |
+|   ":nth-last-child()"    |                                                          | support `of` selector  |
 |   ":nth-of-type()"       |                                                          |                        |
 |   ":nth-last-of-type()"  |                                                          |                        |
 |   ":only-child"          |                                                          |                        |
