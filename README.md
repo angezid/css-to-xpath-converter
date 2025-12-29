@@ -5,13 +5,13 @@ Also, it implements non-standard class attribute behavior which has more practic
 
 It's inspired by [css2xpath](https://github.com/css2xpath/css2xpath), but it is too buggy.
 
-The converter has been tested in Puppeteer and Chrome. See [Test results](https://angezid.github.io/css-to-xpath-converter/css2xpath-tests.html).  
+Tests can be run in your current browser. See [Tests](https://angezid.github.io/css-to-xpath-converter/css2xpath-tests.html).  
 The C# version was tested using an HTML navigator inherited from `System.Xml.XPath.XPathNavigator`.
 
 **Important:** the converter itself doesn't check validity neither of CSS selector nor of resulted XPath.  
 Although the converter is capturing a lot of mistakes, but not all.
 
-See online [converter / playground](https://angezid.github.io/css-to-xpath-converter). It contains a lot of examples and you can also test the validity of XPath/CSS selector and what elements they are actually selecting.
+See online [converter / playground](https://angezid.github.io/css-to-xpath-converter/index.html). It contains a lot of examples and you can also test the validity of XPath/CSS selector and what elements they are actually selecting.
 
 <details>
 <summary><b>It allows using these CSS selectors:</b></summary>
@@ -151,4 +151,4 @@ if (xpath) console.log(xpath);
   };
   ```
 
-[converter]: https://angezid.github.io/css-to-xpath-converter
+[converter]: https://angezid.github.io/css-to-xpath-converter/index.html

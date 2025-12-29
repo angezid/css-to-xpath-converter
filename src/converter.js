@@ -1489,7 +1489,7 @@ function normalizeWhiteSpaces(text) {
 			const k = findEnd(i, ch, false);
 
 			if (k !== -1) {
-				sb.push(code.substring(i, k + 1));
+				sb.push(code.slice(i, k + 1));
 				i = k;
 
 			} else {
@@ -1544,7 +1544,7 @@ function parseArgument(i, text, original, open, close) {
 		} else {
 			if (ch === open) n++;
 			else if (ch === close && --n === 0) {
-				const str = text.substring(start, i);
+				const str = text.slice(start, i);
 				return { index: i, content: original ? str : getStringContent(str) };
 			}
 		}

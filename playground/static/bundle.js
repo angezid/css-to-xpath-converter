@@ -1386,7 +1386,7 @@
       } else if (ch === '"' || ch === '\'') {
         var _k = findEnd(i, ch, false);
         if (_k !== -1) {
-          sb.push(code.substring(i, _k + 1));
+          sb.push(code.slice(i, _k + 1));
           i = _k;
         } else {
           characterException(i, ch, "function normalizeWhiteSpaces()", code);
@@ -1431,7 +1431,7 @@
         if (i >= text.length) characterException(i, ch, "function parseArgument()", text);
       } else {
         if (ch === open) n++;else if (ch === close && --n === 0) {
-          var str = text.substring(start, i);
+          var str = text.slice(start, i);
           return {
             index: i,
             content: original ? str : getStringContent(str)

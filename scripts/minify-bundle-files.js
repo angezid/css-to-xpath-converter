@@ -12,22 +12,22 @@ process(files, 'bundle.js', 4);
 process(testFiles, 'test-bundle.js', 1);
 
 async function process(files, fileName, start) {
-let scripts = '';
+	let scripts = '';
 
-scripts += fs.readFileSync(sourceDir + files[0]) + '\n\n';
+	scripts += fs.readFileSync(sourceDir + files[0]) + '\n\n';
 
-for (let i = 1; i < files.length; i++) {
-const code = fs.readFileSync(sourceDir + files[i], 'utf-8');
-const result = await minify(code.trim());
+	for (let i = 1; i < files.length; i++) {
+		const code = fs.readFileSync(sourceDir + files[i], 'utf-8');
+		const result = await minify(code.trim());
 
-if (i > start) {
-scripts += '/*!****************************\n* ' + files[i] + '\n******************************/\n';
-}
+		if (i > start) {
+			scripts += '/*!****************************\n* ' + files[i] + '\n******************************/\n';
+		}
 
-scripts += result.code + '\n\n';
-}
+		scripts += result.code + '\n\n';
+	}
 
-//scripts += fs.readFileSync(sourceDir +  'playground.js') + '\n\n';
+	//scripts += fs.readFileSync(sourceDir +  'playground.js') + '\n\n';
 
-fs.writeFileSync(destDir + fileName, scripts);
+	fs.writeFileSync(destDir + fileName, scripts);
 }
