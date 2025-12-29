@@ -13,18 +13,18 @@
 	'use strict';
 
 	const settings = {
-		selectors : [],
-		standard : false,
-		lowercase : '',
-		uppercase : '',
-		html : '',
-		showHtmlBox : false,
+		selectors:[],
+		standard: false,
+		lowercase: '',
+		uppercase: '',
+		html: '',
+		showHtmlBox: false,
 
-		save : function() {
+		save: function() {
 			this.saveValue('selectors', JSON.stringify(settings));
 		},
 
-		load : function() {
+		load: function() {
 			const str = this.loadValue('selectors');
 			if (str) {
 				const json = JSON.parse(str);
@@ -36,12 +36,12 @@
 			}
 		},
 
-		loadValue : function(key) {
+		loadValue: function(key) {
 			try { return localStorage.getItem(key); } catch (e) { }
 			return null;
 		},
 
-		saveValue : function(key, value) {
+		saveValue: function(key, value) {
 			try {
 				if (value !== localStorage.getItem(key)) {
 					localStorage.setItem(key, value);
@@ -82,39 +82,39 @@
 		clearHtmlButton = document.getElementById('clear-html');
 
 	new autoComplete(cssBox, {
-		suggestions: [autocompleteCSS, htmlTags, htmlAttributes.map(str => str.replace('@', '['))],
-		regex : /(^|[\s"'*./:=>+~^!@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
-		threshold : 2,
-		startsWith : true,
-		listItem : (elem, data) => {
+		suggestions:[autocompleteCSS, htmlTags, htmlAttributes.map(str => str.replace('@', '['))],
+		regex: /(^|[\s"'*./:=>+~^!@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
+		threshold: 2,
+		startsWith: true,
+		listItem: (elem, data) => {
 			process(elem);
 		},
-		debug : !debug.checked
+		debug:!debug.checked
 	});
 
 	new autoComplete(xpathBox, {
-		suggestions: [autocompleteXPath, htmlTags, htmlAttributes],
+		suggestions:[autocompleteXPath, htmlTags, htmlAttributes],
 		//regex : /(^|[\s"'*./:=@()[\]\\|]|[/[](?=@))([@]?[\w-]+)$/u,
-		regex : /(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,
-		threshold : 2,
-		startsWith : true,
-		highlight : true,
-		listItem : (elem, data) => {
+		regex: /(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,
+		threshold: 2,
+		startsWith: true,
+		highlight: true,
+		listItem: (elem, data) => {
 			process(elem);
 		},
-		debug : !debug.checked
+		debug:!debug.checked
 	});
 
-	const cssEditor = CodeJar(cssBox, null, { tab : '  ' }),
-		xpathEditor = CodeJar(xpathBox, null, { tab : '  ' }),
-		htmlEditor = CodeJar(htmlBox, null, { tab : '  ' });
+	const cssEditor = CodeJar(cssBox, null, { tab: '  ' }),
+		xpathEditor = CodeJar(xpathBox, null, { tab: '  ' }),
+		htmlEditor = CodeJar(htmlBox, null, { tab: '  ' });
 
 	const options = {
-		axis : './/',
-		standard : false,
-		uppercaseLetters : '',
-		lowercaseLetters : '',
-		printError : (message) => xpathBox.innerHTML = '<span class="errors">' + message + '</span>'
+		axis: './/',
+		standard: false,
+		uppercaseLetters: '',
+		lowercaseLetters: '',
+		printError: (message) => xpathBox.innerHTML = '<span class="errors">' + message + '</span>'
 	};
 
 	let changed = false,
@@ -124,7 +124,7 @@
 
 	function initConverter() {
 		if (location.protocol === 'file:') {
-			debug.className = ''; // show checkbox
+			debug.className = '';    // show checkbox
 		}
 
 		setExamples();
@@ -176,7 +176,7 @@
 	}
 
 	function beautify(html) {
-		try { return html_beautify(html); } catch(e) { return html; }
+		try { return html_beautify(html); } catch (e) { return html; }
 	}
 
 	function updateSelector() {
@@ -537,22 +537,22 @@
 		if ( !length) return;
 
 		const instance = new Mark(htmlBox),
-			tagReg = /<[A-Za-z][\w:-]*(?:[^>"']+|"[^"]*"|'[^']*')*>/y;
+			reg = /<[A-Za-z][\w:-]*(?:[^>"']+|"[^"]*"|'[^']*')*>|[^<]+/y;
 		let i = 0;
-		tagReg.lastIndex = startIndexes[i];
+		reg.lastIndex = startIndexes[i];
 
-		instance.unmark().markRegExp(tagReg, {
-			acrossElements : true,
-			each : () => {
+		instance.unmark().markRegExp(reg, {
+			acrossElements: true,
+			each: () => {
 				if (++i < length) {
-					tagReg.lastIndex = startIndexes[i];
+					reg.lastIndex = startIndexes[i];
 					//console.log(startIndexes[i], htmlBox.textContent.substr(startIndexes[i], 20));
 
 				} else {
-					tagReg.lastIndex = Infinity;
+					reg.lastIndex = Infinity;
 				}
 			},
-			done : (_, totalMatches) => {
+			done: (_, totalMatches) => {
 				if (totalMatches !== length) {
 					showMessage('main.js: Indexes count ' + length + ' !== ' + totalMatches + ' number of highlighted elements');
 				}
@@ -563,31 +563,33 @@
 
 		const elem = htmlBox.querySelector('mark');
 		if (elem) {
-			elem.scrollIntoView({ block : "center" });
+			elem.scrollIntoView({ block: "center" });
 			document.getElementById('demo')?.scrollIntoView();
 			scrollBy(0, -10);
 		}
 	}
 
-	function findStartIndexes(element, html) {
-		const nodes = element.querySelectorAll('*');
+	function findStartIndexes(elem, html) {
+		const whatToShow = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+			iterator = document.createNodeIterator(elem, whatToShow),
+			startIndexes = [];
+		let index = 0,
+			node;
 
-		const startIndexes = [];
-		let index = 0;
-
-		nodes.forEach(node => {
-			const outerHTML = node.outerHTML;
-			const startIndex = html.indexOf(outerHTML, index);
+		while ((node = iterator.nextNode())) {
+			const text = node.nodeType === 3 ? node.nodeValue : node.outerHTML,
+				startIndex = html.indexOf(text, index);
 
 			if (startIndex !== -1) {
-				startIndexes.push({
-					node : node,
-					startIndex : startIndex
-				});
-				index = startIndex + 3; // minimal open tag length is 3
-			}
-		});
+				const offset = node.nodeType === 3 ? text.length : text.indexOf('>' + node.innerHTML + '<', 3) + 1;
+				index = startIndex + (offset < 0 ? 1 : offset);
 
+				startIndexes.push({
+					node: node,
+					startIndex: startIndex,
+				});
+			}
+		}
 		return startIndexes;
 	}
 
@@ -604,7 +606,7 @@
 		try {
 			cssElems = doc.querySelectorAll(selector);
 
-		} catch(e) {
+		} catch (e) {
 			result += 'Selector is not valid; ';
 			success = false;
 		}
@@ -684,7 +686,7 @@
 		const upper = uppercase.value.trim(),
 			lower = lowercase.value.trim();
 
-		settings.selectors.unshift({ selector, axis : axis, lowercase : lower, uppercase : upper });
+		settings.selectors.unshift({ selector, axis: axis, lowercase: lower, uppercase: upper });
 
 		if (settings.selectors.length > maxSaveNumber) {
 			settings.selectors.pop();
@@ -778,3 +780,4 @@
 		return sb.join('');
 	}
 });
+
