@@ -462,7 +462,8 @@
 		if ( !doc) return;
 
 		let node,
-			iterator;
+			iterator,
+			regex;
 
 		try {
 			iterator = doc.evaluate(xpath, doc, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
@@ -471,20 +472,41 @@
 			return;
 		}
 
-		const startIndexes = [];
+		const startIndexes = [],
+			attrInfo = [],
+			map = new Map();
 
 		while ((node = iterator.iterateNext())) {
 			for (let i = 0; i < indexes.length; i++) {
-				if (node === indexes[i].node) {
-					startIndexes.push(indexes[i].startIndex);
-					break;
+				if (node.nodeType === 2) { // attribute node
+					if (node.ownerElement === indexes[i].node) {
+						const pattern = '(\\s+)(' + escape(node.nodeName) + '(?:\\s*=\\s*(?:[^\\s>\\/"\']+|"[^"]*"|\'[^\']*\')*)?)';
+
+						if (map.has(pattern)) regex = map.get(pattern);
+						else {
+							regex = new RegExp(pattern, 'g');
+							map.set(pattern, regex);
+						}
+						attrInfo.push({ startIndex: indexes[i].startIndex, regex });
+						break;
+					}
+
+				} else {
+					if (node === indexes[i].node) {
+						startIndexes.push(indexes[i].startIndex);
+						break;
+					}
 				}
 			}
 		}
 
 		htmlEditor.updateCode(htmlString);
-		highlightElements(startIndexes, 'XPath: ');
+		highlight(startIndexes, attrInfo, 'XPath: ');
 		settings.html = htmlString;
+	}
+
+	function escape(str) {
+		return str.replace(/[[\]/{}()*+?.\\^$|]/g, '\\$&');
 	}
 
 	function highlightCSS() {
@@ -515,7 +537,7 @@
 			}
 		}
 		htmlEditor.updateCode(htmlString);
-		highlightElements(startIndexes, 'CSS: ');
+		highlight(startIndexes, null, 'CSS: ');
 		settings.html = htmlString;
 	}
 
@@ -530,34 +552,27 @@
 		return { doc, htmlString, indexes };
 	}
 
-	function highlightElements(startIndexes, type) {
-		const length = startIndexes.length;
-		showMessage(type + 'count = ' + length);
+	function highlight(indexes, attrInfo, type) {
+		const length = indexes.length,
+			attrLength = attrInfo ? attrInfo.length : 0;
+		showMessage(type + 'count = ' + (length + attrLength));
 
-		if ( !length) return;
+		const instance = new Mark(htmlBox);
+		instance.unmark();
 
-		const instance = new Mark(htmlBox),
-			reg = /<[A-Za-z][\w:-]*(?:[^>"']+|"[^"]*"|'[^']*')*>|[^<]+/y;
-		let i = 0;
-		reg.lastIndex = startIndexes[i];
+		let count = 0;
+		if (attrLength) {
+			count = highlightAttributes(instance, attrInfo);
+		}
 
-		instance.unmark().markRegExp(reg, {
-			acrossElements: true,
-			each: () => {
-				if (++i < length) {
-					reg.lastIndex = startIndexes[i];
-					//console.log(startIndexes[i], htmlBox.textContent.substr(startIndexes[i], 20));
+		if (length) {
+			count += highlightElements(instance, indexes);
+		}
 
-				} else {
-					reg.lastIndex = Infinity;
-				}
-			},
-			done: (_, totalMatches) => {
-				if (totalMatches !== length) {
-					showMessage('main.js: Indexes count ' + length + ' !== ' + totalMatches + ' number of highlighted elements');
-				}
-			}
-		});
+		const total = length + attrLength;
+		if (total !== count) {
+			showMessage('main.js: Indexes count ' + count + ' !== ' + total + ' number of highlighted elements');
+		}
 
 		if ( !debug.checked) return;
 
@@ -567,6 +582,51 @@
 			document.getElementById('demo')?.scrollIntoView();
 			scrollBy(0, -10);
 		}
+	}
+
+	function highlightElements(instance, indexes) {
+		const length = indexes.length,
+			reg = /<[A-Za-z][\w:-]*(?:[^>"']+|"[^"]*"|'[^']*')*>|[^<]+/y;
+		let i = 0,
+			count = 0;
+		reg.lastIndex = indexes[i];
+
+		instance.markRegExp(reg, {
+			acrossElements: true,
+			each: () => {
+				if (++i < length) {
+					reg.lastIndex = indexes[i];
+					//console.log(indexes[i], htmlBox.textContent.substr(indexes[i], 20));
+
+				} else {
+					reg.lastIndex = Infinity;
+				}
+			},
+			done: (_, totalMatches) => {
+				count = totalMatches;
+			}
+		});
+		return count;
+	}
+
+	function highlightAttributes(instance, attrInfo) {
+		let count = 0;
+
+		attrInfo.forEach((info, i) => {
+			info.regex.lastIndex = info.startIndex;
+
+			instance.markRegExp(info.regex, {
+				acrossElements: true,
+				ignoreGroups: 1,
+				each: () => {
+					info.regex.lastIndex = Infinity;    // highlights single attribute
+				},
+				done: () => {
+					count++;
+				}
+			});
+		});
+		return count;
 	}
 
 	function findStartIndexes(elem, html) {
