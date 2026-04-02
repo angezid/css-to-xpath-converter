@@ -2,7 +2,7 @@
 * css-to-xpath-converter 1.0.0
 * https://github.com/angezid/css-to-xpath-converter
 * MIT licensed
-* Copyright (c) 2024–2025, angezid
+* Copyright (c) 2024–2026, angezid
 *********************************************/
 function hasOr(xpath, union) {
 	const reg = union ? /(?:[^'" |]|"[^"]*"|'[^']*')+|( or |\|)/g : /(?:[^'" ]|'[^']*'|"[^"]*")+|( or )/g;
