@@ -81,7 +81,7 @@
 		htmlList = document.getElementById('html-list'),
 		clearHtmlButton = document.getElementById('clear-html');
 
-	new autoComplete(cssBox, {
+	new AutoComplete(cssBox, {
 		suggestions:[autocompleteCSS, htmlTags, htmlAttributes.map(str => str.replace('@', '['))],
 		regex: /(^|[\s"'*./:=>+~^!@()[\]\\|]|[a-z](?=:)|[\s\w](?=\[))([:[@]?\w+[\w-]+)$/u,
 		threshold: 2,
@@ -92,7 +92,7 @@
 		debug:!debug.checked
 	});
 
-	new autoComplete(xpathBox, {
+	new AutoComplete(xpathBox, {
 		suggestions:[autocompleteXPath, htmlTags, htmlAttributes],
 		//regex : /(^|[\s"'*./:=@()[\]\\|]|[/[](?=@))([@]?[\w-]+)$/u,
 		regex: /(?<trigger>^|[\s"'*./:=([\\|]|[/[](?=@))(?<query>[@]?[\w-]+)$/u,

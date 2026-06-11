@@ -7,7 +7,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.autoComplete = factory());
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.AutoComplete = factory());
 })(this, (function () { 'use strict';
 
   function _extends() {
@@ -230,7 +230,7 @@
     }
   };
 
-  function autoComplete(ctx, options) {
+  function AutoComplete(ctx, options) {
     this.newElement = function (newCtx) {
       removeElementEvents();
       registerElement(newCtx);
@@ -666,6 +666,6 @@
     }
   }
 
-  return autoComplete;
+  return AutoComplete;
 
 }));
