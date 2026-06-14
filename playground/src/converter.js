@@ -318,12 +318,15 @@
       state = State.Text,
       check = false,
       first = true,
-      value,
       i = -1,
-      ch = code[0];
+      value,
+      ch;
     code = selector;
     length = code.length;
-    if (/^[,(]/.test(code) || !name && /^[>+~^!]/.test(ch)) exception();
+    if (/^[,|(]/.test(code) || (not || !name) && /^[>+~^!]/.test(code)) {
+      ch = code[0];
+      exception();
+    }
     if (/[.#[:>+~^!]$/.test(code)) {
       ch = code[length - 1];
       exception(length);
@@ -722,7 +725,7 @@
         node.add("contains(concat(' ', normalize-space(", attr, "), ' '), concat(' ', normalize-space(", value, "), ' '))");
         break;
       case "|=":
-        var value2 = ignoreCase ? "concat(" + value + ", '-')" : normalizeQuotes(attrValue + '-');
+        var value2 = ignoreCase ? toLower(attrValue + '-', asii) : normalizeQuotes(attrValue + '-');
         node.add("{", attr, " = ", value, " or starts-with(", attr, ", ", value2, ")}");
         break;
       case "^=":

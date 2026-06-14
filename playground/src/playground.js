@@ -478,7 +478,7 @@
 
 		while ((node = iterator.iterateNext())) {
 			for (let i = 0; i < indexes.length; i++) {
-				if (node.nodeType === 2) { // attribute node
+				if (node.nodeType === 2) {    // attribute node
 					if (node.ownerElement === indexes[i].node) {
 						const pattern = '(\\s+)(' + escape(node.nodeName) + '(?:\\s*=\\s*(?:[^\\s>\\/"\']+|"[^"]*"|\'[^\']*\')*)?)';
 
@@ -800,7 +800,7 @@
 	}
 
 	function buildTable(array, examples) {
-		const hrefs = ['<a href="#info-1">[1]</a> ', '<a href="#info-2">[2]</a> ', '<a href="#info-3">[3]</a> '];
+		const hrefs = ['<a href="#info-1">[1]</a> ', '<a href="#info-2">[2]</a> ', '<a href="#info-3">[3]</a> ', '<a href="#info-4">[4]</a> '];
 		const sb = [];
 		sb.push('<table><thead><tr><th>Description</th><th>CSS</th><th class="thead-xpath">XPath</th></tr></thead><tbody>');
 

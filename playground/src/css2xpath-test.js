@@ -3,13 +3,23 @@
 
 let saveResults;
 
+standard.addEventListener('change', function(e) {
+	performTest();
+});
+
+translate.addEventListener('change', function(e) {
+	performTest();
+});
+
 performTest();
 
 function performTest() {
-	const coverage = {};
+	const coverage = {},
+		standard = document.getElementById('standard'),
+		translate = document.getElementById('translate');
 	let array;
 	let success = true;
-
+	
 	for (const key in cssSelectors) {
 		const section = cssSelectors[key];
 
@@ -34,9 +44,9 @@ function performTest() {
 					xpathError,
 					xpath;
 
-				const obj = toXPath(selector, { standard : true });
+				const obj = toXPath(selector, { standard: standard.checked, translate: translate.checked });
 				if (obj.error) {
-					array.push({ 'error' : true, 'text' : `${css}`, message : obj.error });
+					array.push({ 'error': true, 'text': `${css}`, message: obj.error });
 					continue;
 				}
 
@@ -54,19 +64,19 @@ function performTest() {
 
 				if (cssError) {
 					let count = xpathElems ? xpathElems.length : NaN;
-					array.push({ 'notValid' : 'css', 'text' : `${css}`, 'xpath' : `${xpath}`, 'xpathCount' : count });
+					array.push({ 'notValid': 'css', 'text': `${css}`, 'xpath': `${xpath}`, 'xpathCount': count });
 				}
 
 				if (xpathError) {
 					let count = cssElems ? cssElems.length : NaN;
-					array.push({ 'notValid' : 'xpath', 'css' : `${css}`, 'text' : `${xpath}`, 'cssCount' : count  })
+					array.push({ 'notValid': 'xpath', 'css': `${css}`, 'text': `${xpath}`, 'cssCount': count })
 				}
 
 				if (cssError || xpathError) continue;
 
 				if (cssElems.length === xpathElems.length) {
 					if (cssElems.length === 0) {
-						array.push({ 'noMatch' : true, 'css' : `${css}`, 'xpath' : `${xpath}` });
+						array.push({ 'noMatch': true, 'css': `${css}`, 'xpath': `${xpath}` });
 
 					} else {
 						let passed = true;
@@ -79,15 +89,15 @@ function performTest() {
 						}
 
 						if (passed) {
-							array.push({ 'success' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
+							array.push({ 'success': true, 'css': `${css}`, 'xpath': `${xpath}`, 'count': cssElems.length });
 
 						} else {
-							array.push({ 'notReferenceEquals' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'count' : cssElems.length });
+							array.push({ 'notReferenceEquals': true, 'css': `${css}`, 'xpath': `${xpath}`, 'count': cssElems.length });
 						}
 					}
 
 				} else {
-					array.push({ 'notEquals' : true, 'css' : `${css}`, 'xpath' : `${xpath}`, 'cssCount' : cssElems.length, 'xpathCount' : xpathElems.length });
+					array.push({ 'notEquals': true, 'css': `${css}`, 'xpath': `${xpath}`, 'cssCount': cssElems.length, 'xpathCount': xpathElems.length });
 					success = false;
 				}
 			}
@@ -131,11 +141,11 @@ function reportCoverage(coverage) {
 			} else if (item.notValid) {
 				if (item.notValid === 'css') {
 					const errBoth = item.xpathCount === NaN ? 'color: #f0f' : '';
-					const htmlCss =`<p><span style="${errBoth}">${item.text}</span> <b>CSS</b><b>  x === ${item.xpathCount}</b> ${item.xpath}</p>\n`;
+					const htmlCss = `<p><span style="${errBoth}">${item.text}</span> <b>CSS</b><b>  x === ${item.xpathCount}</b> ${item.xpath}</p>\n`;
 					notValid.push({ html: htmlCss });
 
 				} else if (item.notValid === 'xpath') {
-					const htmlXpath =`<p>${item.css} <b>${item.cssCount} --- x </b> <span style="color: #f00">${item.text}</span> <b>XPath</b></p>\n`;
+					const htmlXpath = `<p>${item.css} <b>${item.cssCount} --- x </b> <span style="color: #f00">${item.text}</span> <b>XPath</b></p>\n`;
 					notValid.push({ html: htmlXpath, error: true });
 				}
 
@@ -239,10 +249,10 @@ function save(html) {
 	let text = deEntitize(html.trim().replace(/<h\d[^>]*>/g, '\n').replace(/<\/?[^>]+>/g, ''));
 	const array = text.split('\n').filter((str) => !/^(?:Coverter|Css|Have|Not|Passed|Results)/.test(str));
 	text = array.sort().join('\n').trim();
-	
+
 	const elem = document.getElementById('save-results');
 	elem.download = 'test-results.txt';
-	elem.href = URL.createObjectURL(new Blob([text], { type : 'text/text' }));
+	elem.href = URL.createObjectURL(new Blob([text], { type: 'text/text' }));
 }
 
 function entitize(text) {
@@ -263,3 +273,4 @@ document.getElementById('save-results').addEventListener('click', function() {
 	saveResults = true;
 	performTest();
 });
+
