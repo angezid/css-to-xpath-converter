@@ -5,7 +5,7 @@
 	<title>Test results</title>
 	<style>
 		body { font: 16px/135% Arial, sans-serif; }
-		main { width: 82%; margin-left: 20px; }
+		main { width: 82%; margin-left: 30px; }
 		aside { width: 17%; position: fixed; right: 20px; }
 		nav { height: 98vh; overflow-y: auto; }
 		ul { margin: 0 0 6px 20px; padding: 0; }
@@ -17,10 +17,12 @@
 	</style>
 </head>
 <body>
+	<input type="checkbox" id="standard" style="position:fixed" checked title="Turn on/off class attribute behavior">
+	<input type="checkbox" id="translate" style="position:fixed; top:50px" checked title="Turn on/off translate to lower case attribute values and string arguments when perform case insensitive operations">
 	<aside id=sidebar>
 	</aside>
 	<main>
-		<h1><a id="save-results" href="#">Test results</a></h1>
+		<h1><a id="save-results" href="#" title="Save test results">Test results</a></h1>
 		<div id=info>
 			<h2>About tests</h2>
 			<p>All tests are run in your current browser.</p>
