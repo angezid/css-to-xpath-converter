@@ -164,7 +164,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 	code = selector;
 	length = code.length;
 	
-	if (/^[,|(]/.test(code) || (not || !name) && /^[>+~^!]/.test(code)) {
+	if (/^[,(]/.test(code) || (not || !name) && /^[>+~^!]/.test(code)) {
 		ch = code[0];
 		exception();
 	}
