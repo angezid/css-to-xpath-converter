@@ -310,7 +310,7 @@
     var node = newNode(unitNode, null);
     var name = argumentInfo ? argumentInfo.name : '';
     var predicate = argumentInfo && argumentInfo.predicate;
-    var not = name === 'not';
+    var isOrNot = name === 'not' || name === 'is';
     var attrName = null,
       attrValue = null,
       modifier = null,
@@ -323,7 +323,7 @@
       ch;
     code = selector;
     length = code.length;
-    if (/^[,(]/.test(code) || (not || !name) && /^[>+~^!]/.test(code)) {
+    if (/^[,(]/.test(code) || (isOrNot || !name) && /^[>+~^!]/.test(code)) {
       ch = code[0];
       exception();
     }
@@ -371,36 +371,36 @@
             check = false;
             break;
           case '>':
-            if (not) node = addNode(unitNode, node, "parent::");else node = newNode(unitNode, node, "child::", "/");
+            if (isOrNot) node = addNode(unitNode, node, "parent::");else node = newNode(unitNode, node, "child::", "/");
             check = true;
             break;
           case '+':
-            if (not) node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");else node = addTwoNodes(unitNode, node, followingSibling, "*", "1");
+            if (isOrNot) node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");else node = addTwoNodes(unitNode, node, followingSibling, "*", "1");
             check = true;
             break;
           case '~':
-            if (not) node = addNode(unitNode, node, precedingSibling);else node = newNode(unitNode, node, followingSibling, "/");
+            if (isOrNot) node = addNode(unitNode, node, precedingSibling);else node = newNode(unitNode, node, followingSibling, "/");
             check = true;
             break;
           case '^':
-            if (not) node = addNode(unitNode, node, "parent::", notSibling(precedingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "1");
+            if (isOrNot) node = addNode(unitNode, node, "parent::", notSibling(precedingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "1");
             check = true;
             break;
           case '!':
             if (nextChar(i, '^')) {
-              if (not) node = addNode(unitNode, node, "parent::", notSibling(followingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "last()");
+              if (isOrNot) node = addNode(unitNode, node, "parent::", notSibling(followingSibling));else node = addTwoNodes(unitNode, node, "child::", "*", "last()");
               i++;
             } else if (nextChar(i, '+')) {
-              if (not) node = addTwoNodes(unitNode, node, followingSibling, "*", "1");else node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");
+              if (isOrNot) node = addTwoNodes(unitNode, node, followingSibling, "*", "1");else node = addTwoNodes(unitNode, node, precedingSibling, "*", "1");
               i++;
             } else if (nextChar(i, '>')) {
-              if (not) node = addNode(unitNode, node, "child::");else node = newNode(unitNode, node, "parent::", "/");
+              if (isOrNot) node = addNode(unitNode, node, "child::");else node = newNode(unitNode, node, "parent::", "/");
               i++;
             } else if (nextChar(i, '~')) {
-              if (not) node = addNode(unitNode, node, followingSibling);else node = newNode(unitNode, node, precedingSibling, "/");
+              if (isOrNot) node = addNode(unitNode, node, followingSibling);else node = newNode(unitNode, node, precedingSibling, "/");
               i++;
             } else {
-              if (not) node = addNode(unitNode, node, "descendant-or-self::");else node = newNode(unitNode, node, "ancestor-or-self::", "/");
+              if (isOrNot) node = addNode(unitNode, node, "descendant-or-self::");else node = newNode(unitNode, node, "ancestor-or-self::", "/");
             }
             check = true;
             break;
@@ -446,7 +446,7 @@
                   node.separator = '';
                 }
                 node = newNode(unitNode, node, ancestor, " and ");
-              } else if (name === 'not' && node.axis === 'self::') {
+              } else if (isOrNot && node.axis === 'self::') {
                 if (node.previousNode && node.previousNode.axis === ancestor) {
                   node.separator = ' and ';
                 }
@@ -573,7 +573,7 @@
           if (_name.startsWith("nth-")) {
             processNth(_name, arg, argumentInfo, node);
           } else {
-            processPseudoClass(_name, arg, not, node);
+            processPseudoClass(_name, arg, _name === 'not', node);
           }
         }
         state = State.Text;
@@ -858,7 +858,10 @@
           predicate: true,
           name: name
         });
-        node.add(result);
+        if (result !== "self::node()") {
+          result = transformIsOrNot(nd);
+          node.add(result);
+        }
         break;
       case "not":
         nd = node.clone();
@@ -866,7 +869,7 @@
           name: name
         });
         if (result !== "self::node()") {
-          result = transformNot(nd);
+          result = transformIsOrNot(nd);
           node.add("not(" + result + ")");
         }
         break;
@@ -1049,7 +1052,7 @@
   function endsWith(attr, attr2, val, val2) {
     return "substring(" + attr + ", string-length(" + attr2 + ") - (string-length(" + val + ") - 1)) = " + val2;
   }
-  function transformNot(node) {
+  function transformIsOrNot(node) {
     var result = '';
     node.childNodes.forEach(function (unitNode) {
       if (unitNode.childNodes) {
