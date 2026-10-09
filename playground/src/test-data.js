@@ -12,6 +12,7 @@ const cssSelectors = {
       "  li:nth-child(  -3n  +  4  )   ",
       "*:nth-last-child(-n+3 of li.noted)",
       "a:is([name], [href])",
+      "a:is(ol ul ol > li + li > a)",
       "a:not(li.c1 a, p a)",
       "article p:only-of-type",
       "article p:first-of-type",
@@ -25,6 +26,7 @@ const cssSelectors = {
       "b:not(ul > li:nth-last-of-type(2n) b)",
       "body[lang|=EN]",
       ":dir(rtl)",
+      "div[id]",
       "div.content",
       "div>*:only-child",
       "div > span:dir(ltr)",
@@ -57,6 +59,8 @@ const cssSelectors = {
       "div:not(:has-ancestor(#lists), :has(h2), :contains('Content'))",
       "div:starts-with('Test')",
       ":is(ol,ul) :is(ol,ul) ol",
+      ":is(ol ul ol > li + li > a)",
+      ":is(ol > li:nth-child(2) ol)",
       ":is(p, li):has-ancestor(div, ul[id])",
       ":is(p, h1, li):has-parent(div, ul[id])",
       "li !> ul",
@@ -2504,26 +2508,26 @@ first letter should be included."></p>
 </div>
 </main>
 <ul>
-<li class="noted">Diego</li>
+<li class='noted'>Diego</li>
 <li>Shilpa</li>
-<li class="noted">Caterina</li>
+<li class='noted'>Caterina</li>
 <li>Jayla</li>
 <li>Tyrone</li>
 <li>Ricardo</li>
-<li class="noted"><span>Gila</span></li>
+<li class='noted'><span>Gila</span></li>
 <li>Sienna</li>
 <li>Titilayo</li>
-<li class="noted">Lexi</li>
+<li class='noted'>Lexi</li>
 <li><span>Aylin</span></li>
 <li>Leo</li>
 <li>Leyla</li>
-<li class="noted"><span>Bruce</span></li>
+<li class='noted'><span>Bruce</span></li>
 <li>Aisha</li>
 <li>Veronica</li>
-<li class="noted">Kyouko</li>
+<li class='noted'>Kyouko</li>
 <li>Shireen</li>
 <li><span>Tanya</span></li>
-<li class="noted">Marlene</li>
+<li class='noted'>Marlene</li>
 </ul>
 <div>
 <p class='noted'>1.</p>
@@ -2572,7 +2576,7 @@ first letter should be included."></p>
 <li>
 <ol class='c1'>
 <li>Voyager</li>
-<li>Cassini</li>
+<li><a href=test>Cassini</a></li>
 </ol>
 </li>
 <li>Tethys</li>
@@ -2580,7 +2584,7 @@ first letter should be included."></p>
 </li>
 <li>Uranus</li>
 <li>
-<ol>
+<ol class='c2'>
 <li>Titania</li>
 <li>Oberon</li>
 </ol>

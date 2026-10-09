@@ -144,7 +144,7 @@ const exampleSelectors = [
 !+   li  /*previous siblings*/`, "A comments demo"],
 
 	["$$namespaces", "Not works in browsers", ""],
-	["|*", "all elements without a namespace"],
+	["|*", "all elements without a namespace"], // ?
 	["*|*", "all elements"],
 	["ns|*", "all elements in namespace ns"],
 	["ns|p", ""],
