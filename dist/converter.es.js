@@ -888,7 +888,7 @@ function processLang(arg, psName) {
 	let result = "";
 	for (let i = 0; i <splits.length; i++) {
 		const str = getStringContent(splits[i]).replace(/(?:-\*)+$/, "");
-		if ( !str) argumentException(psName + "()' has no argument");
+		if ( !str) return "not(" + ancestor + "string-length(@lang) > 0])";
 		const array = str.split('-'),
 			arr = str.replace(/^\*(?:-\*)*/g, "").split(/(?:-\*)+/),
 			len = arr.length;
@@ -903,12 +903,16 @@ function processLang(arg, psName) {
 				return ancestor + "string-length(@lang) > 0]";
 			}
 		} else {
-			const starts = "starts-with(" + lang + ", " + normalize(arr[0] + "-") + ")";
+			const range = len > 1 ? arr[0] : array.length === 2 ? array[0] : str,
+				starts = "starts-with(" + lang + ", " + normalize(range + "-") + ")";
 			if (len > 1) {
 				result += starts  + " and ";
 				result += "(" + contains(arr[1], arr[0]) + " or " + ends(arr[1]) + ")";
+			} else if (array.length === 2) {
+				result += starts  + " and ";
+				result += "(" + contains("-" + array[1], array[0]) + " or " + ends("-" + array[1]) + ")";
 			} else {
-				result += lang + " = " + normalize(arr[0]) + " or " + starts;
+				result += lang + " = " + normalize(str) + " or " + starts;
 			}
 		}
 		result +=  "]";

@@ -163,7 +163,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 
 	code = selector;
 	length = code.length;
-	
+
 	if (/^[,(]/.test(code) || (isOrNot || !name) && /^[>+~^!]/.test(code)) {
 		ch = code[0];
 		exception();
@@ -191,7 +191,7 @@ function convert(rootNode, selector, axis, owner, argumentInfo) {
 				addAxes(axis, node, argumentInfo);
 				addOwner(owner, node);
 			}
-			
+
 			switch (ch) {
 				case '.' :
 					let str = '';
@@ -634,7 +634,7 @@ function processAttribute(attrName, attrValue, operation, modifier, node) {
 		return;
 	}
 
-	const asii = attrName === 'lang' || attrName === 'type' && getOwner(node) == "input", 
+	const asii = attrName === 'lang' || attrName === 'type' && getOwner(node) == "input",
 		ignoreCase = modifier === "i" || asii;
 
 	if ( !opt.standard && attrName === "class") {
@@ -1000,8 +1000,8 @@ function processLang(arg, psName) {
 
 	for (let i = 0; i <splits.length; i++) {
 		const str = getStringContent(splits[i]).replace(/(?:-\*)+$/, "");
-
-		if ( !str) argumentException(psName + "()' has no argument");
+		
+		if ( !str) return "not(" + ancestor + "string-length(@lang) > 0])"; // not tagged
 
 		const array = str.split('-'),
 			arr = str.replace(/^\*(?:-\*)*/g, "").split(/(?:-\*)+/),
@@ -1019,18 +1019,23 @@ function processLang(arg, psName) {
 				result += contains(arr[0]) + " or " + ends(arr[0]);     // *-w, *-w-w, *-w-w-w
 
 			} else {
-				return ancestor + "string-length(@lang) > 0]"; // any lang
+				return ancestor + "string-length(@lang) > 0]"; // has any lang tag
 			}
 
 		} else {
-			const starts = "starts-with(" + lang + ", " + normalize(arr[0] + "-") + ")";
+			const range = len > 1 ? arr[0] : array.length === 2 ? array[0] : str, 
+				starts = "starts-with(" + lang + ", " + normalize(range + "-") + ")";
 
 			if (len > 1) { // w-*-w, w-*-w-w, w-*-*-w
 				result += starts  + " and ";
 				result += "(" + contains(arr[1], arr[0]) + " or " + ends(arr[1]) + ")";
 
-			} else { // w, w-w, w-w-w, w-w-w-w
-				result += lang + " = " + normalize(arr[0]) + " or " + starts;
+			} else if (array.length === 2) { // w-w
+				result += starts  + " and ";
+				result += "(" + contains("-" + array[1], array[0]) + " or " + ends("-" + array[1]) + ")";
+
+			} else { // w, w-w-w, w-w-w-w
+				result += lang + " = " + normalize(str) + " or " + starts;
 			}
 		}
 		result +=  "]";

@@ -243,19 +243,23 @@ const cssSelectors = {
       "div:icontains('content')",
       "div:istarts-with('TEST')",
       ":lang(en)",
+      ":lang('')",
+      ":lang('*')",
       ":lang('*-*-*')",
-      ":lang('*', fr)",
       ":not(:lang(de-latn, 'fr'))",
       ":not(div + div > :lang(fr))",
       "p:iends-with('xpath Convertor')",
+      "p:lang(fr-fr)",
       "p:lang('*-fr')",
       "p:lang(fr-latn)",
       "p:lang('*-latn')",
       "p:lang('*-*-fr')",
       "p:lang('fr-*-*')",
       "p:lang('*-1996')",
+      "p:lang(fr-Latn-fr)",
       "p:lang('fr-*-1996')",
       "p:lang('fr-*-*-1996')",
+      "p:lang(fr-Latn-fr-1996)",
       "ul>li[title$='one' i]",
       "ul>li[title~='two' i]",
       "ul>li[title^='item' i]",
@@ -2376,6 +2380,7 @@ first letter should be included."></p>
 <p class='P4'>4.</p>
 </div>
 </article>
+<p class='p8'>8.</p>
 <article lang='fr'>
 <div>
 <p class='p1'>5.</p>
@@ -2384,16 +2389,17 @@ first letter should be included."></p>
 <p class='p2'>6.</p>
 <p class='p3'>7.</p>
 </div>
-<p lang='de-Latn-DE-1996'>8.</p>
+<p lang='de-Latn-DE-1996'>9.</p>
 <p lang='en-GB'>10.</p>
 <p lang='fr-Latn-FR'>12.</p>
-<p lang='de'>8.</p>
-<p lang='en'>9.</p>
-<p lang='en-GB'>10.</p>
-<p lang='fr'>11.</p>
-<p lang='fr-Latn-FR'>12.</p>
-<p lang='fr-Latn-FR-1996'>12.</p>
+<p lang='de'>13.</p>
+<p lang='en'>14.</p>
+<p lang='en-GB'>15.</p>
+<p lang='fr'>16.</p>
+<p lang='fr-Latn-FR'>17.</p>
+<p lang='fr-Latn-FR-1996'>18.</p>
 </article>
+<p class='p19'>19.<em>em</em></p>
 <div>
 <p class='c1'>1.</p>
 <h2>h2.</h2>
